@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fény·kép Stúdió — Egyedi 3D lithophane ajándékok</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="site-wrapper">
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <nav class="site-nav" id="site-nav">
+      <a href="index.html">Termékek</a>
+      <a href="galeria.html">Galéria</a>
+      <a href="index.html#how">Hogyan készül</a>
+      <a href="kapcsolat.html">Kapcsolat</a>
+    </nav>
+    <div class="cart-icon-wrap">
+      <a href="kosar.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+        Kosár
+        <span class="cart-count">0</span>
+      </a>
+    </div>
+    <button class="nav-burger" id="nav-burger" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-bg" style="background-image:url('assets/hero-poster.jpg');">
+    <video autoplay muted loop playsinline poster="assets/hero-poster.jpg"
+           style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+      <source src="assets/hero-video.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">Fény·kép Stúdió</span>
+    <h1>A kedvenc fotódból — <em>kézzelfogható emlék</em></h1>
+    <p class="hero-sub">Egyedi, 3D nyomtatott lithophane ajándékok. Budapesten készítve, szeretettel csomagolva.</p>
+    <div class="hero-buttons">
+      <a href="index.html#products" class="btn-primary">Termékek megtekintése</a>
+      <a href="galeria.html" class="btn-outline">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="margin-right:0.4rem; vertical-align:-2px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+        Próbáld ki a saját képeddel!
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="container" id="products" style="padding:4rem 0;">
+  <div class="section-header">
+    <span class="section-eyebrow">Válassz stílust</span>
+    <h2 class="section-title">Termékeink</h2>
+  </div>
+
+  <div id="product-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:2rem;">
+    <!-- Filled in by js/home.js from GET /products -->
+  </div>
+</section>
+
+<section class="container" id="how" style="padding:2rem 0 4rem; border-top:1px solid var(--border);">
+  <div class="section-header">
+    <span class="section-eyebrow">A folyamat</span>
+    <h2 class="section-title">Hogyan készül?</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; margin-bottom:2.5rem;">
+    <div><h4>1. Fotó feltöltése</h4><p>Bármilyen JPG vagy PNG megfelel.</p></div>
+    <div><h4>2. Digitális minta</h4><p>24 órán belül elküldjük e-mailben.</p></div>
+    <div><h4>3. 3D nyomtatás</h4><p>PLA biopolimerből, réteges technológiával.</p></div>
+    <div><h4>4. Kiszállítás</h4><p>Foxpost csomagautomatába, 3–5 munkanap.</p></div>
+  </div>
+  <img src="assets/folyamat-kollazs.jpg" alt="A litofán készítésének folyamata" style="width:100%; border-radius:12px; display:block;">
+</section>
+
+<section class="container" style="padding:2rem 0 4rem; border-top:1px solid var(--border);">
+  <div class="section-header">
+    <span class="section-eyebrow">Nappal vagy este</span>
+    <h2 class="section-title">Ugyanaz a kép, más hangulat</h2>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+    <div>
+      <img src="assets/day-night-nappal.jpg" alt="Litofán lámpa nélkül, nappali fényben" style="width:100%; border-radius:12px; display:block; margin-bottom:0.75rem;">
+      <p style="text-align:center; color:var(--text-muted); font-size:0.85rem;">Lámpa nélkül — nappali fényben</p>
+    </div>
+    <div>
+      <img src="assets/day-night-este.jpg" alt="Litofán LED talppal, hátulról megvilágítva" style="width:100%; border-radius:12px; display:block; margin-bottom:0.75rem;">
+      <p style="text-align:center; color:var(--text-muted); font-size:0.85rem;">LED talppal — bekapcsolva</p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="site-logo" href="index.html">Fény·kép Stúdió</a>
+        <p>Egyedi, kézzel utómunkált 3D lithophane ajándékok a kedvenc fényképeidből.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Termékek</h4>
+        <ul>
+          <li><a href="index.html">Összes termék</a></li>
+          <li><a href="kosar.html">Kosár</a></li>
+          <li><a href="penztar.html">Pénztár</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Stúdió</h4>
+        <ul>
+          <li><a href="kapcsolat.html">Kapcsolat</a></li>
+          <li><a href="aszf.html">ÁSZF</a></li>
+          <li><a href="adatvedelem.html">Adatvédelem</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Fény·kép Stúdió — Minden jog fenntartva</span>
+      <span>Biztonságos fizetés: Barion · Bankkártya · Utalás</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+<script src="js/config.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/api.js"></script>
+<script src="js/home.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

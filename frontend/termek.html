@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Termék — Fény·kép Stúdió</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="site-wrapper">
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <nav class="site-nav" id="site-nav">
+      <a href="index.html">Termékek</a>
+      <a href="galeria.html">Galéria</a>
+      <a href="index.html#how">Hogyan készül</a>
+      <a href="kapcsolat.html">Kapcsolat</a>
+    </nav>
+    <div class="cart-icon-wrap">
+      <a href="kosar.html">Kosár <span class="cart-count">0</span></a>
+    </div>
+    <button class="nav-burger" id="nav-burger" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="container litho-single" style="padding-top:90px;">
+  <nav class="litho-crumbs">
+    <a href="index.html">Főoldal</a>
+    <span class="sep">/</span>
+    <a href="index.html">Termékek</a>
+    <span class="sep">/</span>
+    <span class="here" id="crumb-name">Termék</span>
+  </nav>
+
+  <div id="product-root">Betöltés…</div>
+</div>
+
+</div>
+<script src="js/config.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/api.js"></script>
+<script src="js/product.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

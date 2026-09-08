@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pénztár — Fény·kép Stúdió</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<div class="site-wrapper">
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <nav class="site-nav" id="site-nav">
+      <a href="index.html">Termékek</a>
+      <a href="galeria.html">Galéria</a>
+      <a href="index.html#how">Hogyan készül</a>
+      <a href="kapcsolat.html">Kapcsolat</a>
+    </nav>
+    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count">0</span></a></div>
+    <button class="nav-burger" id="nav-burger" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="container" style="padding-top:90px;">
+  <div class="litho-steps-wrap">
+    <div class="litho-steps">
+      <div class="litho-step litho-step--done"><div class="litho-step__circle">✓</div><span class="litho-step__label">Kosár</span></div>
+      <div class="litho-step__line"></div>
+      <div class="litho-step litho-step--active"><div class="litho-step__circle">2</div><span class="litho-step__label">Szállítás és fizetés</span></div>
+      <div class="litho-step__line"></div>
+      <div class="litho-step"><div class="litho-step__circle">3</div><span class="litho-step__label">Visszaigazolás</span></div>
+    </div>
+  </div>
+
+  <a href="kosar.html" class="litho-back-btn">← Vissza a kosárhoz</a>
+
+  <div class="litho-checkout-page">
+    <form id="checkout-form" class="litho-checkout-form">
+      <div class="litho-checkout-wrap">
+
+        <div class="litho-checkout-main">
+
+          <div class="litho-checkout-card">
+            <h3 class="litho-checkout-card__title">Számlázási adatok</h3>
+            <div class="form-row form-row-wide">
+              <label>Teljes név *</label>
+              <input class="input-text" type="text" id="f-name" required>
+            </div>
+            <div class="form-row form-row-wide">
+              <label>E-mail cím *</label>
+              <input class="input-text" type="email" id="f-email" required>
+            </div>
+            <div class="form-row form-row-wide">
+              <label>Telefonszám *</label>
+              <input class="input-text" type="tel" id="f-phone" required>
+            </div>
+            <div class="form-row form-row-wide">
+              <label>Utca, házszám *</label>
+              <input class="input-text" type="text" id="f-address" required>
+            </div>
+            <div class="form-row">
+              <label>Város *</label>
+              <input class="input-text" type="text" id="f-city" required>
+            </div>
+            <div class="form-row">
+              <label>Irányítószám *</label>
+              <input class="input-text" type="text" id="f-zip" required>
+            </div>
+            <div class="form-row form-row-wide">
+              <label>Megjegyzés (opcionális)</label>
+              <textarea class="input-text" id="f-notes"></textarea>
+            </div>
+          </div>
+
+          <div class="litho-checkout-card">
+            <h3 class="litho-checkout-card__title">Szállítás</h3>
+
+            <div class="litho-size-options" style="margin-bottom:1rem;">
+              <label class="litho-size-opt">
+                <input type="radio" name="shipping_method" value="foxpost" checked>
+                <span class="litho-size-btn"><strong>Foxpost</strong><small>Csomagautomata</small></span>
+              </label>
+              <label class="litho-size-opt" style="opacity:0.5;">
+                <input type="radio" name="shipping_method" value="gls" disabled>
+                <span class="litho-size-btn"><strong>GLS</strong><small>Hamarosan</small></span>
+              </label>
+              <label class="litho-size-opt" style="opacity:0.5;">
+                <input type="radio" name="shipping_method" value="posta" disabled>
+                <span class="litho-size-btn"><strong>Posta</strong><small>Hamarosan</small></span>
+              </label>
+            </div>
+
+            <div id="foxpost-picker">
+              <input class="input-text" type="text" id="fp-search" placeholder="Keress város vagy cím alapján…" style="margin-bottom:0.75rem;">
+              <div id="fp-map" style="height:320px; border-radius:12px; overflow:hidden; margin-bottom:0.75rem;"></div>
+              <div id="fp-selected" style="font-size:0.85rem; color:var(--text-muted);">Válassz egy automatát a térképen vagy a listából.</div>
+              <div id="fp-list" style="max-height:200px; overflow-y:auto; margin-top:0.5rem;"></div>
+            </div>
+
+            <input type="hidden" id="f-locker-id" required>
+            <input type="hidden" id="f-locker-name">
+          </div>
+
+          <div class="litho-checkout-card litho-checkout-card--payment">
+            <h3 class="litho-checkout-card__title">Fizetési mód</h3>
+
+            <div class="litho-size-options" style="margin-bottom:0.5rem;">
+              <label class="litho-size-opt">
+                <input type="radio" name="payment_method" value="barion" checked>
+                <span class="litho-size-btn"><strong>Bankkártya</strong><small>Barion</small></span>
+              </label>
+              <label class="litho-size-opt">
+                <input type="radio" name="payment_method" value="transfer">
+                <span class="litho-size-btn"><strong>Előre utalással</strong><small>Emailben küldjük az adatokat</small></span>
+              </label>
+              <label class="litho-size-opt" style="opacity:0.5;" title="Foxpost csomagautomata nem fogad készpénzt">
+                <input type="radio" name="payment_method" value="cod" disabled>
+                <span class="litho-size-btn"><strong>Utánvét</strong><small>Foxpostnál nem elérhető</small></span>
+              </label>
+            </div>
+            <p id="payment-method-note" style="font-size:0.8rem; color:var(--text-muted);">A "Rendelés leadása" gomb átirányít a biztonságos Barion fizetőoldalra.</p>
+          </div>
+
+          <div class="litho-consents">
+            <label class="litho-consent-field form-row-wide">
+              <input type="checkbox" id="f-aszf" required> Elfogadom az <a href="aszf.html" target="_blank">Általános Szerződési Feltételeket</a>
+            </label>
+            <label class="litho-consent-field form-row-wide">
+              <input type="checkbox" id="f-privacy" required> Elfogadom az <a href="adatvedelem.html" target="_blank">Adatvédelmi tájékoztatót</a>
+            </label>
+          </div>
+
+        </div>
+
+        <div class="litho-checkout-sidebar">
+          <div class="litho-checkout-summary" id="order_review">
+            <h3 class="litho-checkout-card__title">Rendelés összegzése</h3>
+            <div id="review-items"></div>
+            <div class="litho-review-totals" id="review-totals"></div>
+            <button type="submit" class="single_add_to_cart_button" style="width:100%; margin-top:1rem;">Rendelés leadása</button>
+            <p id="checkout-error" style="color:#b94030; display:none; margin-top:0.75rem;"></p>
+          </div>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+</div>
+<script src="js/config.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/api.js"></script>
+<script src="js/foxpost-picker.js"></script>
+<script src="js/penztar.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

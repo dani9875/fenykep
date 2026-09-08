@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Próbáld ki 3D-ben — Fény·kép Stúdió</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="site-wrapper">
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <nav class="site-nav" id="site-nav">
+      <a href="index.html">Termékek</a>
+      <a href="galeria.html">Galéria</a>
+      <a href="index.html#how">Hogyan készül</a>
+      <a href="kapcsolat.html">Kapcsolat</a>
+    </nav>
+    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count">0</span></a></div>
+    <button class="nav-burger" id="nav-burger" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<section class="container" style="padding:90px 0 1rem;">
+  <div class="section-header">
+    <span class="section-eyebrow">Galéria</span>
+    <h2 class="section-title">Elkészült munkáink</h2>
+  </div>
+  <div id="gallery-grid" style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:2rem;">
+    <!-- Filled in by js/gallery-grid.js -->
+  </div>
+</section>
+
+<!-- ══ TRY IT OUT ══════════════════════════════════════════════ -->
+<section class="la-section la-tryout" id="kiprobalom">
+  <div class="container">
+
+    <div class="la-section-header la-reveal">
+      <span class="la-eyebrow">Interaktív előnézet</span>
+      <h2>Próbáld ki — <em>töltsd fel a fotódat</em></h2>
+      <p class="la-tryout__lead">Feltöltöd a képedet, és azonnal látod 3D-ben, hogyan fog kinézni a litofán — még a rendelés előtt. Forgasd az egérrel, állítsd a háttérvilágítást.</p>
+    </div>
+
+    <!-- The viewer shell -->
+    <div class="la-tryout__shell la-reveal" style="--d:0.1s">
+
+      <!-- Toolbar -->
+      <div class="la-tryout__bar">
+
+        <button class="la-tryout__upload" id="ltoUpload">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+            <path d="M8 10V2M4 5l4-3 4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Fotó betöltése
+        </button>
+
+        <div class="la-tryout__sliders">
+
+          <label class="lto-sl">
+            <span class="lto-sl__name">Szélesség</span>
+            <input type="range" id="ltoWidth" min="40" max="300" value="120" step="1">
+            <span class="lto-sl__val" id="ltoWidthV">120 mm</span>
+          </label>
+
+          <label class="lto-sl">
+            <span class="lto-sl__name">Min. vastag</span>
+            <input type="range" id="ltoMinT" min="0.4" max="8" value="0.8" step="0.1">
+            <span class="lto-sl__val" id="ltoMinTV">0.8 mm</span>
+          </label>
+
+          <label class="lto-sl">
+            <span class="lto-sl__name">Max. vastag</span>
+            <input type="range" id="ltoMaxT" min="0.4" max="8" value="3" step="0.1">
+            <span class="lto-sl__val" id="ltoMaxTV">3.0 mm</span>
+          </label>
+
+          <div class="lto-shape">
+            <span class="lto-sl__name">Forma</span>
+            <label class="lto-radio"><input type="radio" name="ltoShape" id="ltoFlat" value="0"> Lapos</label>
+            <label class="lto-radio"><input type="radio" name="ltoShape" id="ltoArc"  value="90" checked> Ívelt</label>
+          </div>
+
+          <label class="lto-sl lto-sl--light">
+            <span class="lto-sl__name">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="vertical-align:-1px">
+                <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/>
+                <line x1="8" y1="1" x2="8" y2="3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="8" y1="12.5" x2="8" y2="15" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="1" y1="8" x2="3.5" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="12.5" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="3.05" y1="3.05" x2="4.75" y2="4.75" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="11.25" y1="11.25" x2="12.95" y2="12.95" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="12.95" y1="3.05" x2="11.25" y2="4.75" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="4.75" y1="11.25" x2="3.05" y2="12.95" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              Háttérfény
+            </span>
+            <input type="range" id="ltoLight" min="0" max="1" value="0" step="0.01">
+            <span class="lto-sl__val" id="ltoLightV">0%</span>
+          </label>
+
+        </div><!-- /sliders -->
+
+        <div class="la-tryout__actions">
+          <button class="la-tryout__stl" id="ltoSTL" disabled>
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v9M4 8l4 5 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="2" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            STL letöltés
+          </button>
+        </div>
+
+      </div><!-- /bar -->
+
+      <!-- 3D canvas viewport -->
+      <div class="la-tryout__view" id="ltoView">
+
+        <!-- Drop zone shown before image is loaded -->
+        <div class="la-tryout__drop" id="ltoDrop">
+          <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="11" y="7" width="30" height="38" rx="3" stroke="var(--taupe-light)" stroke-width="1.5"/>
+            <circle cx="26" cy="22" r="7" stroke="var(--taupe-light)" stroke-width="1.4"/>
+            <path d="M14 37 Q26 28 38 37" stroke="var(--taupe-light)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+            <path d="M26 49 v-5 M22 47 l4 4 4-4" stroke="var(--border-mid)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p>Húzd ide a képet<br><small>vagy kattints a „Fotó betöltése" gombra</small></p>
+          <p class="lto-formats">PNG · JPEG — javasolt min. 800 × 800 px</p>
+        </div>
+
+        <!-- Three.js renders here -->
+        <canvas id="ltoCanvas" style="display:none; width:100%; height:100%;"></canvas>
+
+        <!-- Spinner while mesh is computing -->
+        <div class="la-tryout__spinner" id="ltoSpinner" style="display:none">
+          <div class="lto-spin"></div>
+          <span>Modell számítása…</span>
+        </div>
+
+      </div><!-- /view -->
+
+      <!-- Status bar -->
+      <div class="la-tryout__status">
+        <span id="ltoStatus">Töltsd fel a fotódat a kezdéshez</span>
+        <span class="lto-hint">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><line x1="8" y1="7" x2="8" y2="11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="5" r="0.8" fill="currentColor"/></svg>
+          Egérrel forgatható · görgetéssel zoom
+        </span>
+      </div>
+
+    </div><!-- /shell -->
+
+    <!-- Order panel — appears after image is loaded -->
+    <div class="la-tryout__order-panel" id="ltoOrderPanel">
+      <div class="la-tryout__order-inner">
+
+        <div class="lto-order-left">
+          <p class="lto-order-title">Tetszik az előnézet?</p>
+          <p class="lto-order-sub">Válaszd ki a méretet, és tedd kosárba — mi kinyomtatjuk és postázzuk.</p>
+        </div>
+
+        <div class="lto-order-sizes" id="ltoSizes">
+          <label class="lto-size-opt">
+            <input type="radio" name="ltoOrderSize" value="15 cm" checked>
+            <span><strong>15 cm</strong><small>Klasszikus</small></span>
+          </label>
+          <label class="lto-size-opt">
+            <input type="radio" name="ltoOrderSize" value="20 cm">
+            <span><strong>20 cm</strong><small>Nagy</strong></small></span>
+          </label>
+        </div>
+
+        <button class="lto-order-btn" id="ltoOrderBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          Kosárba teszem
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ STYLES ══════════════════════════════════════════════════ -->
+<style>
+.la-tryout { background: var(--sand-light); padding-bottom: 3rem; }
+.la-tryout__lead {
+  max-width: 580px; margin: 0 auto;
+  font-size: 0.88rem; color: var(--text-muted); line-height: 1.8;
+}
+
+/* Shell */
+.la-tryout__shell {
+  margin-top: 2.5rem;
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: var(--warm-white);
+}
+
+/* Toolbar */
+.la-tryout__bar {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: 0.8rem 1.2rem;
+  background: var(--sand);
+  border-bottom: 1px solid var(--border);
+}
+.la-tryout__upload {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  background: var(--charcoal); color: var(--warm-white);
+  border: none; border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-sans); font-size: 0.76rem; letter-spacing: 0.05em;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  transition: background 0.18s;
+}
+.la-tryout__upload:hover { background: var(--taupe); }
+
+/* Sliders */
+.la-tryout__sliders {
+  display: flex; align-items: center; gap: 1rem; flex: 1; flex-wrap: wrap;
+}
+.lto-sl {
+  display: flex; align-items: center; gap: 0.45rem;
+  font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;
+}
+.lto-sl__name { min-width: 78px; }
+.lto-sl input[type=range] {
+  -webkit-appearance: none; appearance: none;
+  width: 80px; height: 3px;
+  background: var(--border-mid); border-radius: 2px;
+  cursor: pointer; outline: none; flex-shrink: 0;
+}
+.lto-sl input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--charcoal); cursor: pointer;
+}
+.lto-sl--light input[type=range]::-webkit-slider-thumb { background: #b89020; }
+.lto-sl--light { color: #8a6a10; }
+.lto-sl__val {
+  font-size: 0.66rem; color: var(--taupe);
+  min-width: 40px; text-align: right;
+}
+
+/* Actions */
+.la-tryout__actions {
+  display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0;
+}
+.lto-shape {
+  display: flex; align-items: center; gap: 0.6rem;
+  font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;
+}
+.lto-radio {
+  display: flex; align-items: center; gap: 0.3rem;
+  cursor: pointer; font-size: 0.7rem; color: var(--text-muted);
+}
+.lto-radio input { accent-color: var(--taupe); cursor: pointer; }
+.la-tryout__stl {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: transparent; color: var(--taupe);
+  border: 1px solid var(--border-mid); border-radius: 8px;
+  padding: 0.42rem 0.8rem;
+  font-family: var(--font-sans); font-size: 0.7rem;
+  cursor: pointer; white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+.la-tryout__stl:not(:disabled):hover { background: var(--sand); border-color: var(--taupe); }
+.la-tryout__stl:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Viewport */
+.la-tryout__view {
+  position: relative; height: 560px;
+  background: #1a1714; overflow: hidden;
+}
+.la-tryout__drop {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+  background: var(--sand-light);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.la-tryout__drop.drag-over { background: var(--sand); }
+.la-tryout__drop p {
+  font-family: var(--font-serif); font-size: 1.05rem; color: var(--charcoal);
+  text-align: center; line-height: 1.6;
+}
+.la-tryout__drop small { font-family: var(--font-sans); font-size: 0.78rem; color: var(--text-muted); }
+.lto-formats { font-size: 0.66rem !important; color: var(--text-light) !important; font-family: var(--font-sans) !important; }
+
+/* Spinner */
+.la-tryout__spinner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+  background: rgba(26,23,20,0.7);
+  color: var(--sand-light); font-size: 0.8rem;
+}
+.lto-spin {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 2px solid rgba(245,237,224,0.2);
+  border-top-color: var(--sand-light);
+  animation: ltoSpin 0.8s linear infinite;
+}
+@keyframes ltoSpin { to { transform: rotate(360deg); } }
+
+@keyframes ltoShake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+.lto-shake { animation: ltoShake 0.5s ease; }
+
+/* Status bar */
+.la-tryout__status {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.55rem 1.2rem;
+  border-top: 1px solid var(--border);
+  background: var(--sand);
+  font-size: 0.7rem;
+}
+#ltoStatus { color: var(--text-muted); }
+.lto-hint {
+  display: flex; align-items: center; gap: 0.35rem;
+  color: var(--taupe-light); font-size: 0.65rem;
+}
+
+/* Order panel */
+.la-tryout__order-panel {
+  display: none;
+  margin-top: 2rem;
+  background: var(--warm-white);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: ltoSlideIn 0.35s ease;
+}
+.la-tryout__order-panel.visible { display: block; }
+@keyframes ltoSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.la-tryout__order-inner {
+  display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;
+  padding: 1.4rem 1.8rem;
+}
+.lto-order-left { flex: 1; min-width: 180px; }
+.lto-order-title {
+  font-family: var(--font-serif); font-size: 1.05rem;
+  color: var(--charcoal); margin-bottom: 0.3rem;
+}
+.lto-order-sub {
+  font-size: 0.78rem; color: var(--text-muted); line-height: 1.6;
+}
+.lto-order-sizes {
+  display: flex; gap: 0.6rem; flex-shrink: 0;
+}
+.lto-size-opt {
+  cursor: pointer;
+}
+.lto-size-opt input { display: none; }
+.lto-size-opt span {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0.55rem 1rem;
+  border: 1.5px solid var(--border-mid);
+  border-radius: 10px;
+  transition: border-color 0.15s, background 0.15s;
+  min-width: 64px; text-align: center;
+}
+.lto-size-opt span strong {
+  font-family: var(--font-serif); font-size: 0.95rem; color: var(--charcoal);
+  font-weight: 400;
+}
+.lto-size-opt span small {
+  font-size: 0.62rem; color: var(--text-muted); letter-spacing: 0.05em;
+  text-transform: uppercase; margin-top: 2px;
+}
+.lto-size-opt input:checked + span {
+  border-color: var(--taupe);
+  background: var(--sand);
+}
+.lto-size-opt:hover span { border-color: var(--taupe-light); }
+.lto-order-btn {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  background: var(--charcoal); color: var(--warm-white);
+  border: none; border-radius: 30px;
+  padding: 0.8rem 1.8rem;
+  font-family: var(--font-sans); font-size: 0.76rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  transition: background 0.18s, transform 0.15s;
+}
+.lto-order-btn:hover { background: var(--taupe); transform: translateY(-2px); }
+.lto-order-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+@media (max-width: 640px) {
+  .la-tryout__order-inner { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .lto-order-btn { width: 100%; justify-content: center; }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .la-tryout__sliders { gap: 0.7rem; }
+  .lto-sl input[type=range] { width: 60px; }
+  .la-tryout__view { height: 420px; }
+}
+@media (max-width: 640px) {
+  .la-tryout__bar { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .la-tryout__sliders { width: 100%; }
+  .lto-sl { flex: 1 1 45%; }
+  .la-tryout__view { height: 320px; }
+}
+</style>
+
+<!-- ══ SCRIPT ══════════════════════════════════════════════════ -->
+<!-- Three.js r128 from CDN — same version as the local lib -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+'use strict';
+
+// ── DOM refs ────────────────────────────────────────────────────
+var uploadBtn  = document.getElementById('ltoUpload');
+var stlBtn     = document.getElementById('ltoSTL');
+var dropZone   = document.getElementById('ltoDrop');
+var viewEl     = document.getElementById('ltoView');
+var canvasEl   = document.getElementById('ltoCanvas');
+var spinner    = document.getElementById('ltoSpinner');
+var statusEl   = document.getElementById('ltoStatus');
+
+var sliderCfg = [
+  { el: document.getElementById('ltoWidth'),  valEl: document.getElementById('ltoWidthV'),  suffix: ' mm', key: 'litophaneWidth' },
+  { el: document.getElementById('ltoMinT'),   valEl: document.getElementById('ltoMinTV'),   suffix: ' mm', key: 'minThickness' },
+  { el: document.getElementById('ltoMaxT'),   valEl: document.getElementById('ltoMaxTV'),   suffix: ' mm', key: 'maxThickness' },
+  { el: document.getElementById('ltoLight'),  valEl: document.getElementById('ltoLightV'),  suffix: '%',   key: 'backlightIntensity', scale: 100 },
+];
+
+// ── State ────────────────────────────────────────────────────────
+var params = {
+  litophaneWidth:   120,
+  minThickness:     0.8,
+  maxThickness:     3.0,
+  xyAngle:          90,
+  zStartAngle:      90,
+  zEndAngle:        90,
+  invertImage:      false,
+  backlightIntensity: 0.0,
+};
+
+var image, imageName, imageGrayValues, imgCanvas;
+var theMesh, vertexBuffer;
+var frameGroup;
+
+// ── Three.js scene ───────────────────────────────────────────────
+var renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+
+var W = viewEl.clientWidth  || 800;
+var H = viewEl.clientHeight || 560;
+renderer.setSize(W, H);
+
+var camera = new THREE.PerspectiveCamera(75, W / H, 0.5, 2000);
+camera.position.set(0, 120, 180);
+
+var scene = new THREE.Scene();
+scene.background = new THREE.Color(0xf0e6d8);
+
+var sun = new THREE.DirectionalLight(0xFFFFFF, 1.0);
+sun.position.set(30, 12, 63);
+scene.add(sun);
+
+var sun2 = new THREE.DirectionalLight(0xFFFFFF, 1.0);
+sun2.position.set(-20, 25, -13);
+scene.add(sun2);
+
+var ambientLight = new THREE.AmbientLight(0xffffff, 0.0);
+scene.add(ambientLight);
+
+var backlightPoint = new THREE.PointLight(0xfff5e0, 0.0, 2000);
+backlightPoint.position.set(0, 60, -50);
+scene.add(backlightPoint);
+
+
+
+
+// Materials
+var materialPhong = new THREE.MeshPhongMaterial({ color: new THREE.Color(0xD5D5D5) });
+
+var materialBacklit = new THREE.ShaderMaterial({
+  transparent: true,
+  side: THREE.DoubleSide,
+  vertexShader: [
+    'varying vec2 vUv;',
+    'varying vec3 vNormal;',
+    'varying vec3 vViewPos;',
+    'void main() {',
+    '  vUv = uv;',
+    '  vNormal = normalMatrix * normal;',
+    '  vec4 mvPos = modelViewMatrix * vec4(position, 1.0);',
+    '  vViewPos = -mvPos.xyz;',
+    '  gl_Position = projectionMatrix * mvPos;',
+    '}'
+  ].join('\n'),
+  fragmentShader: [
+    'uniform sampler2D theMap;',
+    'uniform float backlightIntensity;',
+    'varying vec2 vUv;',
+    'varying vec3 vNormal;',
+    'varying vec3 vViewPos;',
+    'void main() {',
+    '  float gray = texture2D(theMap, vUv).g;',
+    // Simple diffuse shading so relief stays visible
+    '  vec3 n = normalize(vNormal);',
+    '  vec3 l1 = normalize(vec3(0.5, 0.8, 1.0));',
+    '  vec3 l2 = normalize(vec3(-0.4, 0.6, -0.3));',
+    '  float diff = max(dot(n, l1), 0.0) * 0.7 + max(dot(n, l2), 0.0) * 0.3 + 0.25;',
+    '  vec3 surfaceColor = vec3(0.88) * diff;',
+    // Backlight glow added on top - thin areas (high gray in our non-inverted map) glow more
+    '  float transmission = pow(gray, 2.0) * backlightIntensity;',
+    '  vec3 glowColor = vec3(1.0, 0.97, 0.88) * transmission * 1.4;',
+    '  vec3 finalColor = surfaceColor * (1.0 - backlightIntensity * 0.6) + glowColor;',
+    '  gl_FragColor = vec4(finalColor, 1.0);',
+    '}'
+  ].join('\n'),
+  uniforms: {
+    theMap: { value: null },
+    backlightIntensity: { value: 0.0 }
+  }
+});
+
+// OrbitControls — inline minimal implementation
+// (Three r128 global doesn't bundle OrbitControls, so we add a lightweight version)
+var isPointerDown = false, lastX = 0, lastY = 0;
+var spherical = { theta: 0, phi: Math.PI / 3, radius: 220 };
+
+function updateCamera() {
+  camera.position.set(
+    spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta),
+    spherical.radius * Math.cos(spherical.phi) + 60,
+    spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta)
+  );
+  camera.lookAt(0, 60, 0);
+}
+updateCamera();
+
+canvasEl.addEventListener('pointerdown', function(e) { isPointerDown = true; lastX = e.clientX; lastY = e.clientY; });
+window.addEventListener('pointerup', function() { isPointerDown = false; });
+canvasEl.addEventListener('pointermove', function(e) {
+  if (!isPointerDown) return;
+  var dx = e.clientX - lastX, dy = e.clientY - lastY;
+  lastX = e.clientX; lastY = e.clientY;
+  spherical.theta -= dx * 0.005;
+  spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + dy * 0.005));
+  updateCamera();
+});
+canvasEl.addEventListener('wheel', function(e) {
+  e.preventDefault();
+  spherical.radius = Math.max(50, Math.min(600, spherical.radius - e.deltaY * 0.3));
+  updateCamera();
+}, { passive: false });
+
+// Resize
+window.addEventListener('resize', function() {
+  var w = viewEl.clientWidth, h = viewEl.clientHeight || 560;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+});
+
+// ── Render loop ──────────────────────────────────────────────────
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+animate();
+
+// ── Image processing ─────────────────────────────────────────────
+function processImage(img, name) {
+  image = img;
+  imageName = name;
+
+  if (!imgCanvas) {
+    imgCanvas = document.createElement('canvas');
+  }
+  imgCanvas.width  = img.width;
+  imgCanvas.height = img.height;
+
+  var ctx = imgCanvas.getContext('2d');
+  ctx.drawImage(img, 0, 0);
+
+  var data = ctx.getImageData(0, 0, img.width, img.height).data;
+  var w = img.width, h = img.height;
+
+  imageGrayValues = new Float32Array(w * h);
+
+  var p = 0;
+  var pDest = w * (h - 1);
+  for (var j = 0; j < h; j++) {
+    for (var i = 0; i < w; i++) {
+      imageGrayValues[pDest++] = (data[p] + data[p+1] + data[p+2]) / 765;
+      p += 4;
+    }
+    pDest -= 2 * w;
+  }
+
+  materialBacklit.uniforms.theMap.value = new THREE.CanvasTexture(imgCanvas);
+
+  buildMesh();
+}
+
+// ── Mesh ─────────────────────────────────────────────────────────
+function buildMesh() {
+  if (theMesh) { scene.remove(theMesh); theMesh = null; vertexBuffer = null; }
+  if (frameGroup) { scene.remove(frameGroup); frameGroup = null; }
+
+  var geo = createGeometry();
+  var mat = params.backlightIntensity > 0.01 ? materialBacklit : materialPhong;
+  theMesh = new THREE.Mesh(geo, mat);
+  theMesh.matrixAutoUpdate = false;
+  theMesh.updateMatrix();
+  scene.add(theMesh);
+
+  updateMesh();
+  buildFrame();
+
+  stlBtn.disabled = false;
+  spinner.style.display = 'none';
+  if (orderPanel) orderPanel.classList.add('visible');
+
+  var bb = theMesh.geometry.boundingBox;
+  var bx = bb.max.x - bb.min.x, by = bb.max.y - bb.min.y, bz = bb.max.z - bb.min.z;
+  statusEl.textContent = imageName + ' · ' + image.width + '×' + image.height + ' px · ' +
+    Math.round(bx) + ' × ' + Math.round(bz) + ' × ' + Math.round(by) + ' mm · ' +
+    (theMesh.geometry.getIndex().array.length / 3) + ' háromszög';
+
+  // Fit camera
+  spherical.radius = Math.max(by, bx, bz) * 1.8;
+  updateCamera();
+}
+
+function createGeometry() {
+  var pX = image.width, pY = image.height;
+  var halfX = pX * 0.5;
+  var ppp = pX * pY;
+  var sRow = pX - 1, sCol = pY - 1;
+
+  var geo = new THREE.BufferGeometry();
+  var indices = [];
+  vertexBuffer = new Float32Array(2 * ppp * 3);
+  var uvs = [], normals = [];
+
+  var p = 0, dv = 1/sCol, du = 1/sRow;
+  for (var plane = 0; plane < 2; plane++) {
+    var v = 0;
+    for (var j = 0; j < pY; j++) {
+      var u = 0;
+      for (var i = 0; i < pX; i++) {
+        vertexBuffer[p++] = i - halfX;
+        vertexBuffer[p++] = j;
+        vertexBuffer[p++] = -plane;
+        uvs.push(u, v);
+        normals.push(0, 0, 1);
+        u += du;
+      }
+      v += dv;
+    }
+  }
+
+  // Front & back faces
+  for (var plane = 0; plane < 2; plane++) {
+    for (var j = 0; j < sCol; j++) {
+      for (var i = 0; i < sRow; i++) {
+        var a = i + j*pX + plane*ppp, b = a+1, c = a+pX, d = c+1;
+        if (plane === 0) { indices.push(a,b,c); indices.push(b,d,c); }
+        else             { indices.push(a,c,b); indices.push(b,c,d); }
+      }
+    }
+  }
+  // Bottom
+  for (var i = 0; i < sRow; i++) { var a=i,b=a+ppp,c=a+1,d=c+ppp; indices.push(a,b,c); indices.push(b,d,c); }
+  // Top
+  for (var i = 0; i < sRow; i++) { var a=pX*sCol+i,b=a+1,c=a+ppp,d=b+ppp; indices.push(a,b,c); indices.push(b,d,c); }
+  // Left
+  for (var j = 0; j < sCol; j++) { var a=j*pX,b=a+pX,c=a+ppp,d=b+ppp; indices.push(a,b,c); indices.push(b,d,c); }
+  // Right
+  for (var j = 0; j < sCol; j++) { var a=j*pX+sRow,b=a+pX,c=b+ppp,d=a+ppp; indices.push(a,c,b); indices.push(a,d,c); }
+
+  geo.setIndex(indices);
+  geo.addAttribute('position', new THREE.BufferAttribute(vertexBuffer, 3));
+  geo.addAttribute('normal',   new THREE.Float32BufferAttribute(normals, 3));
+  geo.addAttribute('uv',       new THREE.Float32BufferAttribute(uvs, 2));
+  return geo;
+}
+
+function updateMesh() {
+  if (!image || !theMesh) return;
+
+  var w = params.litophaneWidth;
+  var w2 = w * 0.5;
+  var aspect = image.height / image.width;
+  var h = w * aspect;
+
+  var pX = image.width, pY = image.height;
+  var axy = params.xyAngle * Math.PI / 180;
+  var dAxy = axy / (pX - 1);
+  var axy0 = -axy * 0.5;
+  var radius = (dAxy !== 0) ? w2 / Math.sin(Math.min(Math.abs(axy0), Math.PI * 0.5)) : 0;
+
+  var minT = params.minThickness, maxT = params.maxThickness;
+  if (maxT < minT) { var tmp = maxT; maxT = minT; minT = tmp; }
+  var innerR = radius - maxT;
+  var dR = maxT - minT;
+  var minR = radius - dR;
+
+  var dy = h / (pY - 1);
+  var daz = ((params.zEndAngle - params.zStartAngle) * Math.PI / 180) / (pY - 1);
+  var az0 = params.zStartAngle * Math.PI / 180;
+  if (daz < 0) { az0 = params.zEndAngle * Math.PI / 180; daz = -daz; }
+
+  var p = 0, pImg = 0;
+  for (var plane = 0; plane < 2; plane++) {
+    var az = az0 - Math.PI * 0.5, y = 0;
+    for (var j = 0; j < pY; j++) {
+      var angleXY = axy0;
+      for (var i = 0; i < pX; i++) {
+        var x = 0, z = 0, r = 1;
+        if (daz !== 0 && dAxy !== 0) r *= Math.cos(az);
+        if (plane === 0) {
+          r *= imageGrayValues[pImg++] * dR + minR;
+        } else {
+          r *= innerR;
+        }
+        if (dAxy !== 0) {
+          x = Math.sin(angleXY) * r;
+          z = Math.cos(angleXY) * r - radius;
+          angleXY += dAxy;
+        } else {
+          x = w * (i / pX - 0.5);
+          z = r;
+        }
+        vertexBuffer[p++] = x;
+        vertexBuffer[p++] = y;
+        vertexBuffer[p++] = z;
+      }
+      az += daz; y += dy;
+    }
+  }
+
+  var geo = theMesh.geometry;
+  geo.computeBoundingBox();
+  geo.attributes.position.needsUpdate = true;
+  geo.computeVertexNormals();
+  buildFrame();
+}
+
+// ── Frame ────────────────────────────────────────────────────────
+function buildFrame() {
+  if (!theMesh) return;
+  if (frameGroup) { scene.remove(frameGroup); frameGroup = null; }
+
+  frameGroup = new THREE.Group();
+
+  var bb = theMesh.geometry.boundingBox;
+  var W  = bb.max.x - bb.min.x;
+  var H  = bb.max.y - bb.min.y;
+  var cx = (bb.max.x + bb.min.x) * 0.5;
+  var cy = (bb.max.y + bb.min.y) * 0.5;
+  var frontZ = bb.max.z;
+  var backZ  = bb.min.z;
+  var depth  = frontZ - backZ + 2;
+
+  var border = 6;
+  var mat = new THREE.MeshPhongMaterial({ color: new THREE.Color(0xcccccc) });
+
+  var axy   = params.xyAngle * Math.PI / 180;
+  if (axy > 0.01) { scene.add(frameGroup); return; }  // no frame for arc
+
+  // ── Flat frame only ───────────────────────────────────────────
+  var fW   = W + border * 2;
+  var midZ = backZ + depth * 0.5 - 1;
+
+  function addBar(bw, bh, bd, px, py, pz) {
+    var g = new THREE.BoxBufferGeometry(bw, bh, bd);
+    var m = new THREE.Mesh(g, mat);
+    m.position.set(px, py, pz);
+    frameGroup.add(m);
+  }
+  addBar(fW, border, depth, cx, cy + H * 0.5 + border * 0.5, midZ);
+  addBar(fW, border, depth, cx, cy - H * 0.5 - border * 0.5, midZ);
+  addBar(border, H,  depth, cx - W * 0.5 - border * 0.5, cy, midZ);
+  addBar(border, H,  depth, cx + W * 0.5 + border * 0.5, cy, midZ);
+
+  scene.add(frameGroup);
+}
+
+// ── Backlight ────────────────────────────────────────────────────
+function applyBacklight(val) {
+  materialBacklit.uniforms.backlightIntensity.value = val;
+  var dim = 1.0 - val * 0.92;
+  sun.intensity = dim; sun2.intensity = dim;
+  ambientLight.intensity = val * 0.15;
+  backlightPoint.intensity = val * 3.5;
+  if (theMesh) theMesh.material = val > 0.01 ? materialBacklit : materialPhong;
+  // Dim frame lighting together with scene
+  if (frameGroup) {
+    frameGroup.children.forEach(function(m) {
+      m.material.color.setScalar(0.8 * (1 - val * 0.5));
+    });
+  }
+}
+
+// ── STL export ───────────────────────────────────────────────────
+function saveSTL() {
+  if (!theMesh) return;
+  var geo = theMesh.geometry;
+  var idxArr  = geo.getIndex().array;
+  var posArr  = geo.attributes.position.array;
+  var nTri    = Math.floor(idxArr.length / 3);
+  var buf     = new ArrayBuffer(80 + 4 + nTri * 50);
+  var dv      = new DataView(buf);
+  var offset  = 80;
+  dv.setUint32(offset, nTri, true); offset += 4;
+
+  var p1 = new THREE.Vector3(), p2 = new THREE.Vector3(), p3 = new THREE.Vector3();
+  var p12 = new THREE.Vector3(), p13 = new THREE.Vector3(), n = new THREE.Vector3();
+
+  for (var i = 0; i < idxArr.length; i += 3) {
+    var a = 3*idxArr[i], b = 3*idxArr[i+1], c = 3*idxArr[i+2];
+    p1.set(posArr[a], -posArr[a+2], posArr[a+1]);
+    p2.set(posArr[b], -posArr[b+2], posArr[b+1]);
+    p3.set(posArr[c], -posArr[c+2], posArr[c+1]);
+    p12.subVectors(p2,p1); p13.subVectors(p3,p1);
+    n.crossVectors(p12,p13).normalize();
+    dv.setFloat32(offset, n.x, true);  offset+=4;
+    dv.setFloat32(offset, n.y, true);  offset+=4;
+    dv.setFloat32(offset, n.z, true);  offset+=4;
+    [p1,p2,p3].forEach(function(pt){ dv.setFloat32(offset,pt.x,true); offset+=4; dv.setFloat32(offset,pt.y,true); offset+=4; dv.setFloat32(offset,pt.z,true); offset+=4; });
+    dv.setUint16(offset, 0, true); offset+=2;
+  }
+
+  var blob = new Blob([buf], { type: 'model/stl' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Litofan_' + (imageName || 'model') + '.stl';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+
+// ── File handling ────────────────────────────────────────────────
+function loadFile(file) {
+  if (!file || !file.type.match(/image\/(png|jpe?g)/i)) {
+    alert('PNG vagy JPEG fájlt tölts fel.');
+    return;
+  }
+  dropZone.style.display = 'none';
+  canvasEl.style.display = 'block';
+  spinner.style.display  = 'flex';
+  statusEl.textContent   = 'Modell számítása…';
+  stlBtn.disabled        = true;
+
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var img = new Image();
+    img.onload = function() {
+      // Defer so spinner renders first
+      setTimeout(function() { processImage(img, file.name); }, 30);
+    };
+    img.onerror = function() { alert('Nem sikerült betölteni a képet.'); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── UI wiring ────────────────────────────────────────────────────
+uploadBtn.addEventListener('click', function() {
+  var inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/png,image/jpeg';
+  inp.onchange = function() { if (inp.files[0]) loadFile(inp.files[0]); };
+  inp.click();
+});
+
+dropZone.addEventListener('click', function() { uploadBtn.click(); });
+['dragenter','dragover'].forEach(function(t) {
+  dropZone.addEventListener(t, function(e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+});
+['dragleave','drop'].forEach(function(t) {
+  dropZone.addEventListener(t, function(e) {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    if (t === 'drop' && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+  });
+});
+
+sliderCfg.forEach(function(cfg) {
+  if (!cfg.el) return;
+  cfg.el.addEventListener('input', function() {
+    var v = parseFloat(cfg.el.value);
+    var label = cfg.display ? cfg.display(v) : (cfg.scale ? Math.round(v * cfg.scale) : v) + cfg.suffix;
+    cfg.valEl.textContent = label;
+    params[cfg.key] = v;
+    if (cfg.key === 'backlightIntensity') { applyBacklight(v); return; }
+    updateMesh();
+  });
+});
+
+var orderPanel = document.getElementById('ltoOrderPanel');
+var orderBtn   = document.getElementById('ltoOrderBtn');
+
+// Product page URL — WooCommerce shop URL, JS will find the first product
+var shopUrl = 'termek.html?p=lampa-nelkul';
+
+stlBtn.addEventListener('click', saveSTL);
+
+orderBtn.addEventListener('click', function() {
+  // Validate: image must be loaded
+  var missingImage = !imageName;
+  var sizeEl = document.querySelector('input[name="ltoOrderSize"]:checked');
+  var missingSize = !sizeEl;
+
+  if (missingImage || missingSize) {
+    if (missingImage) {
+      // Flash the upload button
+      uploadBtn.classList.add('lto-shake');
+      uploadBtn.style.outline = '2px solid #b94030';
+      setTimeout(function() {
+        uploadBtn.classList.remove('lto-shake');
+        uploadBtn.style.outline = '';
+      }, 800);
+      statusEl.textContent = '⚠ Tölts fel egy fotót a folytatáshoz!';
+      statusEl.style.color = '#b94030';
+    }
+    if (missingSize) {
+      var sizesEl = document.getElementById('ltoSizes');
+      if (sizesEl) {
+        sizesEl.classList.add('lto-shake');
+        sizesEl.style.outline = '2px solid #b94030';
+        sizesEl.style.borderRadius = '6px';
+        setTimeout(function() {
+          sizesEl.classList.remove('lto-shake');
+          sizesEl.style.outline = '';
+        }, 800);
+      }
+      if (!missingImage) {
+        statusEl.textContent = '⚠ Válassz méretet a folytatáshoz!';
+        statusEl.style.color = '#b94030';
+      }
+    }
+    return;
+  }
+
+  // Reset status color
+  statusEl.style.color = '';
+
+  var size = sizeEl.value;
+
+  // Store image dataURL and size in sessionStorage so product page can pick it up
+  if (imageName && imgCanvas) {
+    try {
+      var maxPx = 1600;
+      var sc = Math.min(1, maxPx / Math.max(imgCanvas.width, imgCanvas.height));
+      var tmpC = document.createElement('canvas');
+      tmpC.width  = Math.round(imgCanvas.width  * sc);
+      tmpC.height = Math.round(imgCanvas.height * sc);
+      tmpC.getContext('2d').drawImage(imgCanvas, 0, 0, tmpC.width, tmpC.height);
+      sessionStorage.setItem('litho_preview_image', tmpC.toDataURL('image/jpeg', 0.88));
+      sessionStorage.setItem('litho_preview_name',  imageName);
+      sessionStorage.setItem('litho_preview_size',  size);
+      sessionStorage.setItem('litho_preview_shape', params.xyAngle > 0.01 ? 'ívelt' : 'lapos');
+    } catch(e) { /* sessionStorage full — proceed without */ }
+  }
+
+  window.location.href = shopUrl;
+});
+
+document.querySelectorAll('input[name="ltoShape"]').forEach(function(r) {
+  r.addEventListener('change', function() {
+    params.xyAngle = parseFloat(r.value);
+    updateMesh();
+  });
+});
+
+})();
+</script>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>&copy; 2026 Fény·kép Stúdió — Minden jog fenntartva</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+<script src="js/config.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/gallery-grid.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Köszönjük — Fény·kép Stúdió</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="site-wrapper">
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+  </div>
+</header>
+
+<div class="container" style="padding:4rem 0; text-align:center;">
+  <div id="status-root">Fizetés ellenőrzése…</div>
+</div>
+
+</div>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script>
+  function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+  }
+
+  async function pollStatus() {
+    const orderId = getParam("orderId");
+    const root = document.getElementById("status-root");
+    if (!orderId) {
+      root.textContent = "Hiányzó rendelési szám.";
+      return;
+    }
+
+    // Barion's IPN callback can land a few seconds after the redirect.
+    // Poll a handful of times before giving up.
+    for (let i = 0; i < 8; i++) {
+      try {
+        const data = await Api.getOrderStatus(orderId);
+        if (data.status === "pending_transfer") {
+          root.innerHTML = `
+            <h1>Köszönjük a rendelésedet!</h1>
+            <p>Rendelési szám: <strong>${data.orderId}</strong></p>
+            <p>Végösszeg: <strong>${data.totalHuf.toLocaleString("hu-HU")} Ft</strong></p>
+            <p>Elküldtük e-mailben az utaláshoz szükséges adatokat. Az utalás
+               beérkezése után kezdjük el a gyártást.</p>`;
+          return;
+        }
+        if (data.status === "paid") {
+          root.innerHTML = `
+            <h1>Köszönjük a rendelésedet!</h1>
+            <p>Rendelési szám: <strong>${data.orderId}</strong></p>
+            <p>Végösszeg: <strong>${data.totalHuf.toLocaleString("hu-HU")} Ft</strong></p>
+            <p>Hamarosan visszaigazoló e-mailt küldünk.</p>`;
+          return;
+        }
+        if (data.status === "failed") {
+          root.innerHTML = `<h1>A fizetés nem sikerült.</h1><p>Próbáld újra a <a href="penztar.html">pénztár oldalon</a>.</p>`;
+          return;
+        }
+      } catch (e) {
+        // keep polling
+      }
+      await new Promise((r) => setTimeout(r, 2000));
+    }
+
+    document.getElementById("status-root").innerHTML =
+      "<p>A fizetés feldolgozása folyamatban. Hamarosan e-mailben értesítünk.</p>";
+  }
+
+  pollStatus();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kapcsolat — Fény·kép Stúdió</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="site-wrapper">
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <nav class="site-nav" id="site-nav">
+      <a href="index.html">Termékek</a>
+      <a href="galeria.html">Galéria</a>
+      <a href="index.html#how">Hogyan készül</a>
+      <a href="kapcsolat.html">Kapcsolatfelvétel</a>
+    </nav>
+    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count">0</span></a></div>
+    <button class="nav-burger" id="nav-burger" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="litho-contact-wrap" style="padding-top:90px;">
+
+  <div class="litho-contact-info">
+    <div>
+      <span class="litho-contact-info__eyebrow">Kapcsolatfelvétel</span>
+      <h1 class="litho-contact-info__title">Írj nekünk,<br><em>szívesen segítünk</em></h1>
+      <p class="litho-contact-info__desc">Kérdésed van a termékkel, rendeléssel vagy szállítással kapcsolatban? Keress minket bátran — általában 24 órán belül válaszolunk.</p>
+
+      <div class="litho-contact-details">
+        <div class="litho-contact-detail">
+          <span class="litho-contact-detail__icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+          </span>
+          <div>
+            <span class="litho-contact-detail__label">E-mail</span>
+            <span class="litho-contact-detail__value"><a href="mailto:info@lithophaneshop.hu">info@lithophaneshop.hu</a></span>
+          </div>
+        </div>
+        <div class="litho-contact-detail">
+          <span class="litho-contact-detail__icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-7.5 8-13a8 8 0 1 0-16 0c0 5.5 8 13 8 13Z"/><circle cx="12" cy="9" r="2.5"/></svg>
+          </span>
+          <div>
+            <span class="litho-contact-detail__label">Helyszín</span>
+            <span class="litho-contact-detail__value">Budapest, Magyarország</span>
+          </div>
+        </div>
+        <div class="litho-contact-detail">
+          <span class="litho-contact-detail__icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+          </span>
+          <div>
+            <span class="litho-contact-detail__label">Válaszidő</span>
+            <span class="litho-contact-detail__value">Általában 24 órán belül</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="litho-contact-socials">
+      <a href="#" aria-label="Instagram">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+      </a>
+      <a href="#" aria-label="Facebook">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 9h3V6h-3a3 3 0 0 0-3 3v2H8v3h3v7h3v-7h3l1-3h-4V9a1 1 0 0 1 1-1Z"/></svg>
+      </a>
+      <a href="mailto:info@lithophaneshop.hu" aria-label="E-mail">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="litho-contact-form-wrap">
+    <h2 class="litho-contact-form-title">Küldd el az üzeneted</h2>
+    <p class="litho-contact-form-sub">Minden mező kitöltése segít, hogy gyorsabban tudjunk válaszolni.</p>
+
+    <form class="litho-cf" id="contact-form">
+      <div class="litho-cf__row">
+        <div class="litho-cf__field">
+          <label class="litho-cf__label" for="cf-first">Keresztnév *</label>
+          <input class="litho-cf__input" type="text" id="cf-first" placeholder="Pl. Anna" required>
+        </div>
+        <div class="litho-cf__field">
+          <label class="litho-cf__label" for="cf-last">Vezetéknév</label>
+          <input class="litho-cf__input" type="text" id="cf-last" placeholder="Pl. Kovács">
+        </div>
+      </div>
+
+      <div class="litho-cf__row">
+        <div class="litho-cf__field">
+          <label class="litho-cf__label" for="cf-email">E-mail cím *</label>
+          <input class="litho-cf__input" type="email" id="cf-email" placeholder="nev@email.hu" required>
+        </div>
+        <div class="litho-cf__field">
+          <label class="litho-cf__label" for="cf-phone">Telefonszám</label>
+          <input class="litho-cf__input" type="tel" id="cf-phone" placeholder="+36 30 123 4567">
+        </div>
+      </div>
+
+      <div class="litho-cf__field">
+        <label class="litho-cf__label" for="cf-subject">Tárgy</label>
+        <input class="litho-cf__input" type="text" id="cf-subject" placeholder="Pl. Rendeléssel kapcsolatos kérdés">
+      </div>
+
+      <div class="litho-cf__field">
+        <label class="litho-cf__label" for="cf-message">Üzenet *</label>
+        <textarea class="litho-cf__textarea" id="cf-message" placeholder="Miben segíthetünk?" required></textarea>
+      </div>
+
+      <div class="litho-cf__footer">
+        <label class="litho-cf__consent">
+          <input type="checkbox" id="cf-consent" required>
+          Elfogadom az <a href="adatvedelem.html" target="_blank">adatvédelmi irányelveket</a>.
+        </label>
+        <button type="submit" class="litho-cf__submit" id="cf-submit">Üzenet küldése</button>
+      </div>
+
+      <p id="cf-error" style="color:#b94030; font-size:0.85rem; display:none;"></p>
+    </form>
+
+    <div class="litho-cf__success" id="cf-success">
+      <div class="litho-cf__success-icon">✓</div>
+      <h3>Köszönjük az üzeneted!</h3>
+      <p>Hamarosan válaszolunk a megadott e-mail címen.</p>
+    </div>
+  </div>
+
+</div>
+
+</div>
+<script src="js/config.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/api.js"></script>
+<script src="js/kapcsolat.js"></script>
+<script src="js/nav.js"></script>
+</body>
+</html>
