@@ -33,8 +33,8 @@ async function initProductPage() {
     .join("");
 
   root.innerHTML = `
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:2.5rem; align-items:start;">
-      <img src="${productImage}" alt="${product.name}" style="width:100%; border-radius:12px; display:block;">
+    <div class="litho-single-grid">
+      <img class="litho-single-photo" src="${productImage}" alt="${product.name}">
       <div class="product-summary">
       <h1 style="font-family:var(--font-serif);">${product.name}</h1>
       <p class="litho-price" id="litho-price" style="font-size:1.4rem;">${product.base_price_huf.toLocaleString("hu-HU")} Ft</p>
@@ -49,15 +49,16 @@ async function initProductPage() {
           <label for="litho_photo" class="litho-field-label">Fényképed <span class="req">*</span></label>
           <p class="litho-upload-hint">JPG vagy PNG, legalább 1000×1000 px.</p>
           <label for="litho_photo" class="litho-dropzone" id="litho-dropzone">
-            <span class="litho-dropzone__text">Húzd ide a fényképet, vagy kattints</span>
+            <img class="litho-dropzone__preview" id="litho-preview" alt="" hidden />
+            <span class="litho-dropzone__text" id="litho-dropzone-text">Húzd ide a fényképet, vagy kattints</span>
             <span class="litho-dropzone__sub" id="litho-filename">Portrét, tájképet, kedvenc pillanatot</span>
             <input type="file" id="litho_photo" name="litho_photo" accept="image/jpeg,image/png" required />
           </label>
         </div>
       </div>
 
-      <button id="add-to-cart-btn" class="single_add_to_cart_button">Kosárba teszem</button>
-      <p id="product-error" style="color:#b94030; display:none; margin-top:0.75rem;"></p>
+      <button id="add-to-cart-btn" class="litho-btn-solid litho-add-btn">Kosárba teszem</button>
+      <p id="product-error" class="litho-form-error" hidden></p>
       </div>
     </div>
   `;
@@ -72,23 +73,69 @@ async function initProductPage() {
 
   const fileInput = document.getElementById("litho_photo");
   const filenameEl = document.getElementById("litho-filename");
-  fileInput.addEventListener("change", () => {
-    if (fileInput.files[0]) {
-      filenameEl.textContent =
-        fileInput.files[0].name + " · " + Math.round(fileInput.files[0].size / 1024) + " kB";
+  const dropzone = document.getElementById("litho-dropzone");
+  const previewEl = document.getElementById("litho-preview");
+  const dropzoneText = document.getElementById("litho-dropzone-text");
+
+  // Built once on selection and reused after upload, so the cart can show
+  // the customer their own photo rather than the generic product shot.
+  let previewDataUrl = null;
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
+    previewDataUrl = null;
+    if (!file) {
+      dropzone.classList.remove("litho-dropzone--selected");
+      previewEl.hidden = true;
+      dropzoneText.textContent = "Húzd ide a fényképet, vagy kattints";
+      filenameEl.textContent = "Portrét, tájképet, kedvenc pillanatot";
+      return;
     }
+
+    dropzone.classList.add("litho-dropzone--selected");
+    dropzoneText.textContent = "Csere másik fényképre";
+    filenameEl.textContent = file.name + " · " + Math.round(file.size / 1024) + " kB";
+
+    try {
+      previewDataUrl = await PhotoStore.makePreview(file);
+      previewEl.src = previewDataUrl;
+      previewEl.hidden = false;
+    } catch (e) {
+      previewEl.hidden = true; // preview is a nicety; the upload still works
+    }
+  });
+
+  // Dragging onto the label works natively, but only the highlight tells
+  // the visitor that — the file input itself never sees a dragover.
+  ["dragenter", "dragover"].forEach((evt) =>
+    dropzone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropzone.classList.add("litho-dropzone--dragging");
+    })
+  );
+  ["dragleave", "drop"].forEach((evt) =>
+    dropzone.addEventListener(evt, () => dropzone.classList.remove("litho-dropzone--dragging"))
+  );
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    const dropped = e.dataTransfer && e.dataTransfer.files[0];
+    if (!dropped) return;
+    const dt = new DataTransfer();
+    dt.items.add(dropped);
+    fileInput.files = dt.files;
+    fileInput.dispatchEvent(new Event("change"));
   });
 
   document.getElementById("add-to-cart-btn").addEventListener("click", async () => {
     const errorEl = document.getElementById("product-error");
-    errorEl.style.display = "none";
+    errorEl.hidden = true;
 
     const sizeInput = document.querySelector('input[name="litho_size"]:checked');
     const file = fileInput.files[0];
 
     if (!sizeInput || !file) {
       errorEl.textContent = "Válassz méretet, és tölts fel egy fotót.";
-      errorEl.style.display = "block";
+      errorEl.hidden = false;
       return;
     }
 
@@ -98,6 +145,7 @@ async function initProductPage() {
 
     try {
       const photoKey = await Api.uploadPhoto(file);
+      PhotoStore.save(photoKey, previewDataUrl);
       const size = sizeInput.value;
       const delta = parseInt(sizeInput.dataset.delta, 10);
 
@@ -113,7 +161,7 @@ async function initProductPage() {
       window.location.href = "kosar.html";
     } catch (e) {
       errorEl.textContent = e.message;
-      errorEl.style.display = "block";
+      errorEl.hidden = false;
       btn.disabled = false;
       btn.textContent = "Kosárba teszem";
     }

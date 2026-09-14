@@ -30,6 +30,29 @@ PRODUCTS = {
 
 FREE_SHIPPING_THRESHOLD_HUF = 20000
 FOXPOST_SHIPPING_FEE_HUF = 1490
+HOME_DELIVERY_FEE_HUF = 1990
+
+# Utánvét kezelési költség. Csak házhozszállításnál választható
+# (csomagautomata nem fogad készpénzt).
+COD_FEE_HUF = 0
+
+# Egy tételből ennyinél többet nem lehet kosárba tenni. Az elgépelt vagy
+# szándékosan felnagyított darabszám ellen véd, mielőtt Barion felé
+# indulna a fizetés.
+MAX_QTY_PER_ITEM = 20
+MAX_ITEMS_PER_ORDER = 20
+
+SHIPPING_METHODS = {
+    "foxpost": {"label": "Foxpost csomagautomata", "fee_huf": FOXPOST_SHIPPING_FEE_HUF},
+    "home": {"label": "Házhozszállítás (futár)", "fee_huf": HOME_DELIVERY_FEE_HUF},
+}
+
+# Melyik fizetési mód melyik szállítási móddal használható.
+PAYMENT_METHODS = {
+    "barion": {"label": "Bankkártya (Barion)", "shipping": ("foxpost", "home")},
+    "transfer": {"label": "Előre utalás", "shipping": ("foxpost", "home")},
+    "cod": {"label": "Utánvét", "shipping": ("home",)},
+}
 
 
 def get_item_price(product_id: str, size_code: str) -> int:
@@ -43,8 +66,23 @@ def get_item_price(product_id: str, size_code: str) -> int:
     return product["base_price_huf"] + size["delta_huf"]
 
 
-def get_shipping_fee(subtotal_huf: int) -> int:
-    """Foxpost fee, or 0 above the free-shipping threshold."""
+def get_shipping_fee(subtotal_huf: int, method: str = "foxpost") -> int:
+    """Shipping fee for the chosen method, or 0 above the free-shipping threshold."""
     if subtotal_huf >= FREE_SHIPPING_THRESHOLD_HUF:
         return 0
-    return FOXPOST_SHIPPING_FEE_HUF
+    entry = SHIPPING_METHODS.get(method)
+    if not entry:
+        raise ValueError(f"Unknown shipping method: {method}")
+    return entry["fee_huf"]
+
+
+def get_cod_fee(payment_method: str) -> int:
+    """Cash-on-delivery handling fee, 0 for every other payment method."""
+    return COD_FEE_HUF if payment_method == "cod" else 0
+
+
+def is_payment_allowed(payment_method: str, shipping_method: str) -> bool:
+    entry = PAYMENT_METHODS.get(payment_method)
+    if not entry:
+        return False
+    return shipping_method in entry["shipping"]

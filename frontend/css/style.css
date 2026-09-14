@@ -651,7 +651,18 @@ main, .site-main { display: block; }
 .litho-field-label .req { color: var(--taupe); }
 .litho-size-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem; }
 .litho-size-opt { cursor: pointer; margin: 0; }
-.litho-size-opt input[type="radio"] { display: none; }
+/* A rádiógombot nem "display:none"-nal rejtjük: úgy kiesne a
+   tabulátor-sorrendből, és billentyűzettel nem lehetne választani.
+   Vizuálisan rejtett, de fókuszálható marad. */
+.litho-size-opt input[type="radio"] {
+  position: absolute;
+  width: 1px; height: 1px;
+  opacity: 0; margin: 0;
+}
+.litho-size-opt input[type="radio"]:focus-visible + .litho-size-btn {
+  outline: 2px solid var(--charcoal);
+  outline-offset: 2px;
+}
 .litho-size-btn {
   display: flex;
   flex-direction: column;
@@ -2394,7 +2405,589 @@ p.cart-empty.woocommerce-info {
 }
 .litho-cart-update:hover { color: var(--taupe); }
 
-@media (max-width: 600px) {
-  .litho-ci { flex-wrap: wrap; }
-  .litho-ci__photo-pill span { display: none; }
+/* ═══════════════════════════════════════════════════════════════════
+   Static-rebuild corrections — appended last so they win the cascade.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Contact page ──────────────────────────────────────────────────
+   The two panels used to stop at 80vh, leaving a strip of the darker
+   page background showing underneath on short pages. The wrap now
+   fills the viewport, and the body matches the form panel so nothing
+   can band even when the panels are taller than the screen. */
+.litho-contact-page { background: var(--sand-light); }
+.litho-contact-wrap {
+  min-height: 100vh;
+  min-height: 100svh; /* ignores mobile browser chrome that comes and goes */
+}
+
+/* ── Product page ────────────────────────────────────────────────── */
+.litho-single-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+.litho-single-photo { width: 100%; border-radius: var(--radius); display: block; }
+
+.litho-add-btn { max-width: 340px; margin-top: 0.5rem; }
+.litho-add-btn:disabled { opacity: 0.6; cursor: default; }
+
+.litho-form-error {
+  color: #b94030;
+  font-size: 0.82rem;
+  margin-top: 0.75rem;
+}
+
+/* Selected-photo preview inside the dropzone */
+.litho-dropzone--dragging { border-color: var(--charcoal); background: var(--sand-mid); }
+.litho-dropzone__preview {
+  width: 100%;
+  max-width: 190px;
+  max-height: 150px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 0.35rem;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Cart: quantity stepper ────────────────────────────────────── */
+.litho-qty {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border: 1px solid var(--border-mid);
+  border-radius: 30px;
+  background: var(--warm-white);
+  overflow: hidden;
+}
+.litho-qty__btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: var(--charcoal);
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.litho-qty__btn:hover:not(:disabled) { background: var(--sand); }
+.litho-qty__btn:disabled { color: var(--border-mid); cursor: default; }
+.litho-qty__input {
+  width: 38px;
+  height: 34px;
+  border: none;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: transparent;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--charcoal);
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.litho-qty__input::-webkit-outer-spin-button,
+.litho-qty__input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.litho-qty__input:focus-visible { outline: 2px solid var(--taupe); outline-offset: -2px; }
+
+/* ── Cart row ───────────────────────────────────────────────────
+   The thumbnail shows the customer's own photo, so it doubles as the
+   zoom target and the separate file-name pill is gone — that frees the
+   ~190px the product name needed to stop ellipsing to nothing. */
+.litho-ci { gap: 0.9rem; }
+.litho-ci__info { flex: 1 1 auto; min-width: 0; }
+
+.litho-ci__thumb--zoom {
+  position: relative;
+  padding: 0;
+  border: none;
+  background: var(--sand-mid);
+  cursor: zoom-in;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.litho-ci__thumb--zoom:hover,
+.litho-ci__thumb--zoom:focus-visible { box-shadow: 0 3px 12px rgba(40,20,5,0.22); }
+.litho-ci__zoom-badge {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(28,25,23,0.72);
+  color: var(--warm-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.litho-ci__zoom-badge svg { width: 12px; height: 12px; }
+
+.litho-ci__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.litho-ci__file {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.litho-ci__price { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; }
+.litho-ci__unit { font-family: var(--font-sans); font-size: 0.64rem; color: var(--text-light); }
+
+.litho-totals__cta { margin-top: 1rem; }
+.litho-checkout-submit { margin-top: 1rem; }
+
+/* Lock the page behind the lightbox so a phone doesn't scroll underneath. */
+.litho-noscroll { overflow: hidden; }
+
+/* ── Mobile ────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .litho-single-grid { grid-template-columns: 1fr; gap: 1.75rem; }
+  .litho-cart-wrap { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .litho-single { padding-bottom: 3rem; }
+  .litho-add-btn { max-width: none; }
+  .litho-cart-wrap { padding: 0 1rem; }
+
+  /* One flex row cannot hold six cells on a phone — lay the item out
+     as a small grid instead, keeping the photo and quantity reachable. */
+  .litho-ci {
+    display: grid;
+    grid-template-columns: 60px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "thumb info  del"
+      "qty   qty   price";
+    column-gap: 0.9rem;
+    row-gap: 0.9rem;
+    align-items: center;
+    padding: 1.1rem 1rem;
+  }
+  .litho-ci__thumb { grid-area: thumb; align-self: start; }
+  .litho-ci__info { grid-area: info; align-self: start; }
+  .litho-ci__meta { flex-wrap: wrap; row-gap: 0.25rem; }
+  .litho-qty { grid-area: qty; justify-self: start; }
+  .litho-ci__price { grid-area: price; justify-self: end; }
+  .litho-ci__del-btn { grid-area: del; align-self: start; }
+
+  /* Comfortable touch targets */
+  .litho-qty__btn { width: 40px; height: 40px; font-size: 1.15rem; }
+  .litho-qty__input { height: 40px; width: 44px; font-size: 0.95rem; }
+  .litho-ci__del-btn { width: 32px; height: 32px; }
+
+  .litho-lightbox__close { top: 1rem; right: 1rem; }
+  .litho-lightbox img { max-width: 94vw; max-height: 80vh; }
+}
+
+/* ── Home page grids ───────────────────────────────────────────
+   These were inline `grid-template-columns` on the elements, which no
+   media query could reach — the four-step row kept its 4 columns on a
+   phone and pushed the page 35px wider than the screen. */
+.litho-product-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.litho-how-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+@media (max-width: 900px) {
+  .litho-how-grid { grid-template-columns: 1fr 1fr; gap: 1.75rem 1.5rem; }
+}
+@media (max-width: 640px) {
+  .litho-product-grid { grid-template-columns: 1fr; gap: 1.75rem; }
+  .litho-how-grid { grid-template-columns: 1fr; gap: 1.25rem; }
+}
+
+/* ── Checkout steps on a phone ─────────────────────────────────
+   Three uppercase labels plus circles do not fit 390px: they crowd
+   the edges and wrap mid-phrase. Only the step you are on keeps its
+   label; the others stay as numbered circles, which is enough to
+   read the progress. */
+@media (max-width: 640px) {
+  .litho-steps { gap: 0.4rem; padding: 0 0.5rem; margin: 1.5rem 0 2rem; }
+  .litho-step__circle { width: 28px; height: 28px; font-size: 0.85rem; }
+  .litho-step__label { display: none; font-size: 0.62rem; letter-spacing: 0.1em; }
+  .litho-step--active .litho-step__label { display: inline; }
+  .litho-step__line { max-width: none; }
+}
+
+/* ── Checkout: controls the theme's field styles never reached ──
+   `.input-text` was only styled inside `.form-row`, so the Foxpost
+   search box rendered as a raw browser input. And `.litho-consent-field`
+   IS the <label> — the rules written for a nested `label` matched
+   nothing, leaving the checkbox unstyled and glued to its text. */
+#fp-search,
+.litho-checkout-card input.input-text {
+  display: block;
+  width: 100%;
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  background: var(--warm-white);
+  color: var(--charcoal);
+  transition: border-color 0.18s, box-shadow 0.18s;
+}
+#fp-search::placeholder { color: var(--text-light); }
+#fp-search:focus,
+.litho-checkout-card input.input-text:focus {
+  outline: none;
+  border-color: var(--charcoal);
+  box-shadow: 0 0 0 3px rgba(28,25,23,0.07);
+}
+
+.litho-consent-field {
+  display: flex !important;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+/* A checkbox should read as a checkbox, not a radio. */
+.litho-cf__consent input[type="checkbox"] { border-radius: 4px; }
+
+/* iOS Safari zooms the whole page in when a focused field's text is
+   under 16px, which throws the layout off mid-checkout. Every text
+   field gets 16px on small screens; the desktop sizes are untouched. */
+@media (max-width: 640px) {
+  .litho-consents { margin: 1rem 0; }
+  #fp-search,
+  .litho-checkout-card input.input-text,
+  .litho-checkout-card textarea,
+  .litho-checkout-card select,
+  .litho-cf__input,
+  .litho-cf__textarea,
+  .litho-qty__input { font-size: 16px; }
+}
+
+/* ── Remaining native-chrome buttons ────────────────────────────
+   Both carried the browser's default grey button face: the cart's
+   remove circle showed it outright, and the gallery tiles kept it
+   behind their image. */
+.litho-ci__del-btn { background: transparent; }
+
+.gallery-thumb {
+  padding: 0;
+  border: none;
+  background: var(--sand-mid);
+  cursor: zoom-in;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 8px;
+  display: block;
+  width: 100%;
+}
+.gallery-thumb img { transition: transform 0.35s; }
+.gallery-thumb:hover img { transform: scale(1.04); }
+
+/* Cart items added before previews were stored (or after the visitor
+   cleared site data) have no local copy to show. Say so rather than
+   quietly showing the generic product photo as if it were theirs. */
+.litho-ci__no-preview {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--text-light);
+}
+
+/* ── Safety net for the old WooCommerce button class ────────────
+   `single_add_to_cart_button` is no longer emitted, but it was only
+   ever styled under `.woocommerce div.product form.cart`, a selector
+   this static site never matches — so anywhere it turns up (a cached
+   script, a page not yet updated) the browser's default button showed
+   through. Give the bare class the site's own button treatment. */
+.single_add_to_cart_button {
+  display: inline-block;
+  background: var(--charcoal);
+  color: var(--warm-white);
+  border: 1.5px solid var(--charcoal);
+  border-radius: 30px;
+  padding: 0.9rem 1.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.single_add_to_cart_button:hover {
+  background: var(--charcoal-mid);
+  border-color: var(--charcoal-mid);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   2026-09 kiegészítések:
+   magyar űrlaphibák · Barion banner · galéria fülek ·
+   házhozszállítás · rendelés-státusz oldal
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Képernyőolvasónak szóló, vizuálisan rejtett címke ──────── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ── Űrlaphibák (js/form-validation.js) ─────────────────────── */
+.field-error {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #b94030;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.field-error::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px; height: 14px;
+  margin-right: 0.4rem;
+  border-radius: 50%;
+  background: #b94030;
+  color: #fff;
+  font-size: 0.6rem;
+  vertical-align: -2px;
+}
+.litho-checkout-card .form-row input.input-text.is-invalid,
+.litho-checkout-card .form-row textarea.is-invalid,
+.litho-checkout-card .form-row select.is-invalid,
+.litho-cf__input.is-invalid,
+.litho-cf__textarea.is-invalid {
+  border-color: #b94030;
+  background: #fdf6f4;
+}
+.litho-consent-field input[type="checkbox"].is-invalid { border-color: #b94030; }
+
+.litho-checkout-error {
+  color: #b94030;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid rgba(185,64,48,0.35);
+  border-radius: var(--radius-sm);
+  background: #fdf6f4;
+}
+
+/* A placeholder ne tűnjön kitöltött értéknek. */
+.litho-checkout-card .form-row input.input-text::placeholder,
+.litho-checkout-card .form-row textarea::placeholder {
+  color: var(--text-light);
+  opacity: 1;
+}
+
+/* ── Barion Smart Payment Banner ─────────────────────────────
+   A bannert nem nyújtjuk, nem vágjuk és nem torzítjuk: a kép
+   arányt tart, csak a szélessége korlátozott. Körben legalább
+   8px hely marad, ahogy a Barion fejlesztői útmutatója kéri. */
+.barion-banner { padding: 12px 8px; }
+.barion-banner img { width: 100%; height: auto; display: block; }
+.barion-banner--checkout {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.barion-banner--checkout img { max-width: 340px; }
+.barion-banner--footer { padding: 0; }
+.barion-banner--footer img { max-width: 260px; }
+
+/* ── Galéria / kipróbálás fülek ──────────────────────────────── */
+.page-tabs-wrap { padding-top: 90px; padding-bottom: 0.5rem; }
+.page-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.28rem;
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  background: var(--warm-white);
+  box-shadow: var(--shadow-sm);
+}
+.page-tab {
+  display: inline-block;
+  padding: 0.6rem 1.35rem;
+  border-radius: 30px;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition: background 0.18s, color 0.18s;
+}
+.page-tab:hover { color: var(--text); background: var(--sand-light); }
+.page-tab.is-active { background: var(--charcoal); color: var(--warm-white); }
+
+/* ── Galéria rács ────────────────────────────────────────────── */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+}
+.gallery-thumb {
+  border: 0; padding: 0; overflow: hidden;
+  border-radius: var(--radius);
+  background: var(--sand-light);
+  aspect-ratio: 1 / 1;
+  cursor: zoom-in;
+}
+.gallery-thumb:hover img { transform: scale(1.04); }
+.gallery-cta {
+  margin: 3rem 0 1rem;
+  padding: 2rem;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--warm-white);
+}
+.gallery-cta p { margin-bottom: 1.1rem; color: var(--text-muted); font-size: 0.9rem; }
+.section-lead {
+  max-width: 620px;
+  margin: 0.75rem auto 0;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+/* ── Szállítás: házhozszállítás blokk ────────────────────────── */
+.litho-checkout-card .litho-size-options {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.litho-size-opt--disabled { opacity: 0.45; }
+.litho-size-opt--disabled .litho-size-btn { cursor: not-allowed; }
+.litho-size-opt--disabled .litho-size-btn:hover { border-color: var(--border-mid); }
+.litho-same-address { margin-bottom: 1rem !important; }
+.litho-field-hint {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-bottom: 0.9rem;
+}
+.litho-address-preview {
+  padding: 0.85rem 1rem;
+  border: 1px dashed var(--border-mid);
+  border-radius: var(--radius);
+  background: var(--sand-light);
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+.litho-address-preview strong { color: var(--text); }
+
+/* ── Rendelés státusz (köszönőoldal) ─────────────────────────── */
+.litho-order-status {
+  max-width: 640px;
+  margin: 2.5rem auto 0;
+  padding: 3rem 2.25rem;
+  text-align: center;
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+.litho-order-status__title {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1.25;
+  margin-bottom: 0.9rem;
+}
+.litho-order-status__text {
+  font-size: 0.9rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.litho-order-status__note { font-size: 0.75rem; color: var(--text-light); margin-top: 1rem; }
+.litho-order-status__icon {
+  width: 56px; height: 56px;
+  margin: 0 auto 1.4rem;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  font-family: var(--font-serif);
+}
+.litho-order-status__icon--ok   { background: #e8f0e6; color: #4a7a44; }
+.litho-order-status__icon--bad  { background: #fbeae7; color: #b94030; }
+.litho-order-status__icon--warn { background: #fbf2e2; color: #9a7420; }
+.litho-order-status__spinner {
+  width: 34px; height: 34px;
+  margin: 0 auto 1.4rem;
+  border: 2px solid var(--border-mid);
+  border-top-color: var(--charcoal);
+  border-radius: 50%;
+  animation: litho-spin 0.9s linear infinite;
+}
+@keyframes litho-spin { to { transform: rotate(360deg); } }
+.litho-order-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 2.5rem;
+  margin: 1.5rem 0;
+  padding: 1.1rem 1rem;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.litho-order-facts dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-light);
+  margin-bottom: 0.25rem;
+}
+.litho-order-facts dd { font-size: 0.9rem; color: var(--text); word-break: break-all; }
+.litho-order-status__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1.75rem;
+}
+.litho-btn-ghost {
+  display: inline-block;
+  border: 1.5px solid var(--border-mid);
+  border-radius: 30px;
+  padding: 0.9rem 1.6rem;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: border-color 0.2s, color 0.2s;
+}
+.litho-btn-ghost:hover { border-color: var(--taupe); color: var(--text); }
+
+@media (max-width: 720px) {
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .page-tabs { width: 100%; justify-content: center; }
+  .page-tab { padding: 0.55rem 0.9rem; font-size: 0.64rem; letter-spacing: 0.1em; }
+  .litho-order-status { padding: 2.25rem 1.25rem; }
+  .litho-order-status__title { font-size: 1.6rem; }
+  .barion-banner--checkout img,
+  .barion-banner--footer img { max-width: 100%; }
 }

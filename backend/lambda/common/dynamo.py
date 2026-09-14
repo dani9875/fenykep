@@ -15,12 +15,18 @@ _TABLE_NAME = os.environ.get("ORDERS_TABLE", "litho-orders")
 _dynamodb = boto3.resource("dynamodb")
 
 
+class StatusAlreadySet(Exception):
+    """A rendelés már ebben (vagy egy későbbi) állapotban van — nincs teendő."""
+
+
 def table():
     return _dynamodb.Table(_TABLE_NAME)
 
 
 def put_order(order: dict) -> None:
-    order["updatedAt"] = int(time.time())
+    now = int(time.time())
+    order.setdefault("createdAt", now)
+    order["updatedAt"] = now
     table().put_item(Item=order)
 
 
@@ -38,9 +44,56 @@ def get_order_by_payment_id(payment_id: str) -> dict | None:
     return items[0] if items else None
 
 
-def update_order_status(order_id: str, status: str) -> None:
+def update_order_status(order_id: str, status: str, extra: dict | None = None) -> None:
+    """Státusz felülírása. Ahol a duplikált feldolgozás számít, használd a
+    transition_order_status-t helyette."""
+    names = {"#s": "orderStatus"}
+    values = {":s": status, ":t": int(time.time())}
+    sets = ["#s = :s", "updatedAt = :t"]
+    for i, (key, value) in enumerate((extra or {}).items()):
+        names[f"#e{i}"] = key
+        values[f":e{i}"] = value
+        sets.append(f"#e{i} = :e{i}")
     table().update_item(
         Key={"orderId": order_id},
-        UpdateExpression="SET orderStatus = :s, updatedAt = :t",
-        ExpressionAttributeValues={":s": status, ":t": int(time.time())},
+        UpdateExpression="SET " + ", ".join(sets),
+        ExpressionAttributeNames=names,
+        ExpressionAttributeValues=values,
     )
+
+
+def transition_order_status(order_id: str, new_status: str, from_statuses: list[str], extra: dict | None = None) -> None:
+    """
+    Státuszváltás, ami csak akkor megy végbe, ha a rendelés még a megadott
+    állapotok valamelyikében van.
+
+    Ez adja az idempotenciát a Barion callbackhez: a Barion ugyanazt a
+    hívást ötször is elküldheti, és két hívás párhuzamosan is futhat. A
+    feltétel a DynamoDB oldalán dől el, így a "fizetve" ág — és a
+    visszaigazoló email — pontosan egyszer fut le.
+
+    StatusAlreadySet-et dob, ha a feltétel nem teljesül.
+    """
+    names = {"#s": "orderStatus"}
+    values = {":s": new_status, ":t": int(time.time())}
+    sets = ["#s = :s", "updatedAt = :t"]
+    for i, (key, value) in enumerate((extra or {}).items()):
+        names[f"#e{i}"] = key
+        values[f":e{i}"] = value
+        sets.append(f"#e{i} = :e{i}")
+
+    allowed = {}
+    for i, status in enumerate(from_statuses):
+        allowed[f":f{i}"] = status
+    values.update(allowed)
+
+    try:
+        table().update_item(
+            Key={"orderId": order_id},
+            UpdateExpression="SET " + ", ".join(sets),
+            ConditionExpression="#s IN (" + ", ".join(allowed.keys()) + ")",
+            ExpressionAttributeNames=names,
+            ExpressionAttributeValues=values,
+        )
+    except _dynamodb.meta.client.exceptions.ConditionalCheckFailedException as exc:
+        raise StatusAlreadySet(f"{order_id} nincs a(z) {from_statuses} állapotok egyikében sem") from exc

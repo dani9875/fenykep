@@ -11,6 +11,7 @@
 
 const CART_COOKIE = "litho_cart";
 const CART_MAX_AGE_DAYS = 30;
+const MAX_QTY = 99;
 
 function readCart() {
   const match = document.cookie.match(new RegExp("(?:^|; )" + CART_COOKIE + "=([^;]*)"));
@@ -46,11 +47,22 @@ const Cart = {
   removeItem(cartItemId) {
     const items = readCart().filter((i) => i.cartItemId !== cartItemId);
     writeCart(items);
+    dropOrphanPreviews(items);
+    return items;
+  },
+
+  setQty(cartItemId, qty) {
+    const items = readCart();
+    const item = items.find((i) => i.cartItemId === cartItemId);
+    if (!item) return items;
+    item.qty = Math.min(MAX_QTY, Math.max(1, Math.round(qty) || 1));
+    writeCart(items);
     return items;
   },
 
   clear() {
     writeCart([]);
+    dropOrphanPreviews([]);
   },
 
   count() {
@@ -61,6 +73,15 @@ const Cart = {
     return readCart().reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
   },
 };
+
+/**
+ * Photo previews live in localStorage keyed by S3 key; once no cart item
+ * references a key its preview is dead weight, so clear it out.
+ */
+function dropOrphanPreviews(items) {
+  if (typeof PhotoStore === "undefined") return;
+  PhotoStore.prune(items.map((i) => i.photoKey).filter(Boolean));
+}
 
 // Update every cart-count badge on the page (header icon).
 function renderCartBadge() {

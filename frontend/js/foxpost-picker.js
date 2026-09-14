@@ -22,6 +22,9 @@ function selectLocker(locker) {
   document.getElementById("f-locker-name").value = `${locker.name} — ${locker.address}`;
   document.getElementById("fp-selected").innerHTML =
     `<strong>Kiválasztva:</strong> ${locker.name}<br>${locker.address}`;
+
+  // A "válassz automatát" hibaüzenet tűnjön el, amint van választás.
+  if (window.FormErrors) FormErrors.clearBlock(document.getElementById("foxpost-error-host"));
 }
 
 function renderFpList(lockers) {
@@ -135,3 +138,15 @@ document.getElementById("fp-search").addEventListener("input", (e) => {
 });
 
 document.addEventListener("DOMContentLoaded", initFoxpostPicker);
+
+/**
+ * A térkép a házhozszállítás fülön rejtve van. A Leaflet a rejtett
+ * konténerre 0 magasságot mér, és a visszaváltás után szürke marad, amíg
+ * újra meg nem méretjük — ezt hívja meg a penztar.js módváltáskor.
+ */
+window.FoxpostPicker = {
+  refresh() {
+    if (!fpMap) return;
+    setTimeout(() => fpMap.invalidateSize(), 0);
+  },
+};

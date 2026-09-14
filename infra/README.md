@@ -7,19 +7,19 @@ használd, vagy a saját CLI/CDK szkriptjeidet, ha azt preferálod.
 
 ## Amit ez a csomag tartalmaz
 
-- `frontend/` — teljes statikus site: főoldal (videó hero, nappal/este
-  összehasonlítás), termékoldal, kosár, pénztár (valódi Foxpost
-  térképes csomagpont-választóval), köszönőoldal, `galeria.html` a
-  fotórácsból és a 3D előnézeti eszközből, és `kapcsolat.html` a
-  teljes kapcsolatfelvételi oldallal (infópanel + működő űrlap). A
-  design a meglévő `style.css`-ből jön, változatlanul.
+- `frontend/` — teljes statikus site: főoldal (videó hero),
+  termékoldal, kosár, pénztár (Foxpost térképes csomagpont-választó
+  ÉS házhozszállítás), köszönő-/státuszoldal, `galeria.html` az
+  elkészült munkákkal, `kiprobalom.html` a 3D előnézeti eszközzel,
+  és `kapcsolat.html` a teljes kapcsolatfelvételi oldallal. A
+  design a meglévő `style.css`-ből jön.
 - `backend/lambda/` — 7 Python 3.12 Lambda + egy közös modul-készlet.
 
 ## Amit ez a csomag NEM tartalmaz (kimaradt ebből a körből)
 
 - A "Mi az a litofán?" szöveges/informatív oldal nincs portolva.
-- GLS és Posta szállítási mód a pénztárban látszik, de le van tiltva
-  ("Hamarosan") — csak Foxpost aktív.
+- Konkrét futárszolgálat-integráció (címke, feladás) nincs: a
+  házhozszállítás a rendelésben rögzített cím, a csomagfeladás kézi.
 
 ## 1. DynamoDB
 
@@ -50,8 +50,9 @@ vagy egy presigned GET-tel érd el.
 
 ## 3. Lambda Layer a közös kódnak
 
-A négy fájl (`products.py`, `dynamo.py`, `barion.py`, `ses_mail.py`) egy
-közös Layerbe kerül, hogy ne kelljen minden függvénybe bemásolni:
+Az öt fájl (`products.py`, `dynamo.py`, `barion.py`, `payments.py`,
+`ses_mail.py`) egy közös Layerbe kerül, hogy ne kelljen minden
+függvénybe bemásolni:
 
 ```
 layer/
@@ -59,6 +60,7 @@ layer/
     ├── products.py
     ├── dynamo.py
     ├── barion.py
+    ├── payments.py
     └── ses_mail.py
 ```
 
@@ -73,7 +75,7 @@ mind az 5 függvényhez.
 | `litho-get-upload-url` | `backend/lambda/get_upload_url` | Python 3.12 | `UPLOADS_BUCKET` |
 | `litho-create-order` | `backend/lambda/create_order` | Python 3.12 | `ORDERS_TABLE`, `BARION_*` (lásd lent), `SITE_BASE_URL`, `SES_FROM_ADDRESS`, `ADMIN_EMAIL`, `BANK_ACCOUNT_NAME`, `BANK_ACCOUNT_NUMBER` |
 | `litho-barion-callback` | `backend/lambda/barion_callback` | Python 3.12 | `ORDERS_TABLE`, `BARION_*`, `SES_FROM_ADDRESS`, `ADMIN_EMAIL`, `UPLOADS_BUCKET` |
-| `litho-get-order-status` | `backend/lambda/get_order_status` | Python 3.12 | `ORDERS_TABLE` |
+| `litho-get-order-status` | `backend/lambda/get_order_status` | Python 3.12 | `ORDERS_TABLE`, `BARION_*`, `SES_FROM_ADDRESS`, `ADMIN_EMAIL`, `SITE_BASE_URL` |
 | `litho-get-foxpost-lockers` | `backend/lambda/get_foxpost_lockers` | Python 3.12 | `CACHE_BUCKET` |
 | `litho-send-contact-message` | `backend/lambda/send_contact_message` | Python 3.12 | `SES_FROM_ADDRESS`, `ADMIN_EMAIL` |
 
@@ -87,6 +89,9 @@ Minden függvénynek kell:
 - `litho-create-order`: `ses:SendEmail` is szükséges (előre utalás esetén ez a
   függvény küldi ki az adatokat, nem a Barion callback).
 - `litho-barion-callback`: `ses:SendEmail`.
+- `litho-get-order-status`: `ses:SendEmail` is kell. Ez a függvény
+  akkor is lezárja a fizetést (és küldi a visszaigazolást), ha a
+  Barion IPN hívása elmaradt vagy késett — lásd a 9.2 pontot.
 - `litho-get-foxpost-lockers`: `s3:GetObject` és `s3:PutObject` a
   bucket `cache/foxpost-lockers.json` kulcsára (ugyanaz a bucket
   használható, mint a fotófeltöltésnél, csak külön prefix alatt).
@@ -104,6 +109,11 @@ BARION_REDIRECT_URL=https://TE-DOMAINED.hu/koszonjuk.html
 
 Először a sandbox (`api.test.barion.com`) ellen teszteld végig a teljes
 folyamatot, csak utána válts éles POSKey-re és `api.barion.com`-ra.
+
+A `BARION_CALLBACK_URL` legyen publikusan elérhető (a Barion szervere
+hívja, nem a böngésző). Ha rossz vagy elérhetetlen, a fizetés attól még
+sikeres lesz — csak mi nem értesülünk róla azonnal; ilyenkor a
+köszönőoldal lekérdezése zárja le a rendelést (9.2).
 
 ## 5. API Gateway (HTTP API)
 
@@ -164,28 +174,118 @@ csomagfeladást egyelőre kézzel, a Foxpost saját felületén intézed.
 Ha megvan a szerződés, egy új Lambda (`litho-foxpost-submit`) tudja
 majd automatizálni ezt is; szólj, ha ez kell.
 
-**GLS és Posta:** a pénztárban már látszik a két másik szállítási mód,
-de "Hamarosan" felirattal le vannak tiltva. Ha ezekhez is van
-nyilvános csomagpont-lista vagy API, ugyanígy be lehet kötni őket —
-szólj, melyiket építsem meg először.
+**Házhozszállítás:** a pénztárban választható, a cím a rendeléssel
+együtt eltárolódik (alapból a számlázási cím, de külön is megadható).
+Futárszolgálati API-integráció (GLS/MPL címke, feladás) nincs — a
+csomagfeladás egyelőre kézi. Szólj, ha melyiket kössük be.
 
-## 9. Fizetési módok
+## 9. Fizetés
 
-Három opció van a pénztárban:
+### 9.1 Fizetési és szállítási módok
 
-- **Bankkártya (Barion)** — a meglévő online flow, azonnali visszaigazolás.
-- **Előre utalással** — nincs Barion hívás. A rendelés `pending_transfer`
-  státusszal jön létre, a vásárló azonnal kap egy emailt a
-  `BANK_ACCOUNT_NUMBER` / `BANK_ACCOUNT_NAME` env változókban megadott
-  számlaadatokkal. A fizetés beérkezését **kézzel** kell ellenőrizni és
-  a rendelés státuszát átállítani — ehhez egyelőre nincs admin felület,
-  DynamoDB Console-ból írható át.
-- **Utánvét (készpénz)** — a felületen látszik, de le van tiltva. Foxpost
-  csomagautomata nem fogad készpénzt, ezért ez fizikailag nem működne
-  ezzel az egyetlen aktív szállítási móddal. Ha később bekerül a GLS
-  házhozszállítás, ott már értelmes lehet — akkor kell hozzá backend
-  logika is (a `create_order` jelenleg elutasítja `cod` + `foxpost`
-  kombinációt).
+| Fizetés | Csomagautomata | Házhozszállítás | Rendelés státusza induláskor |
+|---|---|---|---|
+| Bankkártya (Barion) | ✔ | ✔ | `pending_payment` |
+| Előre utalás | ✔ | ✔ | `pending_transfer` |
+| Utánvét | ✖ | ✔ | `pending_cod` |
+
+A párosítások egyetlen helyen, a `products.py` `PAYMENT_METHODS`
+táblájában élnek. A frontend a `GET /products` válaszából tudja, mit
+engedjen választani; a `create_order` ugyanezt újra ellenőrzi, tehát a
+felület megkerülése sem visz át tiltott kombinációt.
+
+- **Utánvét**: csomagautomatánál fizikailag sem működne (nem fogad
+  készpénzt), ezért csak házhozszállításnál választható. Kezelési díja
+  a `COD_FEE_HUF` (alapértelmezésben 0).
+- **Előre utalás**: a vásárló azonnal emailt kap a `BANK_ACCOUNT_*`
+  env változókban megadott számlaadatokkal. A beérkezést **kézzel**
+  kell ellenőrizni, és a rendelés státuszát átállítani (nincs admin
+  felület, DynamoDB Console-ból írható).
+- **Szállítási díjak**: `FOXPOST_SHIPPING_FEE_HUF`,
+  `HOME_DELIVERY_FEE_HUF`; `FREE_SHIPPING_THRESHOLD_HUF` felett
+  mindkettő ingyenes. A házhozszállítás díja jelenleg 1990 Ft — ezt a
+  tényleges futárszolgálati szerződés szerint kell átírni.
+
+### 9.2 A bankkártyás fizetés útja
+
+1. `create_order` kiszámolja az árat a katalógusból (a böngészőtől
+   kapott árat soha nem fogadjuk el), elmenti a rendelést
+   `payment_init` státusszal, majd hívja a Barion `/v2/Payment/Start`-ot.
+2. Sikeres indítás után a rendelés `pending_payment`, a `paymentId`
+   rákerül, és a vásárló a Barion `GatewayUrl`-jére megy.
+3. A Barion minden állapotváltozásnál meghívja a
+   `litho-barion-callback` végpontot (csak a `paymentId`-t küldi).
+4. A callback **nem hiszi el** a hívás tényét: a
+   `/v4/Payment/{id}/PaymentState` végpontról kérdezi le a valós
+   állapotot (`x-pos-key` fejléccel), és az alapján zár.
+5. A köszönőoldal a `GET /orders/{orderId}`-t kérdezi. Ha a rendelés
+   még nyitott, ez a függvény is egyeztet a Barionnal — így egy
+   elmaradt vagy késő IPN sem hagyja félbe a rendelést.
+
+### 9.3 Hibás és elmaradt fizetések kezelése
+
+| Barion `Status` | Rendelés státusza | Mi történik |
+|---|---|---|
+| `Succeeded` + egyező összeg | `paid` | Visszaigazoló email a vásárlónak, értesítés az adminnak. |
+| `Succeeded` + eltérő összeg vagy pénznem | `payment_mismatch` | **Nem** teljesítjük. Admin értesítést kap, a vásárló azt látja, hogy ellenőrizzük. |
+| `Failed` | `payment_failed` | Sikertelen-fizetés email, a vásárló újrapróbálhatja. |
+| `Canceled` | `payment_canceled` | Ugyanaz, "megszakítottad" szöveggel. |
+| `Expired` | `payment_expired` | Ugyanaz, lejárt fizetési ablak. |
+| `PartiallySucceeded` | `payment_review` | Egy kedvezményezettnél rendellenes — kézi ellenőrzés, admin értesítés. |
+| `Prepared` / `Started` / `InProgress` / `Waiting` / `Reserved` / `Authorized` | változatlan | A vásárló még a fizetőoldalon van. |
+| a Barion API nem elérhető | változatlan | Naplózzuk; a következő callback vagy státuszlekérdezés újrapróbálja. |
+| a Barion Start hívás hibázik | `payment_start_failed` | A vásárló magyar hibaüzenetet kap, a kísérlet nyoma megmarad. |
+
+További garanciák:
+
+- **Idempotencia.** A "fizetve" állapotba lépés feltételes DynamoDB
+  írás (`transition_order_status`), ezért a Barion ötszöri
+  újrahívásából is pontosan egy visszaigazoló email lesz.
+- **Összegellenőrzés.** A Barionnál nyilvántartott végösszeget
+  összevetjük a rendelés végösszegével; eltérésnél a rendelés nem
+  teljesül, hanem kézi ellenőrzésre kerül.
+- **Throttling.** A PaymentState végpont 429-et ad, ha ugyanarra a
+  `PaymentId`-ra 5 másodpercen belül kétszer kérdezünk. Ezt külön
+  kezeljük (`BarionThrottledError`): a státuszlekérdezés csak 6
+  másodpercenként egyeztet, a köszönőoldal 3 másodpercenként kérdez.
+- **Mindig 200.** A callback üzleti elutasításnál is 200-at ad, hogy a
+  Barion ne induljon el újrapróbálkozási körre. Csak adatbázishibánál
+  adunk 500-at, ott az újrahívás a helyes viselkedés.
+- **A kosár nem vész el.** A frontend a rendelés leadásakor nem üríti a
+  kosarat, csak a köszönőoldalon, sikeres rendelés után. Megszakított
+  fizetés után a vásárló teli kosárral tér vissza.
+
+### 9.4 Barion Smart Payment Banner
+
+A Barion fejlesztői útmutatója (`infra/barion-smart-banner-dev-guide.pdf`)
+előírja, hogy a bannernek változatlanul meg kell jelennie a shop
+**nyitóoldalán és a fizetési oldalon** — ez a shop jóváhagyásának
+feltétele. Ahol most van:
+
+- `index.html` — footer,
+- `penztar.html` — közvetlenül a fizetési módok alatt, görgetés nélkül
+  látható helyen.
+
+A fájlok: `frontend/assets/barion/` (SVG light/dark + PNG small/medium/
+large mindkét módban). Világos háttérre a light változat való. A kép
+arányt tart (`width:100%; height:auto`), nincs nyújtva vagy vágva, és
+legalább 8px hely marad körülötte — mindezt a `.barion-banner`
+osztály biztosítja a `style.css`-ben.
+
+### 9.5 Tesztelés
+
+- Automata teszt: `python3 backend/tests/test_payments.py` — a
+  `payments.py` minden ága (sikeres, eltérő összegű, sikertelen,
+  megszakított, lejárt, részben sikeres, ismételt callback, Barion
+  hiba, throttling) AWS nélkül, memóriabeli DynamoDB/SES mellett.
+- Helyben: `local-test/server.py` egy mock Barion oldalt szolgál ki,
+  ahol a fizetés kimenete (sikeres / sikertelen / megszakított /
+  lejárt / eltérő összegű) gombbal választható. Lásd
+  `local-test/README.md`.
+- Sandboxban: `api.test.barion.com` + a Barion tesztkártyái
+  (`https://docs.barion.com/Making_a_test_payment`). A callback
+  fogadásához a `BARION_CALLBACK_URL`-nek kívülről elérhetőnek kell
+  lennie.
 
 ## 10. Foxpost térkép teljesítmény
 
@@ -207,5 +307,6 @@ több ezer markert egyben.
 5. API Gateway route-ok bekötése, CORS bekapcsolása.
 6. `config.js` frissítése az API URL-lel.
 7. Amplify deploy.
-8. Végigrendelés tesztelése a Barion sandbox tesztkártyáival.
+8. Végigrendelés tesztelése a Barion sandbox tesztkártyáival —
+   sikeres ÉS megszakított/sikertelen fizetéssel is (9.3).
 9. Éles Barion POSKey-re váltás, SES production access, Foxpost szerződés.

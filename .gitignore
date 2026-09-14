@@ -1,2 +1,4 @@
 backend/lambda/common/__pycache__
 .devcontainer/devcontainer-lock.json
+__pycache__/
+node_modules/

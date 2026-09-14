@@ -1,0 +1,8 @@
+build: 20260914a
+
+Ha ezt a fájlt látod a böngészőben (<a te URL-ed>/VERZIO.txt), akkor a
+kiszolgált mappa AZ, amit szerkesztettem:
+  konténerben: /workspaces/fenykep/frontend
+  a gépeden:   /home/perseluspy/Documents/source/fenykep/frontend
+
+Ha 404-et kapsz, akkor egy MÁSIK példányt szolgál ki a szervered.

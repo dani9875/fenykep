@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Köszönjük — Fény·kép Stúdió</title>
-<link rel="stylesheet" href="css/style.css">
+<title>Rendelés visszaigazolása — Fény·kép Stúdió</title>
+<link rel="stylesheet" href="css/style.css?v=20260914a">
 </head>
 <body>
 <div class="site-wrapper">
@@ -12,66 +12,229 @@
 <header class="site-header" id="site-header">
   <div class="container">
     <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <nav class="site-nav" id="site-nav">
+      <a href="index.html">Termékek</a>
+      <a href="galeria.html">Elkészült munkák</a>
+      <a href="kiprobalom.html">Próbáld ki</a>
+      <a href="kapcsolat.html">Kapcsolat</a>
+    </nav>
+    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count">0</span></a></div>
   </div>
 </header>
 
-<div class="container" style="padding:4rem 0; text-align:center;">
-  <div id="status-root">Fizetés ellenőrzése…</div>
+<div class="container" style="padding:6rem 0 4rem;">
+  <div class="litho-steps-wrap">
+    <div class="litho-steps">
+      <div class="litho-step litho-step--done"><div class="litho-step__circle">✓</div><span class="litho-step__label">Kosár</span></div>
+      <div class="litho-step__line"></div>
+      <div class="litho-step litho-step--done"><div class="litho-step__circle">✓</div><span class="litho-step__label">Szállítás és fizetés</span></div>
+      <div class="litho-step__line"></div>
+      <div class="litho-step litho-step--active"><div class="litho-step__circle">3</div><span class="litho-step__label">Visszaigazolás</span></div>
+    </div>
+  </div>
+
+  <div class="litho-order-status" id="status-root" aria-live="polite">
+    <div class="litho-order-status__spinner"></div>
+    <h1 class="litho-order-status__title">Fizetés ellenőrzése…</h1>
+    <p class="litho-order-status__text">Egy pillanat, egyeztetjük a fizetés állapotát a Barionnal.</p>
+  </div>
 </div>
 
 </div>
-<script src="js/config.js"></script>
-<script src="js/api.js"></script>
+<script src="js/config.js?v=20260914a"></script>
+<script src="js/cart.js?v=20260914a"></script>
+<script src="js/photo-store.js?v=20260914a"></script>
+<script src="js/api.js?v=20260914a"></script>
+<script src="js/nav.js?v=20260914a"></script>
 <script>
+/**
+ * Rendelés-visszaigazolás.
+ *
+ * A Barion a fizetés után ide irányít vissza — sikeres, megszakított és
+ * sikertelen fizetés után egyaránt. Az, hogy melyik történt, kizárólag a
+ * backend státuszából derül ki: a redirectben megkapott adatokban nem
+ * bízunk meg.
+ *
+ * A Barion IPN hívása néha a visszairányítás UTÁN ér be, ezért néhányszor
+ * újrakérdezünk. A backend közben maga is egyeztet a Barionnal, ha az IPN
+ * elmaradna.
+ */
+(function () {
+  "use strict";
+
+  var POLL_INTERVAL_MS = 3000; // a Barion PaymentState 5 mp-en belüli ismételt kérdésre 429-et ad
+  var MAX_POLLS = 12;
+
   function getParam(name) {
     return new URLSearchParams(window.location.search).get(name);
   }
 
+  function huf(n) {
+    return Number(n || 0).toLocaleString("hu-HU") + " Ft";
+  }
+
+  function esc(value) {
+    return String(value == null ? "" : value).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function render(html) {
+    document.getElementById("status-root").innerHTML = html;
+  }
+
+  function orderFacts(data) {
+    return (
+      '<dl class="litho-order-facts">' +
+      '<div><dt>Rendelési szám</dt><dd>' + esc(data.orderId) + "</dd></div>" +
+      '<div><dt>Végösszeg</dt><dd>' + huf(data.totalHuf) + "</dd></div>" +
+      "</dl>"
+    );
+  }
+
+  function success(data, title, lead, extra) {
+    Cart.clear(); // a rendelés létrejött — innentől üres kosárral indul a következő vásárlás
+    render(
+      '<div class="litho-order-status__icon litho-order-status__icon--ok">✓</div>' +
+      '<h1 class="litho-order-status__title">' + title + "</h1>" +
+      '<p class="litho-order-status__text">' + lead + "</p>" +
+      orderFacts(data) +
+      (extra || "") +
+      '<p class="litho-order-status__text">Visszaigazoló e-mailt küldtünk. 24 órán belül megkapod a digitális előnézetet is — csak a jóváhagyásod után nyomtatunk.</p>' +
+      '<div class="litho-order-status__actions">' +
+      '<a class="litho-btn-solid" href="index.html">Vissza a webshopba</a>' +
+      "</div>"
+    );
+  }
+
+  function failure(data, title, lead, tone) {
+    render(
+      '<div class="litho-order-status__icon litho-order-status__icon--' + (tone || "bad") + '">!</div>' +
+      '<h1 class="litho-order-status__title">' + title + "</h1>" +
+      '<p class="litho-order-status__text">' + lead + "</p>" +
+      (data.orderId ? orderFacts(data) : "") +
+      '<div class="litho-order-status__actions">' +
+      '<a class="litho-btn-solid" href="penztar.html">Fizetés újrapróbálása</a>' +
+      '<a class="litho-btn-ghost" href="kapcsolat.html">Segítséget kérek</a>' +
+      "</div>" +
+      '<p class="litho-order-status__note">A kosarad tartalmát megtartottuk, nem kell újra összeállítanod.</p>'
+    );
+  }
+
+  var HANDLERS = {
+    paid: function (data) {
+      success(data, "Köszönjük a rendelésedet!", "A bankkártyás fizetés sikeresen megtörtént.");
+    },
+    pending_transfer: function (data) {
+      success(
+        data,
+        "Köszönjük a rendelésedet!",
+        "A rendelést rögzítettük. Előre utalásos fizetést választottál.",
+        '<p class="litho-order-status__text">E-mailben elküldtük az utaláshoz szükséges adatokat. Kérjük, a közlemény rovatba a rendelési számot írd — az utalás beérkezése után indul a gyártás.</p>'
+      );
+    },
+    pending_cod: function (data) {
+      success(
+        data,
+        "Köszönjük a rendelésedet!",
+        "A rendelést rögzítettük. A végösszeget a futárnál fizeted átvételkor.",
+        ""
+      );
+    },
+    payment_failed: function (data) {
+      failure(
+        data,
+        "A fizetés nem sikerült",
+        "A bank vagy a kártyakibocsátó elutasította a tranzakciót. Nem vontunk le semmit a kártyádról."
+      );
+    },
+    payment_canceled: function (data) {
+      failure(
+        data,
+        "A fizetést megszakítottad",
+        "A Barion oldalán megszakadt a fizetés, ezért a rendelést nem indítottuk el."
+      );
+    },
+    payment_expired: function (data) {
+      failure(
+        data,
+        "A fizetési idő lejárt",
+        "A fizetésre nyitva tartott ablak lejárt, ezért a tranzakció érvénytelen. Indítsd újra a rendelést."
+      );
+    },
+    payment_start_failed: function (data) {
+      failure(
+        data,
+        "A fizetést nem sikerült elindítani",
+        "A Barion fizetőoldalt nem tudtuk megnyitni. Próbáld újra, vagy válaszd az előre utalást a pénztárban."
+      );
+    },
+    payment_mismatch: function (data) {
+      failure(
+        data,
+        "A fizetést ellenőrizzük",
+        "A beérkezett összeg nem egyezik a rendelés végösszegével, ezért a rendelést egy kollégánk kézzel ellenőrzi. Hamarosan keresünk e-mailben — kérjük, ne indíts új fizetést.",
+        "warn"
+      );
+    },
+    payment_review: function (data) {
+      HANDLERS.payment_mismatch(data);
+    },
+  };
+
+  function pending(data, attempt) {
+    render(
+      '<div class="litho-order-status__spinner"></div>' +
+      '<h1 class="litho-order-status__title">A fizetés feldolgozás alatt…</h1>' +
+      '<p class="litho-order-status__text">Egyeztetjük a fizetés állapotát a Barionnal. Kérjük, ne zárd be az oldalt.</p>' +
+      (data && data.orderId ? orderFacts(data) : "") +
+      '<p class="litho-order-status__note">' + attempt + ". ellenőrzés</p>"
+    );
+  }
+
   async function pollStatus() {
-    const orderId = getParam("orderId");
-    const root = document.getElementById("status-root");
+    var orderId = getParam("orderId");
     if (!orderId) {
-      root.textContent = "Hiányzó rendelési szám.";
+      render(
+        '<h1 class="litho-order-status__title">Hiányzó rendelési szám</h1>' +
+        '<p class="litho-order-status__text">Ez az oldal csak rendelés után érhető el. Ha úgy érzed, hiba történt, írj nekünk.</p>' +
+        '<div class="litho-order-status__actions"><a class="litho-btn-solid" href="index.html">Vissza a webshopba</a></div>'
+      );
       return;
     }
 
-    // Barion's IPN callback can land a few seconds after the redirect.
-    // Poll a handful of times before giving up.
-    for (let i = 0; i < 8; i++) {
+    var last = { orderId: orderId, totalHuf: 0 };
+
+    for (var i = 1; i <= MAX_POLLS; i++) {
       try {
-        const data = await Api.getOrderStatus(orderId);
-        if (data.status === "pending_transfer") {
-          root.innerHTML = `
-            <h1>Köszönjük a rendelésedet!</h1>
-            <p>Rendelési szám: <strong>${data.orderId}</strong></p>
-            <p>Végösszeg: <strong>${data.totalHuf.toLocaleString("hu-HU")} Ft</strong></p>
-            <p>Elküldtük e-mailben az utaláshoz szükséges adatokat. Az utalás
-               beérkezése után kezdjük el a gyártást.</p>`;
+        var data = await Api.getOrderStatus(orderId);
+        last = data;
+        var handler = HANDLERS[data.status];
+        if (handler) {
+          handler(data);
           return;
         }
-        if (data.status === "paid") {
-          root.innerHTML = `
-            <h1>Köszönjük a rendelésedet!</h1>
-            <p>Rendelési szám: <strong>${data.orderId}</strong></p>
-            <p>Végösszeg: <strong>${data.totalHuf.toLocaleString("hu-HU")} Ft</strong></p>
-            <p>Hamarosan visszaigazoló e-mailt küldünk.</p>`;
-          return;
-        }
-        if (data.status === "failed") {
-          root.innerHTML = `<h1>A fizetés nem sikerült.</h1><p>Próbáld újra a <a href="penztar.html">pénztár oldalon</a>.</p>`;
-          return;
-        }
+        pending(data, i); // pending_payment / payment_init
       } catch (e) {
-        // keep polling
+        pending(last, i); // átmeneti hálózati hiba — próbáljuk újra
       }
-      await new Promise((r) => setTimeout(r, 2000));
+      await new Promise(function (r) { setTimeout(r, POLL_INTERVAL_MS); });
     }
 
-    document.getElementById("status-root").innerHTML =
-      "<p>A fizetés feldolgozása folyamatban. Hamarosan e-mailben értesítünk.</p>";
+    render(
+      '<div class="litho-order-status__icon litho-order-status__icon--warn">…</div>' +
+      '<h1 class="litho-order-status__title">A fizetés feldolgozása folyamatban</h1>' +
+      '<p class="litho-order-status__text">A bank még nem küldte vissza a végeredményt. Amint megérkezik, e-mailben azonnal értesítünk — nem kell újra fizetned.</p>' +
+      orderFacts(last) +
+      '<div class="litho-order-status__actions">' +
+      '<button class="litho-btn-solid" onclick="window.location.reload()">Állapot frissítése</button>' +
+      '<a class="litho-btn-ghost" href="kapcsolat.html">Kapcsolat</a>' +
+      "</div>"
+    );
   }
 
   pollStatus();
+})();
 </script>
 </body>
 </html>

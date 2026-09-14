@@ -1,40 +1,80 @@
+"""
+POST /barion-callback — a Barion IPN végpontja.
+
+A Barion minden állapotváltozásnál meghívja ezt az URL-t, és csak a
+paymentId-t küldi. A hívás maga NEM bizonyítja, hogy a fizetés sikeres
+volt — az állapotot a PaymentState végpontról kérdezzük le (payments.py).
+
+Mindig 200-at adunk vissza, üzleti elutasításnál is. A Barion 15
+másodpercen belül vár választ, és 200 hiányában ötször újrahív
+(2, 6, 18, 54, 102 másodperc múlva).
+"""
+
 import json
 
-from dynamo import get_order, get_order_by_payment_id, update_order_status
-import barion
-from ses_mail import send_customer_confirmation, send_admin_notification
+from dynamo import get_order_by_payment_id
+import payments
 
 HEADERS = {"Content-Type": "application/json"}
 
 
-def handler(event, context):
+def _ok(message: str, extra: dict | None = None):
+    body = {"message": message}
+    body.update(extra or {})
+    return {"statusCode": 200, "headers": HEADERS, "body": json.dumps(body)}
+
+
+def _payment_id_from(event) -> str | None:
     """
-    Barion calls this URL (the CallbackUrl) whenever a payment's state
-    changes. It sends the paymentId as a query parameter. Always return
-    200 quickly, even on a business-logic rejection, or Barion retries.
+    A paymentId query paraméterben jön. Néhány Barion-integrációnál a
+    törzsben is megérkezik (form-encoded vagy JSON), ezért mindkettőt nézzük.
     """
     params = event.get("queryStringParameters") or {}
-    payment_id = params.get("paymentId")
+    for key in ("paymentId", "PaymentId", "paymentid"):
+        if params.get(key):
+            return params[key]
+
+    raw_body = event.get("body")
+    if not raw_body:
+        return None
+    try:
+        parsed = json.loads(raw_body)
+        if isinstance(parsed, dict):
+            for key in ("paymentId", "PaymentId"):
+                if parsed.get(key):
+                    return parsed[key]
+    except (json.JSONDecodeError, TypeError):
+        import urllib.parse
+
+        form = urllib.parse.parse_qs(raw_body)
+        for key in ("paymentId", "PaymentId"):
+            if form.get(key):
+                return form[key][0]
+    return None
+
+
+def handler(event, context):
+    payment_id = _payment_id_from(event)
     if not payment_id:
-        return {"statusCode": 400, "headers": HEADERS, "body": "Missing paymentId"}
+        # 400 itt rendben van: nincs mit újrapróbálni, ez nem a Barion hívása.
+        return {"statusCode": 400, "headers": HEADERS, "body": json.dumps({"error": "Missing paymentId"})}
 
-    order = get_order_by_payment_id(payment_id)
+    try:
+        order = get_order_by_payment_id(payment_id)
+    except Exception as exc:  # noqa: BLE001
+        # Adatbázis hiba: 500-at adunk, hogy a Barion újrapróbálja.
+        print(f"[callback] lookup failed for {payment_id}: {exc}")
+        return {"statusCode": 500, "headers": HEADERS, "body": json.dumps({"error": "lookup failed"})}
+
     if not order:
-        return {"statusCode": 200, "headers": HEADERS, "body": "Unknown order, ignored"}
+        # Nem a mi fizetésünk (vagy törölt rendelés). Nincs értelme újrahívni.
+        print(f"[callback] unknown paymentId {payment_id}")
+        return _ok("Unknown payment, ignored")
 
-    # Already handled — Barion can call the same callback more than once.
-    if order["orderStatus"] in ("paid", "failed"):
-        return {"statusCode": 200, "headers": HEADERS, "body": "Already processed"}
+    try:
+        result = payments.reconcile(order, source="callback")
+    except Exception as exc:  # noqa: BLE001
+        print(f"[callback] reconcile crashed for {payment_id}: {exc}")
+        return _ok("Error logged")
 
-    state = barion.get_payment_state(payment_id)
-    status = state.get("Status")
-
-    if status == "Succeeded":
-        update_order_status(order["orderId"], "paid")
-        order["orderStatus"] = "paid"
-        send_customer_confirmation(order)
-        send_admin_notification(order)
-    elif status in ("Failed", "Expired", "Canceled"):
-        update_order_status(order["orderId"], "failed")
-
-    return {"statusCode": 200, "headers": HEADERS, "body": "OK"}
+    return _ok("OK", {"orderStatus": result["orderStatus"], "paymentStatus": result["paymentStatus"]})
