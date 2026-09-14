@@ -14,9 +14,10 @@ python3 server.py
 
 Nyisd meg: http://localhost:8787
 
-A `frontend/js/config.js` már alapból `http://localhost:8787`-re mutat,
-nincs mit átírni. Ha éles AWS-re telepítesz, ott kell majd visszaírnod
-a valódi API Gateway URL-re.
+A `frontend/js/config.js` localhoston magától ezt a szervert hívja —
+nincs mit átírni, és deploy után sem kell visszaállítani semmit: az
+éles API URL-t a `scripts/deploy-frontend.sh` helyettesíti be egy
+ideiglenes másolatban (lásd `infra/DEPLOY.md`).
 
 ## Mit tesztelhetsz ezzel
 

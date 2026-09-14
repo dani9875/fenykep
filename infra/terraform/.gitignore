@@ -1,0 +1,15 @@
+# A state titkokat tartalmaz (Barion POSKey, számlaszám) — soha ne kerüljön a repóba.
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Kitöltött változók: szintén titkok.
+*.auto.tfvars
+!*.auto.tfvars.example
+terraform.tfvars
+
+# A Terraform által generált Lambda zipek.
+build/
+
+crash.log

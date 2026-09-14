@@ -1,0 +1,38 @@
+# Másold át dev.auto.tfvars néven, és töltsd ki.
+#   cp dev.auto.tfvars.example dev.auto.tfvars
+#
+# A dev.auto.tfvars .gitignore-olt — titkok NE kerüljenek a repóba.
+# A ".auto.tfvars" végződés miatt a Terraform magától beolvassa, nem kell
+# -var-file kapcsoló.
+
+# ── Alapok ──────────────────────────────────────────────────────────────
+aws_profile = "wordpress-deploy"
+region      = "eu-central-1"
+name_prefix = "litho-dev"
+
+# A Cloudflare Pages projekted URL-je, záró / nélkül.
+# Ezt a `wrangler pages project create` után tudod (DEPLOY.md 3. lépés).
+site_url = "https://fenykep.pages.dev"
+
+# Ha preview deployról is tesztelnél, vedd fel ide a preview URL-t.
+extra_allowed_origins = ["http://localhost:8787"]
+
+# ── Barion (sandbox) ────────────────────────────────────────────────────
+# https://test.barion.com -> Kereskedői fiók -> Shopok -> POSKey
+barion_api_base = "https://api.test.barion.com"
+barion_poskey   = "ide-jon-a-sandbox-poskey"
+barion_payee    = "a-barion-fiokod@example.com"
+
+# ── SES (sandbox) ───────────────────────────────────────────────────────
+ses_from_address = "info@example.com"
+admin_email      = "te@example.com"
+
+# SES sandboxban a CÍMZETT-nek is hitelesítettnek kell lennie. Vedd fel ide
+# azokat a címeket, amikkel teszt-rendelést adsz le.
+ses_verified_recipients = [
+  # "teszt-vasarlo@example.com",
+]
+
+# ── Utalásos fizetés e-mailjéhez ────────────────────────────────────────
+bank_account_name   = "Fény·kép Stúdió"
+bank_account_number = "12345678-12345678-12345678"

@@ -1,9 +1,16 @@
 # Lithophane Shop — telepítési útmutató
 
-Ez a csomag ugyanazt az architektúrát követi, mint az MHA Candles oldal:
-Amplify (statikus frontend) + API Gateway + Lambda (Python 3.12) + DynamoDB + SES.
-Nincs saját szerver. A telepítés kézi lépésekből áll — az AWS Console-t
-használd, vagy a saját CLI/CDK szkriptjeidet, ha azt preferálod.
+Architektúra: **Cloudflare Pages** (statikus frontend) + **API Gateway +
+Lambda (Python 3.12) + DynamoDB + S3 + SES** (AWS, eu-central-1). Nincs
+saját szerver.
+
+> **A telepítés lépésről lépésre: [DEPLOY.md](DEPLOY.md).**
+> Ott vannak a konkrét parancsok, ebben a sorrendben, a `wordpress-deploy`
+> profillal. Ez a fájl a *miért*-eket és a működés részleteit írja le.
+
+Az AWS oldalt **Terraform** hozza létre (`infra/terraform/`), kézi
+Console-kattintgatás nincs. A frontend a `scripts/deploy-frontend.sh`
+szkripttel megy ki a Cloudflare-re.
 
 ## Amit ez a csomag tartalmaz
 
@@ -21,130 +28,93 @@ használd, vagy a saját CLI/CDK szkriptjeidet, ha azt preferálod.
 - Konkrét futárszolgálat-integráció (címke, feladás) nincs: a
   házhozszállítás a rendelésben rögzített cím, a csomagfeladás kézi.
 
-## 1. DynamoDB
+## 1. Infrastruktúra (Terraform)
 
-Hozz létre egy táblát:
+Minden AWS erőforrás az `infra/terraform/` állományból jön létre. A
+fájlok szerepe:
 
-- Név: `litho-orders`
-- Partition key: `orderId` (String)
-- Global Secondary Index: `paymentId-index`, partition key `paymentId` (String)
-  — ez kell a Barion callback-hez, mert az csak a `paymentId`-t küldi vissza.
+| Fájl | Mi van benne |
+|---|---|
+| `versions.tf` | provider- és Terraform-verziók, state megjegyzések |
+| `variables.tf` | minden hangolható érték (profil, régió, URL-ek, kulcsok) |
+| `storage.tf` | DynamoDB tábla + `paymentId-index`, S3 bucket (privát, CORS, lifecycle) |
+| `lambda.tf` | a közös Layer, a 7 függvény, log csoportok, env változók |
+| `iam.tf` | függvényenként külön szerep, csak a szükséges jogokkal |
+| `api.tf` | HTTP API, útvonalak, CORS, throttling |
+| `ses.tf` | e-mail identity-k (sandbox hitelesítés) |
+| `outputs.tf` | API URL, bucket- és táblanév, teendők az apply után |
 
-## 2. S3 (fotófeltöltés)
+Amit tudni érdemes róla:
 
-Hozz létre egy bucketet, pl. `litho-uploads-<accountid>`. Állítsd be a CORS-t:
+- **Nincs külön build lépés.** A Lambda zipeket és a Layert maga a
+  Terraform állítja elő a `backend/lambda/` forrásokból (`archive_file`),
+  a hash alapján. Ha egy `.py` fájl változik, a következő `apply` csak
+  az érintett függvényt frissíti.
+- **A közös modulok Layerként** mennek fel (`python/products.py`,
+  `python/barion.py`, …), így minden függvény `import barion`-nal éri el
+  őket. A `common/` bármelyik fájljának változása a Layer új verzióját
+  hozza létre, és mindegyik függvény átáll rá.
+- **A Barion callback URL-jét a Terraform drótozza be**: az API
+  `api_endpoint`-jából számolja, és env változóként adja a függvényeknek.
+  Kézzel sehol nem kell URL-t másolgatni.
+- **A `$default` stage auto-deploy** módban van, tehát az API URL-je
+  végleges (nincs `/prod` utótag), és nincs külön „deploy" lépés.
+- **Az S3 bucket neve véletlen utótagot kap** (`random_id`), mert a
+  bucketnevek globálisan egyediek.
 
-```json
-[
-  {
-    "AllowedOrigins": ["https://TE-DOMAINED.hu"],
-    "AllowedMethods": ["PUT"],
-    "AllowedHeaders": ["*"]
-  }
-]
-```
+Új környezethez (pl. staging) ne másold a mappát: adj más `name_prefix`-et
+és külön state-et.
 
-A bucket maradjon privát (nincs public read). Az admin email a fotókra
-S3 kulcsot ír, ne publikus URL-t — a kép megtekintéséhez a Console-ból
-vagy egy presigned GET-tel érd el.
+## 2. Környezeti változók (mit mire használ a kód)
 
-## 3. Lambda Layer a közös kódnak
+Ezeket a Terraform állítja be, kézzel nem kell velük foglalkozni. Itt
+csak azért vannak felsorolva, hogy tudd, melyik változó mit vezérel.
 
-Az öt fájl (`products.py`, `dynamo.py`, `barion.py`, `payments.py`,
-`ses_mail.py`) egy közös Layerbe kerül, hogy ne kelljen minden
-függvénybe bemásolni:
-
-```
-layer/
-└── python/
-    ├── products.py
-    ├── dynamo.py
-    ├── barion.py
-    ├── payments.py
-    └── ses_mail.py
-```
-
-Zippeld a `layer/` mappát, töltsd fel Lambda Layerként, és csatold
-mind az 5 függvényhez.
-
-## 4. Lambda függvények
-
-| Függvény | Kód | Runtime | Env vars |
-|---|---|---|---|
-| `litho-get-products` | `backend/lambda/get_products` | Python 3.12 | — |
-| `litho-get-upload-url` | `backend/lambda/get_upload_url` | Python 3.12 | `UPLOADS_BUCKET` |
-| `litho-create-order` | `backend/lambda/create_order` | Python 3.12 | `ORDERS_TABLE`, `BARION_*` (lásd lent), `SITE_BASE_URL`, `SES_FROM_ADDRESS`, `ADMIN_EMAIL`, `BANK_ACCOUNT_NAME`, `BANK_ACCOUNT_NUMBER` |
-| `litho-barion-callback` | `backend/lambda/barion_callback` | Python 3.12 | `ORDERS_TABLE`, `BARION_*`, `SES_FROM_ADDRESS`, `ADMIN_EMAIL`, `UPLOADS_BUCKET` |
-| `litho-get-order-status` | `backend/lambda/get_order_status` | Python 3.12 | `ORDERS_TABLE`, `BARION_*`, `SES_FROM_ADDRESS`, `ADMIN_EMAIL`, `SITE_BASE_URL` |
-| `litho-get-foxpost-lockers` | `backend/lambda/get_foxpost_lockers` | Python 3.12 | `CACHE_BUCKET` |
-| `litho-send-contact-message` | `backend/lambda/send_contact_message` | Python 3.12 | `SES_FROM_ADDRESS`, `ADMIN_EMAIL` |
-
-Handler minden esetben: `handler.handler`.
-
-### IAM
-
-Minden függvénynek kell:
-- `dynamodb:PutItem`, `GetItem`, `UpdateItem`, `Query` a `litho-orders` táblára és a GSI-re.
-- `litho-get-upload-url`: `s3:PutObject` a bucketre (a generate_presigned_url maga nem hívja az S3-at, de a policy kelljen a jogosultsághoz).
-- `litho-create-order`: `ses:SendEmail` is szükséges (előre utalás esetén ez a
-  függvény küldi ki az adatokat, nem a Barion callback).
-- `litho-barion-callback`: `ses:SendEmail`.
-- `litho-get-order-status`: `ses:SendEmail` is kell. Ez a függvény
-  akkor is lezárja a fizetést (és küldi a visszaigazolást), ha a
-  Barion IPN hívása elmaradt vagy késett — lásd a 9.2 pontot.
-- `litho-get-foxpost-lockers`: `s3:GetObject` és `s3:PutObject` a
-  bucket `cache/foxpost-lockers.json` kulcsára (ugyanaz a bucket
-  használható, mint a fotófeltöltésnél, csak külön prefix alatt).
-- `litho-send-contact-message`: `ses:SendEmail`.
-
-### Barion környezeti változók
-
-```
-BARION_API_BASE=https://api.test.barion.com      # majd élesben: https://api.barion.com
-BARION_POSKEY=<a Barion admin felületről>
-BARION_PAYEE=<a Barion fiókodhoz tartozó email>
-BARION_CALLBACK_URL=<az API Gateway litho-barion-callback végpontja>
-BARION_REDIRECT_URL=https://TE-DOMAINED.hu/koszonjuk.html
-```
-
-Először a sandbox (`api.test.barion.com`) ellen teszteld végig a teljes
-folyamatot, csak utána válts éles POSKey-re és `api.barion.com`-ra.
-
-A `BARION_CALLBACK_URL` legyen publikusan elérhető (a Barion szervere
-hívja, nem a böngésző). Ha rossz vagy elérhetetlen, a fizetés attól még
-sikeres lesz — csak mi nem értesülünk róla azonnal; ilyenkor a
-köszönőoldal lekérdezése zárja le a rendelést (9.2).
-
-## 5. API Gateway (HTTP API)
-
-| Metódus | Útvonal | Lambda |
+| Változó | Hol kell | Mire való |
 |---|---|---|
-| GET | `/products` | litho-get-products |
-| POST | `/uploads` | litho-get-upload-url |
-| POST | `/orders` | litho-create-order |
-| POST | `/barion-callback` | litho-barion-callback |
-| GET | `/orders/{orderId}` | litho-get-order-status |
-| GET | `/foxpost-lockers` | litho-get-foxpost-lockers |
-| POST | `/contact` | litho-send-contact-message |
+| `ORDERS_TABLE` | create_order, barion_callback, get_order_status | a rendelések DynamoDB táblája |
+| `UPLOADS_BUCKET` | get_upload_url + a rendeléses függvények | a fotók bucketje (az admin e-mail az S3 kulcsot írja ki) |
+| `CACHE_BUCKET` | get_foxpost_lockers | a Foxpost lista napi cache-e (`cache/` prefix) |
+| `SITE_BASE_URL` | a rendeléses függvények | a köszönőoldal és az e-mailek linkjei |
+| `SES_FROM_ADDRESS`, `ADMIN_EMAIL` | mindenhol, ahol e-mail megy | feladó és az admin értesítések címzettje |
+| `BANK_ACCOUNT_NAME`, `BANK_ACCOUNT_NUMBER` | create_order | az utalásos fizetés e-mailjéhez |
+| `BARION_API_BASE` | a rendeléses függvények | sandbox vagy éles Barion API |
+| `BARION_POSKEY`, `BARION_PAYEE` | ugyanott | a shop azonosítása, a pénz címzettje |
+| `BARION_CALLBACK_URL` | ugyanott | ezt kapja meg a Barion az IPN-hez |
+| `BARION_REDIRECT_URL` | ugyanott | ide tér vissza a vásárló a fizetés után |
 
-Kapcsold be a CORS-t a `/products`, `/uploads`, `/orders*` útvonalakon
-(a `/barion-callback`-ot a Barion szerverei hívják, oda nem kell CORS).
+## 3. Jogosultságok
 
-## 6. SES
+Minden Lambdának saját IAM szerepe van, és csak azt kapja meg, amire
+szüksége van:
 
-Verifikáld a domained email címét (pl. `info@lithophaneshop.hu`).
-Amíg sandbox módban vagy, csak verifikált címre mehet ki email — kérj
-production access-t, mielőtt valós vásárlóknak küldenél.
+| Függvény | Jogok |
+|---|---|
+| `get-products` | csak log |
+| `get-upload-url` | `s3:PutObject` a `uploads/` prefixre (a presigned URL aláírásához) |
+| `get-foxpost-lockers` | `s3:GetObject`/`PutObject` a `cache/` prefixre |
+| `create-order`, `barion-callback`, `get-order-status` | DynamoDB olvasás/írás a táblára és az indexre + `ses:SendEmail` a saját feladó címről |
+| `send-contact-message` | `ses:SendEmail` |
 
-## 7. Amplify
+Az SES jogot egy `ses:FromAddress` feltétel is szűkíti, tehát akkor sem
+mehet levél más feladóval, ha a kód rosszul hívná.
 
-Ugyanaz, mint az MHA Candles oldalnál: kösd össze a GitHub repót,
-`baseDirectory: frontend`, nincs build lépés (statikus fájlok).
+## 4. Frontend (Cloudflare Pages)
 
-Telepítés után írd be a `frontend/js/config.js`-be az API Gateway
-alap URL-jét.
+A `frontend/js/config.js` nem tartalmaz környezetfüggő URL-t: localhoston
+a `local-test/server.py`-t hívja, máshol a `__API_URL__` helyőrzőt, amit a
+`scripts/deploy-frontend.sh` cserél ki deploykor egy ideiglenes
+másolatban. Így a repóban nincs olyan fájl, amit deploy előtt át kellene
+írni, és a helyi fejlesztés sem törik el egy deploy után.
 
-## 8. Foxpost integráció
+## 5. SES
+
+Dev: e-mail cím hitelesítés (sandbox). Az AWS küld egy megerősítő linket
+minden címre — kattintás nélkül nem megy ki levél, és sandboxban a
+**címzettnek** is hitelesítettnek kell lennie. Részletek és a production
+access kérése: [DEPLOY.md](DEPLOY.md) 6. és 10. lépés.
+
+## 6. Foxpost integráció
 
 A pénztár most egy valódi, térképes csomagpont-választót használ
 (Leaflet.js, OpenStreetMap alap, nincs API-kulcs). Ez a Foxpost
@@ -179,9 +149,9 @@ együtt eltárolódik (alapból a számlázási cím, de külön is megadható).
 Futárszolgálati API-integráció (GLS/MPL címke, feladás) nincs — a
 csomagfeladás egyelőre kézi. Szólj, ha melyiket kössük be.
 
-## 9. Fizetés
+## 7. Fizetés
 
-### 9.1 Fizetési és szállítási módok
+### 7.1 Fizetési és szállítási módok
 
 | Fizetés | Csomagautomata | Házhozszállítás | Rendelés státusza induláskor |
 |---|---|---|---|
@@ -206,7 +176,7 @@ felület megkerülése sem visz át tiltott kombinációt.
   mindkettő ingyenes. A házhozszállítás díja jelenleg 1990 Ft — ezt a
   tényleges futárszolgálati szerződés szerint kell átírni.
 
-### 9.2 A bankkártyás fizetés útja
+### 7.2 A bankkártyás fizetés útja
 
 1. `create_order` kiszámolja az árat a katalógusból (a böngészőtől
    kapott árat soha nem fogadjuk el), elmenti a rendelést
@@ -222,7 +192,7 @@ felület megkerülése sem visz át tiltott kombinációt.
    még nyitott, ez a függvény is egyeztet a Barionnal — így egy
    elmaradt vagy késő IPN sem hagyja félbe a rendelést.
 
-### 9.3 Hibás és elmaradt fizetések kezelése
+### 7.3 Hibás és elmaradt fizetések kezelése
 
 | Barion `Status` | Rendelés státusza | Mi történik |
 |---|---|---|
@@ -255,7 +225,7 @@ További garanciák:
   kosarat, csak a köszönőoldalon, sikeres rendelés után. Megszakított
   fizetés után a vásárló teli kosárral tér vissza.
 
-### 9.4 Barion Smart Payment Banner
+### 7.4 Barion Smart Payment Banner
 
 A Barion fejlesztői útmutatója (`infra/barion-smart-banner-dev-guide.pdf`)
 előírja, hogy a bannernek változatlanul meg kell jelennie a shop
@@ -272,7 +242,7 @@ arányt tart (`width:100%; height:auto`), nincs nyújtva vagy vágva, és
 legalább 8px hely marad körülötte — mindezt a `.barion-banner`
 osztály biztosítja a `style.css`-ben.
 
-### 9.5 Tesztelés
+### 7.5 Tesztelés
 
 - Automata teszt: `python3 backend/tests/test_payments.py` — a
   `payments.py` minden ága (sikeres, eltérő összegű, sikertelen,
@@ -287,7 +257,7 @@ osztály biztosítja a `style.css`-ben.
   fogadásához a `BARION_CALLBACK_URL`-nek kívülről elérhetőnek kell
   lennie.
 
-## 10. Foxpost térkép teljesítmény
+## 8. Foxpost térkép teljesítmény
 
 A térkép nem tölti be az egész országos listát egyszerre — az induláskor
 üres, csak egy útmutató szöveg látszik. Két esemény tölt be adatot:
@@ -298,15 +268,18 @@ Mindkét út a backend cache-elt listáját szűri, és legfeljebb 300
 találatot ad vissza egyszerre, hogy a böngésző soha ne kapjon
 több ezer markert egyben.
 
-## Tesztelési sorrend
+## Telepítési sorrend
 
-1. DynamoDB tábla + GSI létrehozása.
-2. S3 bucket + CORS.
-3. Lambda Layer feltöltése.
-4. 7 Lambda létrehozása, env vars kitöltése (Barion sandbox kulccsal).
-5. API Gateway route-ok bekötése, CORS bekapcsolása.
-6. `config.js` frissítése az API URL-lel.
-7. Amplify deploy.
-8. Végigrendelés tesztelése a Barion sandbox tesztkártyáival —
-   sikeres ÉS megszakított/sikertelen fizetéssel is (9.3).
-9. Éles Barion POSKey-re váltás, SES production access, Foxpost szerződés.
+Részletes parancsokkal: **[DEPLOY.md](DEPLOY.md)**. Dióhéjban:
+
+1. `aws sts get-caller-identity --profile wordpress-deploy` — van-e hozzáférés.
+2. Barion sandbox POSKey beszerzése.
+3. `npx wrangler pages project create fenykep` — ettől lesz `site_url`-öd.
+4. `infra/terraform/dev.auto.tfvars` kitöltése.
+5. `terraform init && terraform apply`.
+6. SES megerősítő linkek kikattintása.
+7. `./scripts/deploy-frontend.sh`.
+8. Végigrendelés a Barion sandbox tesztkártyáival — sikeres ÉS
+   megszakított/sikertelen fizetéssel is (7.3).
+9. Élesítés: éles POSKey + `api.barion.com`, SES production access,
+   saját domain, ÁSZF/adatvédelem kitöltése.
