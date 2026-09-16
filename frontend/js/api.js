@@ -9,7 +9,9 @@ const Api = {
     const res = await fetch(`${window.API_URL}/uploads`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ fileName: file.name, contentType: file.type }),
+      // A méret is átmegy: a backend belefoglalja az aláírásba, így a
+      // presigned URL-lel pontosan ekkora fájl tölthető fel, se több.
+      body: JSON.stringify({ fileName: file.name, contentType: file.type, fileSize: file.size }),
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));

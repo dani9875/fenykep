@@ -1,6 +1,7 @@
 import json
 
 from ses_mail import _send, ADMIN_EMAIL
+import guard
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -15,10 +16,22 @@ def _error(msg: str, code: int = 400):
 
 
 def handler(event, context):
+    # Kapcsolati űrlap: minden hívás egy e-mail, ezért ez a legszűkebb korlát.
+    try:
+        guard.protect(event, bucket="contact", limit=5, window_seconds=3600)
+    except guard.Rejected as rejection:
+        return rejection.response(HEADERS)
+
     try:
         body = json.loads(event.get("body") or "{}")
     except json.JSONDecodeError:
         return _error("Bad JSON")
+
+    # Mézesbödön: a rejtett mezőt ember nem tölti ki, robot igen.
+    # Sikert jelzünk vissza, hogy a spammer ne tudja, hogy lebukott.
+    if body.get("website"):
+        print(f"[contact] honeypot kifogta, ip={guard.client_ip(event)}")
+        return {"statusCode": 200, "headers": HEADERS, "body": json.dumps({"ok": True})}
 
     for field in REQUIRED_FIELDS:
         if not body.get(field):

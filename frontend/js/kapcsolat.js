@@ -10,6 +10,7 @@ document.getElementById("contact-form").addEventListener("submit", async (e) => 
     phone: document.getElementById("cf-phone").value.trim(),
     subject: document.getElementById("cf-subject").value.trim(),
     message: document.getElementById("cf-message").value.trim(),
+    website: document.getElementById("cf-website").value, // mézesbödön, üresen kell maradnia
   };
 
   const btn = document.getElementById("cf-submit");

@@ -2991,3 +2991,80 @@ p.cart-empty.woocommerce-info {
   .barion-banner--checkout img,
   .barion-banner--footer img { max-width: 100%; }
 }
+
+/* ── Foxpost csomagautomata-választó ─────────────────────────── */
+.fp-hint {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.fp-selected {
+  padding: 0.75rem 0.9rem;
+  border: 1.5px solid #4a7a44;
+  border-radius: var(--radius);
+  background: #f2f7f1;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+.fp-selected strong { color: #3c6837; }
+.fp-selected__address { color: var(--text-muted); }
+
+.fp-list {
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.fp-list:empty { display: none; }
+
+/* Gomb, nem div: így billentyűzettel is végigjárható és választható. */
+.fp-list-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.fp-list-item:last-child { border-bottom: 0; }
+.fp-list-item:hover { background: var(--sand-light); }
+.fp-list-item:focus-visible { outline: 2px solid var(--charcoal); outline-offset: -2px; }
+.fp-list-item__address {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+.fp-list-item.is-selected {
+  background: #f2f7f1;
+  box-shadow: inset 3px 0 0 #4a7a44;
+}
+.fp-list-item.is-selected strong { color: #3c6837; }
+
+/* Visszatöltött piszkozat jelzése a pénztárban */
+.litho-draft-note {
+  margin-bottom: 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(160, 130, 100, 0.35);
+  border-radius: var(--radius);
+  background: var(--sand-light);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* Mézesbödön mező: a képernyőn sehol, de a robotok kitöltik. */
+.litho-cf__hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

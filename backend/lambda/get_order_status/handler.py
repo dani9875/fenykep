@@ -13,6 +13,7 @@ import json
 import time
 
 from dynamo import get_order
+import guard
 import payments
 
 HEADERS = {
@@ -42,6 +43,13 @@ STATUS_MESSAGES = {
 
 
 def handler(event, context):
+    # A köszönőoldal 12-szer kérdez rá egy rendelésre, ezért bőkezűbb a keret.
+    # Origin-ellenőrzés nincs: a vásárló a Barion oldaláról tér vissza ide.
+    try:
+        guard.rate_limit(event, "order-status", limit=120, window_seconds=300)
+    except guard.Rejected as rejection:
+        return rejection.response(HEADERS)
+
     order_id = (event.get("pathParameters") or {}).get("orderId")
     if not order_id:
         return {"statusCode": 400, "headers": HEADERS, "body": json.dumps({"error": "Missing orderId"})}

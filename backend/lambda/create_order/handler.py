@@ -23,6 +23,7 @@ from products import (
 )
 from dynamo import put_order, update_order_status
 import barion
+import guard
 from ses_mail import (
     send_admin_notification,
     send_cod_confirmation,
@@ -78,6 +79,13 @@ def _validate_address_block(block: dict, prefix: str) -> str | None:
 
 
 def handler(event, context):
+    # Egy rendelés indítása Barion-hívást, adatbázisírást és e-mailt jelent —
+    # ez a legdrágább végpontunk, ezért a legszűkebb a korlát is.
+    try:
+        guard.protect(event, bucket="orders", limit=10, window_seconds=300)
+    except guard.Rejected as rejection:
+        return rejection.response(HEADERS)
+
     try:
         body = json.loads(event.get("body") or "{}")
     except json.JSONDecodeError:

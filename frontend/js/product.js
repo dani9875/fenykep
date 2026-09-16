@@ -96,12 +96,23 @@ async function initProductPage() {
     dropzoneText.textContent = "Csere másik fényképre";
     filenameEl.textContent = file.name + " · " + Math.round(file.size / 1024) + " kB";
 
+    const errorEl = document.getElementById("product-error");
+    errorEl.hidden = true;
+
     try {
       previewDataUrl = await PhotoStore.makePreview(file);
       previewEl.src = previewDataUrl;
       previewEl.hidden = false;
     } catch (e) {
-      previewEl.hidden = true; // preview is a nicety; the upload still works
+      // Régebben ez némán elrejtette az előnézetet: a vásárló csak annyit
+      // látott, hogy "nem jelent meg a kép". Telefonon a leggyakoribb ok a
+      // nem támogatott formátum (pl. iPhone HEIC).
+      previewEl.hidden = true;
+      errorEl.textContent =
+        "A képet nem sikerült megjeleníteni. Ha iPhone-ról töltöd fel, " +
+        "állítsd a Beállítások → Kamera → Formátumok menüben a " +
+        "„Legnagyobb kompatibilitás" + String.fromCharCode(8221) + " opciót, vagy tölts fel JPG/PNG fájlt.";
+      errorEl.hidden = false;
     }
   });
 

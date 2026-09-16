@@ -114,7 +114,66 @@ minden címre — kattintás nélkül nem megy ki levél, és sandboxban a
 **címzettnek** is hitelesítettnek kell lennie. Részletek és a production
 access kérése: [DEPLOY.md](DEPLOY.md) 6. és 10. lépés.
 
-## 6. Foxpost integráció
+## 6. Visszaélés elleni védelem
+
+Először az, ami **nem** véd: a **CORS nem biztonsági határ**. Csak a
+böngészőt köti, egy `curl` vagy szkript figyelmen kívül hagyja. Ugyanígy
+az `Origin` fejléc is hamisítható. Ezek szűrők, nem falak.
+
+Ami ténylegesen korlátoz, négy rétegben:
+
+**1. Útvonalankénti throttling (API Gateway, `api.tf`)** — globális
+kérés/másodperc korlát, a végpont költségéhez igazítva:
+
+| Útvonal | rps / burst | Miért |
+|---|---|---|
+| `GET /products` | 30 / 60 | statikus katalógus, olcsó |
+| `GET /foxpost-lockers` | 20 / 40 | a térkép mozgatása sokat kérdez |
+| `GET /orders/{orderId}` | 20 / 40 | a köszönőoldal pollozik |
+| `POST /uploads` | 5 / 10 | presigned URL-t ad ki |
+| `POST /orders` | 5 / 10 | Barion-hívás + adatbázis + e-mail |
+| `POST /contact` | 2 / 5 | minden hívás egy e-mail |
+| `POST /barion-callback` | 20 / 40 | a Barion szerverei hívják, nem fojtjuk |
+
+**2. IP-nkénti kérésszám (`common/guard.py`)** — ez hat a böngészőn
+kívülről érkező hívásokra is. A számlálók külön DynamoDB táblában élnek,
+TTL-lel (nincs takarítani való):
+
+| Végpont | Korlát |
+|---|---|
+| `POST /orders` | 10 / 5 perc |
+| `POST /uploads` | 20 / 5 perc |
+| `POST /contact` | 5 / óra |
+| `GET /orders/{id}` | 120 / 5 perc |
+| `GET /foxpost-lockers` | 200 / 5 perc |
+
+Ha a számláló tábla nem elérhető, **átengedjük** a kérést: egy
+adatbázishiba ne tegye használhatatlanná a webshopot.
+
+**3. Origin-ellenőrzés** a `POST /orders`, `/uploads` és `/contact`
+végpontokon. Hamisítható, de kiszűri a naiv szkripteket és a más oldalba
+ágyazott hívásokat. Kikapcsolható: `enforce_origin = false`.
+*Következmény:* ezeket a végpontokat `curl`-lel csak
+`-H "Origin: https://<site_url>"` fejléccel lehet tesztelni.
+
+**4. Amit a kérés tartalmán ellenőrzünk:**
+
+- minden ár a szerveroldali katalógusból jön újraszámolva — a böngészőtől
+  kapott árat sosem fogadjuk el;
+- a fizetett összeget a Barionnál visszaellenőrizzük (8.3);
+- darabszám 1–20, tételszám max. 20, kéréstörzs max. 64 kB;
+- a feltöltés csak JPG/PNG, 1 kB–25 MB, és a **méret bele van írva az
+  aláírásba** — a presigned URL-lel pontosan akkora fájl tölthető fel;
+  a link 5 percig él;
+- a kapcsolati űrlapon rejtett mézesbödön mező fogja a robotokat.
+
+**Amit tudatosan nem építettünk be:** AWS WAF-ot (HTTP API-hoz nem
+csatolható, CloudFront vagy REST API kellene hozzá, és havi ~5 dollár),
+illetve captchát. Ha a forgalom indokolja, a legjobb következő lépés a
+saját domain a Cloudflare mögé húzva: ott IP-alapú rate limiting és
+bot-szűrés van az edge-en, még mielőtt az AWS-t elérné a kérés.
+
+## 7. Foxpost integráció
 
 A pénztár most egy valódi, térképes csomagpont-választót használ
 (Leaflet.js, OpenStreetMap alap, nincs API-kulcs). Ez a Foxpost
@@ -149,9 +208,9 @@ együtt eltárolódik (alapból a számlázási cím, de külön is megadható).
 Futárszolgálati API-integráció (GLS/MPL címke, feladás) nincs — a
 csomagfeladás egyelőre kézi. Szólj, ha melyiket kössük be.
 
-## 7. Fizetés
+## 8. Fizetés
 
-### 7.1 Fizetési és szállítási módok
+### 8.1 Fizetési és szállítási módok
 
 | Fizetés | Csomagautomata | Házhozszállítás | Rendelés státusza induláskor |
 |---|---|---|---|
@@ -176,7 +235,7 @@ felület megkerülése sem visz át tiltott kombinációt.
   mindkettő ingyenes. A házhozszállítás díja jelenleg 1990 Ft — ezt a
   tényleges futárszolgálati szerződés szerint kell átírni.
 
-### 7.2 A bankkártyás fizetés útja
+### 8.2 A bankkártyás fizetés útja
 
 1. `create_order` kiszámolja az árat a katalógusból (a böngészőtől
    kapott árat soha nem fogadjuk el), elmenti a rendelést
@@ -192,7 +251,7 @@ felület megkerülése sem visz át tiltott kombinációt.
    még nyitott, ez a függvény is egyeztet a Barionnal — így egy
    elmaradt vagy késő IPN sem hagyja félbe a rendelést.
 
-### 7.3 Hibás és elmaradt fizetések kezelése
+### 8.3 Hibás és elmaradt fizetések kezelése
 
 | Barion `Status` | Rendelés státusza | Mi történik |
 |---|---|---|
@@ -225,7 +284,7 @@ További garanciák:
   kosarat, csak a köszönőoldalon, sikeres rendelés után. Megszakított
   fizetés után a vásárló teli kosárral tér vissza.
 
-### 7.4 Barion Smart Payment Banner
+### 8.4 Barion Smart Payment Banner
 
 A Barion fejlesztői útmutatója (`infra/barion-smart-banner-dev-guide.pdf`)
 előírja, hogy a bannernek változatlanul meg kell jelennie a shop
@@ -242,7 +301,7 @@ arányt tart (`width:100%; height:auto`), nincs nyújtva vagy vágva, és
 legalább 8px hely marad körülötte — mindezt a `.barion-banner`
 osztály biztosítja a `style.css`-ben.
 
-### 7.5 Tesztelés
+### 8.5 Tesztelés
 
 - Automata teszt: `python3 backend/tests/test_payments.py` — a
   `payments.py` minden ága (sikeres, eltérő összegű, sikertelen,
@@ -257,7 +316,7 @@ osztály biztosítja a `style.css`-ben.
   fogadásához a `BARION_CALLBACK_URL`-nek kívülről elérhetőnek kell
   lennie.
 
-## 8. Foxpost térkép teljesítmény
+## 9. Foxpost térkép teljesítmény
 
 A térkép nem tölti be az egész országos listát egyszerre — az induláskor
 üres, csak egy útmutató szöveg látszik. Két esemény tölt be adatot:
@@ -280,6 +339,6 @@ Részletes parancsokkal: **[DEPLOY.md](DEPLOY.md)**. Dióhéjban:
 6. SES megerősítő linkek kikattintása.
 7. `./scripts/deploy-frontend.sh`.
 8. Végigrendelés a Barion sandbox tesztkártyáival — sikeres ÉS
-   megszakított/sikertelen fizetéssel is (7.3).
+   megszakított/sikertelen fizetéssel is (8.3).
 9. Élesítés: éles POSKey + `api.barion.com`, SES production access,
    saját domain, ÁSZF/adatvédelem kitöltése.

@@ -294,6 +294,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         if self.path == "/contact":
             body = self._read_json_body()
+            if body.get("website"):  # mézesbödön: robot töltötte ki
+                print("\n[MOCK] honeypot kifogott egy beküldést\n")
+                return self._json(200, {"ok": True})
             for field in ("firstName", "email", "message"):
                 if not body.get(field):
                     return self._json(400, {"error": f"Missing field: {field}"})

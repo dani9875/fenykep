@@ -29,6 +29,28 @@ resource "aws_dynamodb_table" "orders" {
   }
 }
 
+# ── DynamoDB: kérésszámlálók (rate limit) ───────────────────────────────
+#
+# IP-nként és időablakonként egy sor, TTL-lel. Magától eltakarít, nincs
+# karbantartása. Ez az egyetlen védelem, ami a böngészőn kívülről érkező
+# hívásokra is hat — a CORS és az Origin-fejléc nem.
+
+resource "aws_dynamodb_table" "rate_limit" {
+  name         = "${var.name_prefix}-ratelimit"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "rateKey"
+
+  attribute {
+    name = "rateKey"
+    type = "S"
+  }
+
+  ttl {
+    attribute_name = "expiresAt"
+    enabled        = true
+  }
+}
+
 # ── S3: fotófeltöltés + Foxpost cache ───────────────────────────────────
 #
 # Egy bucket, két prefix:

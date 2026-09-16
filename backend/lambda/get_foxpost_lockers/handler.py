@@ -25,6 +25,8 @@ import urllib.request
 import boto3
 from botocore.exceptions import ClientError
 
+import guard
+
 s3 = boto3.client("s3")
 BUCKET = os.environ.get("CACHE_BUCKET", "litho-uploads")
 CACHE_KEY = "cache/foxpost-lockers.json"
@@ -60,11 +62,20 @@ def _fetch_and_cache() -> list[dict]:
     return trimmed
 
 
+# Hiányzó cache-nek számít. Az AccessDenied azért van itt, mert az S3 egy
+# nem létező kulcsra ezt adja vissza, ha a hívónak nincs ListBucket joga a
+# bucketre — ilyenkor is a letöltés a helyes viselkedés, nem a hibázás.
+# (A jogot az infra/terraform/iam.tf megadja; ez az öv a nadrágtartó mellé.)
+_CACHE_MISS_CODES = ("NoSuchKey", "404", "AccessDenied", "403")
+
+
 def _read_cache() -> list[dict] | None:
     try:
         obj = s3.get_object(Bucket=BUCKET, Key=CACHE_KEY)
     except ClientError as exc:
-        if exc.response["Error"]["Code"] in ("NoSuchKey", "404"):
+        code = exc.response["Error"]["Code"]
+        if code in _CACHE_MISS_CODES:
+            print(f"[foxpost] nincs használható cache ({code}), letöltés a forrásból")
             return None
         raise
     data = json.loads(obj["Body"].read().decode("utf-8"))
@@ -74,16 +85,25 @@ def _read_cache() -> list[dict] | None:
 
 
 def handler(event, context):
-    lockers = _read_cache()
-    if lockers is None:
-        try:
+    # A térkép mozgatása sok kérést szül, ezért tág a keret — de nem végtelen.
+    try:
+        guard.rate_limit(event, "foxpost", limit=200, window_seconds=300)
+    except guard.Rejected as rejection:
+        return rejection.response(HEADERS)
+
+    # A cache olvasása is beletartozik: egy váratlan S3 hiba se nyers 500-at
+    # adjon a hívónak, hanem olvasható üzenetet, amiből kiderül, mi a baj.
+    try:
+        lockers = _read_cache()
+        if lockers is None:
             lockers = _fetch_and_cache()
-        except Exception as exc:  # noqa: BLE001
-            return {
-                "statusCode": 502,
-                "headers": HEADERS,
-                "body": json.dumps({"error": f"Foxpost list unavailable: {exc}"}),
-            }
+    except Exception as exc:  # noqa: BLE001
+        print(f"[foxpost] list unavailable: {type(exc).__name__}: {exc}")
+        return {
+            "statusCode": 502,
+            "headers": HEADERS,
+            "body": json.dumps({"error": f"Foxpost list unavailable: {exc}"}),
+        }
 
     params = (event.get("queryStringParameters") or {})
 

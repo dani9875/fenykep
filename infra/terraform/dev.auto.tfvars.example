@@ -23,6 +23,10 @@ barion_api_base = "https://api.test.barion.com"
 barion_poskey   = "ide-jon-a-sandbox-poskey"
 barion_payee    = "a-barion-fiokod@example.com"
 
+# "BankCard" = a vásárló rögtön a kártyaűrlapot kapja (nincs Barion belépés).
+# "All"      = kártya és Barion egyenleg is választható.
+barion_funding_sources = "BankCard"
+
 # ── SES (sandbox) ───────────────────────────────────────────────────────
 ses_from_address = "info@example.com"
 admin_email      = "te@example.com"

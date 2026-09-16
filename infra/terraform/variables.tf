@@ -49,6 +49,17 @@ variable "extra_allowed_origins" {
   default     = ["http://localhost:8787"]
 }
 
+variable "enforce_origin" {
+  description = <<-EOT
+    Megköveteljük-e, hogy a rendelés/feltöltés/kapcsolat hívások a saját
+    oldalunkról (Origin fejléc) érkezzenek. Kiszűri a naiv szkripteket és a
+    más oldalba ágyazott hívásokat — de a fejléc hamisítható, ezért ez réteg,
+    nem biztonsági határ. Hibakereséshez (pl. curl-teszt) kapcsold false-ra.
+  EOT
+  type        = bool
+  default     = true
+}
+
 # ── Barion ──────────────────────────────────────────────────────────────
 
 variable "barion_api_base" {
@@ -61,6 +72,17 @@ variable "barion_poskey" {
   description = "Barion POSKey a kereskedői admin felületről. Titok — dev.auto.tfvars-ba tedd, ne ide."
   type        = string
   sensitive   = true
+}
+
+variable "barion_funding_sources" {
+  description = <<-EOT
+    Mit kínáljon fel a Barion fizetőoldala.
+    "BankCard" — csak bankkártya, a vásárló rögtön a kártyaűrlapot kapja.
+    "All"      — kártya és Barion egyenleg is; ilyenkor egy létező Barion
+                 fiókkal rendelkező vásárló a tárca-belépéssel találkozik.
+  EOT
+  type        = string
+  default     = "BankCard"
 }
 
 variable "barion_payee" {

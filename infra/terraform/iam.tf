@@ -58,6 +58,21 @@ data "aws_iam_policy_document" "s3_cache" {
     actions   = ["s3:GetObject", "s3:PutObject"]
     resources = ["${aws_s3_bucket.uploads.arn}/cache/*"]
   }
+
+  # ListBucket nélkül az S3 egy NEM LÉTEZŐ kulcsra AccessDenied-et ad
+  # NoSuchKey helyett — így az első, üres cache-es hívás elszállna.
+  # A jog a bucketre szól (nem objektumra), ezért külön statement.
+  statement {
+    actions   = ["s3:ListBucket"]
+    resources = [aws_s3_bucket.uploads.arn]
+  }
+}
+
+data "aws_iam_policy_document" "rate_limit" {
+  statement {
+    actions   = ["dynamodb:UpdateItem"]
+    resources = [aws_dynamodb_table.rate_limit.arn]
+  }
 }
 
 data "aws_iam_policy_document" "ses" {
@@ -80,6 +95,7 @@ locals {
     dynamo     = data.aws_iam_policy_document.dynamo.json
     s3_uploads = data.aws_iam_policy_document.s3_uploads.json
     s3_cache   = data.aws_iam_policy_document.s3_cache.json
+    rate_limit = data.aws_iam_policy_document.rate_limit.json
     ses        = data.aws_iam_policy_document.ses.json
   }
 

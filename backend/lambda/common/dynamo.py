@@ -62,6 +62,28 @@ def update_order_status(order_id: str, status: str, extra: dict | None = None) -
     )
 
 
+def set_order_attributes(order_id: str, attrs: dict) -> None:
+    """Mezők írása a rendelésre, a státusz érintése nélkül.
+
+    Azért nem az update_order_status-t használjuk erre, mert az a státuszt is
+    felülírná — egy párhuzamos feldolgozás közben ez visszaírhatna egy elavult
+    értéket.
+    """
+    if not attrs:
+        return
+    names, values, sets = {}, {":t": int(time.time())}, ["updatedAt = :t"]
+    for i, (key, value) in enumerate(attrs.items()):
+        names[f"#a{i}"] = key
+        values[f":a{i}"] = value
+        sets.append(f"#a{i} = :a{i}")
+    table().update_item(
+        Key={"orderId": order_id},
+        UpdateExpression="SET " + ", ".join(sets),
+        ExpressionAttributeNames=names,
+        ExpressionAttributeValues=values,
+    )
+
+
 def transition_order_status(order_id: str, new_status: str, from_statuses: list[str], extra: dict | None = None) -> None:
     """
     Státuszváltás, ami csak akkor megy végbe, ha a rendelés még a megadott

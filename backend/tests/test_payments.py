@@ -217,6 +217,8 @@ class PaymentReconcileTest(unittest.TestCase):
         finally:
             payments.send_customer_confirmation = original
         self.assertEqual(result["orderStatus"], "paid")  # a rendelés attól még fizetett
+        # ...és a hiba nyoma rákerül a rendelésre, hogy ne csak a logból derüljön ki
+        self.assertIn("SES le van tiltva", fake_table.items["order-1"].get("emailError", ""))
 
     def test_non_card_orders_are_skipped(self):
         fake_table.items["order-1"]["paymentMethod"] = "transfer"
@@ -257,6 +259,12 @@ class BarionRequestTest(unittest.TestCase):
         self.assertEqual(body["CallbackUrl"], "https://api.example.hu/barion-callback")
         self.assertIn("orderId=order-1", body["RedirectUrl"])
         self.assertEqual(body["BillingAddress"]["Zip"], "1053")
+
+    def test_only_bank_card_is_offered_by_default(self):
+        """Alapból csak kártyás fizetés — a Barion tárca-belépés ne jöjjön fel."""
+        self.start()
+        self.assertEqual(self.captured["body"]["FundingSources"], ["BankCard"])
+        self.assertTrue(self.captured["body"]["GuestCheckOut"])
 
     def test_phone_is_normalised_for_barion(self):
         cases = {"+36 30 123 4567": "36301234567", "06301234567": "36301234567",

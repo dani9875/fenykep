@@ -24,6 +24,7 @@ Env vars (minden Lambdán, ami importálja):
                         https://api.barion.com (éles).
   BARION_CALLBACK_URL   A barion_callback Lambda API Gateway URL-je.
   BARION_REDIRECT_URL   A frontend "köszönjük" oldalának URL-je.
+  BARION_FUNDING_SOURCES  Mit kínáljon a fizetőoldal: "BankCard" (alap) vagy "All".
 """
 
 import json
@@ -37,6 +38,17 @@ POSKEY = os.environ.get("BARION_POSKEY", "")
 PAYEE = os.environ.get("BARION_PAYEE", "")
 CALLBACK_URL = os.environ.get("BARION_CALLBACK_URL", "")
 REDIRECT_URL = os.environ.get("BARION_REDIRECT_URL", "")
+
+# Mit kínáljon fel a Barion fizetőoldala.
+#   BankCard  — csak bankkártyás fizetés: a vásárló rögtön a kártyaűrlapot
+#               kapja, nem kell (és nem is lehet) Barion fiókba belépni.
+#   All       — kártya ÉS Barion egyenleg. Ilyenkor, ha a PayerHint egy
+#               létező Barion fiók e-mail címe, a fizetőoldal a tárca
+#               belépéssel indul — ez zavaró, ha csak kártyát vársz.
+# Vesszővel elválasztva több is megadható.
+FUNDING_SOURCES = [
+    s.strip() for s in os.environ.get("BARION_FUNDING_SOURCES", "BankCard").split(",") if s.strip()
+] or ["BankCard"]
 
 TIMEOUT_SECONDS = 15
 
@@ -235,7 +247,7 @@ def start_payment(
         "POSKey": POSKEY,
         "PaymentType": "Immediate",
         "GuestCheckOut": True,
-        "FundingSources": ["All"],
+        "FundingSources": FUNDING_SOURCES,
         "PaymentRequestId": order_id,
         "OrderNumber": (order_number or order_id)[:100],
         # 30 perc a Barion alapértelmezése is; kiírva látszik, mihez képest

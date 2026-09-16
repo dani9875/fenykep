@@ -17,7 +17,13 @@ Amit ez a modul garantál:
 """
 
 import barion
-from dynamo import StatusAlreadySet, get_order, transition_order_status, update_order_status
+from dynamo import (
+    StatusAlreadySet,
+    get_order,
+    set_order_attributes,
+    transition_order_status,
+    update_order_status,
+)
 from ses_mail import send_admin_notification, send_payment_failed_notice, send_customer_confirmation
 
 # Ezekből az állapotokból még van értelme továbblépni egy Barion válasz alapján.
@@ -38,6 +44,13 @@ def _notify(fn, order: dict, label: str) -> None:
         fn(order)
     except Exception as exc:  # noqa: BLE001
         print(f"[ses] {label} failed for {order.get('orderId')}: {exc}")
+        # Nyoma maradjon a rendelésen is: a logban keresgélés helyett a
+        # rendelés rekordjából is látszódjon, hogy egy levél nem ment ki.
+        # (SES sandboxban a leggyakoribb ok: a címzett nincs hitelesítve.)
+        try:
+            set_order_attributes(order["orderId"], {"emailError": f"{label}: {exc}"[:300]})
+        except Exception as inner:  # noqa: BLE001
+            print(f"[ses] a hiba rögzítése sem sikerült ({order.get('orderId')}): {inner}")
 
 
 def reconcile(order: dict, *, source: str = "callback") -> dict:

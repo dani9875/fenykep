@@ -18,7 +18,12 @@ const DEPLOYED_API_URL = "__API_URL__";
 const isLocal = LOCAL_HOSTS.includes(window.location.hostname);
 window.API_URL = isLocal ? "http://localhost:8787" : DEPLOYED_API_URL;
 
-if (!isLocal && window.API_URL.indexOf("__API_URL__") !== -1) {
+// A helyőrzőt darabokból rakjuk össze: ha egyben szerepelne, a deploy
+// szkript ezt a sort is kicserélné, és a figyelmeztetés minden deployolt
+// oldalon hamisan sülne el.
+const API_URL_PLACEHOLDER = "__" + "API_URL" + "__";
+
+if (!isLocal && DEPLOYED_API_URL === API_URL_PLACEHOLDER) {
   // Ilyenkor a statikus fájlokat a deploy szkript megkerülésével töltötték
   // fel. Jobb hangosan elhasalni, mint néma 404-ekkel csendben hibázni.
   console.error(

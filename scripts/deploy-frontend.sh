@@ -62,11 +62,15 @@ trap 'rm -rf "$DIST"' EXIT
 
 cp -R "$ROOT/frontend/." "$DIST/"
 
+# Csak azt az EGY sort írjuk át, ami az URL-t tartalmazza. A korábbi
+# globális csere a kódban lévő helyőrző-hivatkozásokat (és a kommenteket)
+# is átírta, amitől a "nincs beállítva az API URL" figyelmeztetés minden
+# deployolt oldalon hamisan elsült.
 # A -i.bak forma GNU és BSD (macOS) seddel is működik.
-sed -i.bak "s|__API_URL__|$API_URL|g" "$DIST/js/config.js"
+sed -i.bak "s|^const DEPLOYED_API_URL = .*|const DEPLOYED_API_URL = \"$API_URL\";|" "$DIST/js/config.js"
 rm -f "$DIST/js/config.js.bak"
 
-if grep -q "__API_URL__" "$DIST/js/config.js"; then
+if ! grep -q "^const DEPLOYED_API_URL = \"https://" "$DIST/js/config.js"; then
   echo "HIBA: az API URL behelyettesítése nem sikerült." >&2
   exit 1
 fi

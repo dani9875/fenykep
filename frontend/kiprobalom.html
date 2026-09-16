@@ -6,6 +6,7 @@
 <title>Próbáld ki 3D-ben — Fény·kép Stúdió</title>
 <meta name="description" content="Töltsd fel a fotódat, és nézd meg 3D-ben, hogyan fog kinézni litofánként — még a rendelés előtt.">
 <link rel="stylesheet" href="css/style.css?v=20260914a">
+<script src="js/cart.js?v=20260914a"></script>
 </head>
 <body>
 <div class="site-wrapper">
@@ -20,12 +21,19 @@
       <a href="index.html#how">Hogyan készül</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
-    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count">0</span></a></div>
+    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count"></span></a></div>
     <button class="nav-burger" id="nav-burger" aria-label="Menü">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
   </div>
 </header>
+
+<script>
+  /* A kosár száma még az oldal kirajzolása előtt a helyére kerül.
+     Ha csak a DOMContentLoaded-nél írnánk be, a látogató egy pillanatra
+     üres (korábban: 0-s) kosarat látna minden oldalbetöltéskor. */
+  renderCartBadge();
+</script>
 
 <div class="container page-tabs-wrap">
   <!-- A két nézet külön oldal, de egy fülsávban lakik: a galéria az
@@ -43,7 +51,7 @@
     <div class="section-header">
       <span class="section-eyebrow">Interaktív előnézet</span>
       <h1 class="section-title">Próbáld ki — <em>töltsd fel a fotódat</em></h1>
-      <p class="section-lead">Feltöltöd a képedet, és azonnal látod 3D-ben, hogyan fog kinézni a litofán — még a rendelés előtt. Forgasd az egérrel, állítsd a háttérvilágítást.</p>
+      <p class="section-lead">Feltöltöd a képedet, és azonnal látod 3D-ben, hogyan fog kinézni a litofán — még a rendelés előtt. Forgasd az egérrel, és kapcsold ki-be a háttérvilágítást.</p>
     </div>
 
     <!-- The viewer shell -->
@@ -80,12 +88,6 @@
             <span class="lto-sl__val" id="ltoMaxTV">3.0 mm</span>
           </label>
 
-          <div class="lto-shape">
-            <span class="lto-sl__name">Forma</span>
-            <label class="lto-radio"><input type="radio" name="ltoShape" id="ltoFlat" value="0"> Lapos</label>
-            <label class="lto-radio"><input type="radio" name="ltoShape" id="ltoArc"  value="90" checked> Ívelt</label>
-          </div>
-
           <label class="lto-sl lto-sl--light">
             <span class="lto-sl__name">
               <svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="vertical-align:-1px">
@@ -101,8 +103,11 @@
               </svg>
               Háttérfény
             </span>
-            <input type="range" id="ltoLight" min="0" max="1" value="0" step="0.01">
-            <span class="lto-sl__val" id="ltoLightV">0%</span>
+            <span class="lto-switch">
+              <input type="checkbox" id="ltoLight" checked>
+              <span class="lto-switch__track"><span class="lto-switch__knob"></span></span>
+              <span class="lto-switch__label" id="ltoLightV">Be</span>
+            </span>
           </label>
 
         </div><!-- /sliders -->
@@ -162,23 +167,41 @@
 
         <div class="lto-order-left">
           <p class="lto-order-title">Tetszik az előnézet?</p>
-          <p class="lto-order-sub">Válaszd ki a méretet, és tedd kosárba — mi kinyomtatjuk és postázzuk.</p>
+          <p class="lto-order-sub">Válaszd ki a terméket és a méretet — a feltöltött képeddel egyből a kosárba kerül.</p>
+          <p class="lto-order-error" id="ltoOrderError" role="alert" hidden></p>
         </div>
 
-        <div class="lto-order-sizes" id="ltoSizes">
-          <label class="lto-size-opt">
-            <input type="radio" name="ltoOrderSize" value="15 cm" checked>
-            <span><strong>15 cm</strong><small>Klasszikus</small></span>
-          </label>
-          <label class="lto-size-opt">
-            <input type="radio" name="ltoOrderSize" value="20 cm">
-            <span><strong>20 cm</strong><small>Nagy</strong></small></span>
-          </label>
+        <div class="lto-order-choice">
+          <span class="lto-order-choice__label">Termék</span>
+          <div class="lto-order-sizes" id="ltoProducts">
+            <label class="lto-size-opt">
+              <input type="radio" name="ltoProduct" value="lampa-nelkul" checked>
+              <span><strong>Lámpa nélkül</strong><small data-price-for="lampa-nelkul">—</small></span>
+            </label>
+            <label class="lto-size-opt">
+              <input type="radio" name="ltoProduct" value="led-talpas">
+              <span><strong>LED talppal</strong><small data-price-for="led-talpas">—</small></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="lto-order-choice">
+          <span class="lto-order-choice__label">Méret</span>
+          <div class="lto-order-sizes" id="ltoSizes">
+            <label class="lto-size-opt">
+              <input type="radio" name="ltoOrderSize" value="15cm" checked>
+              <span><strong>15 cm</strong><small>Klasszikus</small></span>
+            </label>
+            <label class="lto-size-opt">
+              <input type="radio" name="ltoOrderSize" value="20cm">
+              <span><strong>20 cm</strong><small>Nagy</small></span>
+            </label>
+          </div>
         </div>
 
         <button class="lto-order-btn" id="ltoOrderBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-          Kosárba teszem
+          <span id="ltoOrderBtnText">Kosárba teszem</span>
         </button>
 
       </div>
@@ -254,15 +277,31 @@
 .la-tryout__actions {
   display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0;
 }
-.lto-shape {
-  display: flex; align-items: center; gap: 0.6rem;
-  font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;
+.lto-switch {
+  display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;
 }
-.lto-radio {
-  display: flex; align-items: center; gap: 0.3rem;
-  cursor: pointer; font-size: 0.7rem; color: var(--text-muted);
+.lto-switch input {
+  position: absolute; width: 1px; height: 1px; opacity: 0; margin: 0;
 }
-.lto-radio input { accent-color: var(--taupe); cursor: pointer; }
+.lto-switch__track {
+  position: relative; display: block;
+  width: 34px; height: 18px; border-radius: 9px;
+  background: var(--border-mid); transition: background 0.18s;
+}
+.lto-switch__knob {
+  position: absolute; top: 2px; left: 2px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--warm-white); transition: transform 0.18s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+.lto-switch input:checked + .lto-switch__track { background: #b89020; }
+.lto-switch input:checked + .lto-switch__track .lto-switch__knob { transform: translateX(16px); }
+.lto-switch input:focus-visible + .lto-switch__track {
+  outline: 2px solid var(--charcoal); outline-offset: 2px;
+}
+.lto-switch__label {
+  font-size: 0.66rem; color: var(--taupe); min-width: 18px;
+}
 .la-tryout__stl {
   display: inline-flex; align-items: center; gap: 0.4rem;
   background: transparent; color: var(--taupe);
@@ -364,10 +403,29 @@
 .lto-order-sizes {
   display: flex; gap: 0.6rem; flex-shrink: 0;
 }
+.lto-order-choice { flex-shrink: 0; }
+.lto-order-choice__label {
+  display: block; margin-bottom: 0.35rem;
+  font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-light);
+}
+.lto-order-error {
+  margin-top: 0.5rem;
+  font-size: 0.78rem; line-height: 1.5; color: #b94030;
+}
+.lto-order-btn[disabled] { opacity: 0.6; cursor: progress; }
 .lto-size-opt {
   cursor: pointer;
 }
-.lto-size-opt input { display: none; }
+/* Vizuálisan rejtett, de fókuszálható: display:none esetén a rádiógomb
+   kiesne a tabulátor-sorrendből, és billentyűzettel nem lehetne választani. */
+.lto-size-opt input {
+  position: absolute; width: 1px; height: 1px;
+  opacity: 0; margin: 0;
+}
+.lto-size-opt input:focus-visible + span {
+  outline: 2px solid var(--charcoal); outline-offset: 2px;
+}
 .lto-size-opt span {
   display: flex; flex-direction: column; align-items: center;
   padding: 0.55rem 1rem;
@@ -422,6 +480,11 @@
 </style>
 
 <!-- ══ SCRIPT ══════════════════════════════════════════════════ -->
+<!-- Ezek a lenti inline kód ELŐTT kellenek: az árlekérés és a kosárba
+     tétel az Api / Cart / PhotoStore modulokra épül. -->
+<script src="js/config.js?v=20260914a"></script>
+<script src="js/photo-store.js?v=20260914a"></script>
+<script src="js/api.js?v=20260914a"></script>
 <!-- Three.js r128 from CDN — same version as the local lib -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -441,7 +504,6 @@ var sliderCfg = [
   { el: document.getElementById('ltoWidth'),  valEl: document.getElementById('ltoWidthV'),  suffix: ' mm', key: 'litophaneWidth' },
   { el: document.getElementById('ltoMinT'),   valEl: document.getElementById('ltoMinTV'),   suffix: ' mm', key: 'minThickness' },
   { el: document.getElementById('ltoMaxT'),   valEl: document.getElementById('ltoMaxTV'),   suffix: ' mm', key: 'maxThickness' },
-  { el: document.getElementById('ltoLight'),  valEl: document.getElementById('ltoLightV'),  suffix: '%',   key: 'backlightIntensity', scale: 100 },
 ];
 
 // ── State ────────────────────────────────────────────────────────
@@ -453,10 +515,18 @@ var params = {
   zStartAngle:      90,
   zEndAngle:        90,
   invertImage:      false,
-  backlightIntensity: 0.0,
+  backlightIntensity: 0.85,  // alapból bekapcsolt háttérfény (lásd BACKLIGHT_ON)
 };
 
 var image, imageName, imageGrayValues, imgCanvas;
+var sourceFile = null; // az eredeti fájl: ezt töltjük fel rendeléskor
+var meshW = 0, meshH = 0;  // a háló felbontása (lekicsinyítve, lásd MAX_MESH_PX)
+
+// A háló pixelenként épül: egy 12 megapixeles telefonfotóból több tízmillió
+// háromszög lenne, amitől a mobil böngésző memóriája elfogy, és a fotó
+// egyszerűen soha nem jelenik meg. Az előnézethez ennél sokkal kevesebb is
+// bőven elég — a nyomtatás amúgy is az eredeti, feltöltött fájlból készül.
+var MAX_MESH_PX = 600;
 var theMesh, vertexBuffer;
 var frameGroup;
 
@@ -533,7 +603,7 @@ var materialBacklit = new THREE.ShaderMaterial({
   ].join('\n'),
   uniforms: {
     theMap: { value: null },
-    backlightIntensity: { value: 0.0 }
+    backlightIntensity: { value: 0.85 }
   }
 });
 
@@ -591,14 +661,18 @@ function processImage(img, name) {
   if (!imgCanvas) {
     imgCanvas = document.createElement('canvas');
   }
-  imgCanvas.width  = img.width;
-  imgCanvas.height = img.height;
+  var scale = Math.min(1, MAX_MESH_PX / Math.max(img.width, img.height));
+  meshW = Math.max(1, Math.round(img.width * scale));
+  meshH = Math.max(1, Math.round(img.height * scale));
+
+  imgCanvas.width  = meshW;
+  imgCanvas.height = meshH;
 
   var ctx = imgCanvas.getContext('2d');
-  ctx.drawImage(img, 0, 0);
+  ctx.drawImage(img, 0, 0, meshW, meshH);
 
-  var data = ctx.getImageData(0, 0, img.width, img.height).data;
-  var w = img.width, h = img.height;
+  var data = ctx.getImageData(0, 0, meshW, meshH).data;
+  var w = meshW, h = meshH;
 
   imageGrayValues = new Float32Array(w * h);
 
@@ -648,7 +722,7 @@ function buildMesh() {
 }
 
 function createGeometry() {
-  var pX = image.width, pY = image.height;
+  var pX = meshW, pY = meshH;
   var halfX = pX * 0.5;
   var ppp = pX * pY;
   var sRow = pX - 1, sCol = pY - 1;
@@ -706,10 +780,10 @@ function updateMesh() {
 
   var w = params.litophaneWidth;
   var w2 = w * 0.5;
-  var aspect = image.height / image.width;
+  var aspect = meshH / meshW;
   var h = w * aspect;
 
-  var pX = image.width, pY = image.height;
+  var pX = meshW, pY = meshH;
   var axy = params.xyAngle * Math.PI / 180;
   var dAxy = axy / (pX - 1);
   var axy0 = -axy * 0.5;
@@ -866,6 +940,8 @@ function loadFile(file) {
   statusEl.textContent   = 'Modell számítása…';
   stlBtn.disabled        = true;
 
+  sourceFile = file;
+
   var reader = new FileReader();
   reader.onload = function(ev) {
     var img = new Image();
@@ -910,97 +986,178 @@ sliderCfg.forEach(function(cfg) {
   });
 });
 
+// ── Háttérfény kapcsoló ──────────────────────────────────────────
+// Nincs finomhangolás: a vásárlót az érdekli, hogy kikapcsolt és
+// bekapcsolt lámpával hogy néz ki. Alapból bekapcsolva mutatjuk, mert a
+// litofán ettől lesz látványos.
+// A "bekapcsolt" fényerő. 1.0-nál a környezeti fény teljesen lenullázódik,
+// és egy sötétebb fotó szinte feketének látszik — ez a szint erős izzást ad,
+// de a litofán kerete is látható marad.
+var BACKLIGHT_ON = 0.85;
+
+var lightToggle = document.getElementById('ltoLight');
+var lightLabel  = document.getElementById('ltoLightV');
+
+function applyLightToggle() {
+  var on = lightToggle.checked;
+  params.backlightIntensity = on ? BACKLIGHT_ON : 0.0;
+  lightLabel.textContent = on ? 'Be' : 'Ki';
+  applyBacklight(params.backlightIntensity);
+}
+lightToggle.addEventListener('change', applyLightToggle);
+applyLightToggle();
+
 var orderPanel = document.getElementById('ltoOrderPanel');
 var orderBtn   = document.getElementById('ltoOrderBtn');
-
-// Product page URL — WooCommerce shop URL, JS will find the first product
-var shopUrl = 'termek.html?p=lampa-nelkul';
+var orderBtnText = document.getElementById('ltoOrderBtnText');
+var orderError = document.getElementById('ltoOrderError');
 
 stlBtn.addEventListener('click', saveSTL);
 
-orderBtn.addEventListener('click', function() {
-  // Validate: image must be loaded
-  var missingImage = !imageName;
-  var sizeEl = document.querySelector('input[name="ltoOrderSize"]:checked');
-  var missingSize = !sizeEl;
+// ── Árak a katalógusból ──────────────────────────────────────────
+// Tartalék értékek, ha a /products nem érhető el; a végösszeget úgyis a
+// backend számolja újra a rendeléskor.
+var CATALOG = {
+  'lampa-nelkul': { name: 'Litofán – Lámpa nélkül', base: 9990, sizes: { '15cm': 0, '20cm': 3000 } },
+  'led-talpas':   { name: 'Litofán – LED talppal',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
+};
 
-  if (missingImage || missingSize) {
-    if (missingImage) {
-      // Flash the upload button
-      uploadBtn.classList.add('lto-shake');
-      uploadBtn.style.outline = '2px solid #b94030';
-      setTimeout(function() {
-        uploadBtn.classList.remove('lto-shake');
-        uploadBtn.style.outline = '';
-      }, 800);
-      statusEl.textContent = '⚠ Tölts fel egy fotót a folytatáshoz!';
-      statusEl.style.color = '#b94030';
-    }
-    if (missingSize) {
-      var sizesEl = document.getElementById('ltoSizes');
-      if (sizesEl) {
-        sizesEl.classList.add('lto-shake');
-        sizesEl.style.outline = '2px solid #b94030';
-        sizesEl.style.borderRadius = '6px';
-        setTimeout(function() {
-          sizesEl.classList.remove('lto-shake');
-          sizesEl.style.outline = '';
-        }, 800);
-      }
-      if (!missingImage) {
-        statusEl.textContent = '⚠ Válassz méretet a folytatáshoz!';
-        statusEl.style.color = '#b94030';
-      }
-    }
+function selectedProduct() {
+  var el = document.querySelector('input[name="ltoProduct"]:checked');
+  return el ? el.value : 'lampa-nelkul';
+}
+function selectedSize() {
+  var el = document.querySelector('input[name="ltoOrderSize"]:checked');
+  return el ? el.value : '15cm';
+}
+function unitPrice(productId, sizeCode) {
+  var p = CATALOG[productId];
+  if (!p) return 0;
+  return p.base + (p.sizes[sizeCode] || 0);
+}
+function formatHuf(n) { return n.toLocaleString('hu-HU') + ' Ft'; }
+
+function refreshPrices() {
+  var size = selectedSize();
+  Object.keys(CATALOG).forEach(function(id) {
+    var el = document.querySelector('[data-price-for="' + id + '"]');
+    if (el) el.textContent = formatHuf(unitPrice(id, size));
+  });
+  orderBtnText.textContent = 'Kosárba teszem · ' + formatHuf(unitPrice(selectedProduct(), size));
+}
+
+if (typeof Api !== 'undefined') {
+  Api.getProducts().then(function(data) {
+    Object.keys(data.products || {}).forEach(function(id) {
+      var p = data.products[id];
+      var sizes = {};
+      Object.keys(p.sizes || {}).forEach(function(code) { sizes[code] = p.sizes[code].delta_huf; });
+      CATALOG[id] = { name: p.name, base: p.base_price_huf, sizes: sizes };
+    });
+    refreshPrices();
+  }).catch(function() { /* marad a tartalék árlista */ });
+}
+
+['ltoProduct', 'ltoOrderSize'].forEach(function(group) {
+  document.querySelectorAll('input[name="' + group + '"]').forEach(function(r) {
+    r.addEventListener('change', refreshPrices);
+  });
+});
+refreshPrices();
+
+// ── Kosárba tétel ────────────────────────────────────────────────
+// Innen egyenesen a kosárba megy: a fotó és a méret már megvan, nincs
+// értelme a termékoldalon újra bekérni ugyanazt.
+
+function shake(el, message) {
+  if (el) {
+    el.classList.add('lto-shake');
+    el.style.outline = '2px solid #b94030';
+    el.style.borderRadius = '6px';
+    setTimeout(function() {
+      el.classList.remove('lto-shake');
+      el.style.outline = '';
+    }, 800);
+  }
+  if (message) {
+    orderError.textContent = message;
+    orderError.hidden = false;
+  }
+}
+
+/** Kis előnézeti kép a kosárhoz, a már betöltött vászonból. */
+function previewDataUrl() {
+  if (!imgCanvas) return null;
+  try {
+    var maxPx = 900;
+    var sc = Math.min(1, maxPx / Math.max(imgCanvas.width, imgCanvas.height));
+    var c = document.createElement('canvas');
+    c.width  = Math.round(imgCanvas.width  * sc);
+    c.height = Math.round(imgCanvas.height * sc);
+    c.getContext('2d').drawImage(imgCanvas, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.82);
+  } catch (e) {
+    return null; // előnézet nélkül is működik a kosár
+  }
+}
+
+orderBtn.addEventListener('click', async function() {
+  orderError.hidden = true;
+  statusEl.style.color = '';
+
+  if (!sourceFile || !imageName) {
+    uploadBtn.classList.add('lto-shake');
+    uploadBtn.style.outline = '2px solid #b94030';
+    setTimeout(function() {
+      uploadBtn.classList.remove('lto-shake');
+      uploadBtn.style.outline = '';
+    }, 800);
+    shake(null, 'Tölts fel egy fotót a folytatáshoz.');
+    return;
+  }
+  if (!document.querySelector('input[name="ltoOrderSize"]:checked')) {
+    shake(document.getElementById('ltoSizes'), 'Válassz méretet a folytatáshoz.');
     return;
   }
 
-  // Reset status color
-  statusEl.style.color = '';
+  var productId = selectedProduct();
+  var size = selectedSize();
 
-  var size = sizeEl.value;
+  orderBtn.disabled = true;
+  orderBtnText.textContent = 'Feltöltés…';
 
-  // Store image dataURL and size in sessionStorage so product page can pick it up
-  if (imageName && imgCanvas) {
-    try {
-      var maxPx = 1600;
-      var sc = Math.min(1, maxPx / Math.max(imgCanvas.width, imgCanvas.height));
-      var tmpC = document.createElement('canvas');
-      tmpC.width  = Math.round(imgCanvas.width  * sc);
-      tmpC.height = Math.round(imgCanvas.height * sc);
-      tmpC.getContext('2d').drawImage(imgCanvas, 0, 0, tmpC.width, tmpC.height);
-      sessionStorage.setItem('litho_preview_image', tmpC.toDataURL('image/jpeg', 0.88));
-      sessionStorage.setItem('litho_preview_name',  imageName);
-      sessionStorage.setItem('litho_preview_size',  size);
-      sessionStorage.setItem('litho_preview_shape', params.xyAngle > 0.01 ? 'ívelt' : 'lapos');
-    } catch(e) { /* sessionStorage full — proceed without */ }
+  try {
+    // Az EREDETI fájlt töltjük fel, nem a vásznon átment változatot —
+    // a nyomtatás a teljes felbontású képből készül.
+    var photoKey = await Api.uploadPhoto(sourceFile);
+
+    var preview = previewDataUrl();
+    if (preview && typeof PhotoStore !== 'undefined') PhotoStore.save(photoKey, preview);
+
+    Cart.addItem({
+      productId: productId,
+      productName: (CATALOG[productId] && CATALOG[productId].name) || productId,
+      size: size,
+      unitPrice: unitPrice(productId, size),
+      photoKey: photoKey,
+      photoFileName: imageName
+    });
+
+    window.location.href = 'kosar.html';
+  } catch (err) {
+    orderBtn.disabled = false;
+    refreshPrices();
+    shake(null, (err && err.message) || 'A fotó feltöltése nem sikerült. Próbáld újra.');
   }
-
-  window.location.href = shopUrl;
-});
-
-document.querySelectorAll('input[name="ltoShape"]').forEach(function(r) {
-  r.addEventListener('change', function() {
-    params.xyAngle = parseFloat(r.value);
-    updateMesh();
-  });
 });
 
 })();
 </script>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-bottom">
-      <span>&copy; 2026 Fény·kép Stúdió — Minden jog fenntartva</span>
-    </div>
-  </div>
-</footer>
 
 </div>
 
-<script src="js/config.js?v=20260914a"></script>
-<script src="js/cart.js?v=20260914a"></script>
 <script src="js/nav.js?v=20260914a"></script>
+<script src="js/site-footer.js?v=20260914a"></script>
 </body>
 </html>

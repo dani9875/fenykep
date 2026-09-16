@@ -216,6 +216,29 @@ function applyPaymentNote() {
   }
 }
 
+/* ---------- piszkozat ---------- */
+
+let draftSaveTimer;
+function scheduleDraftSave() {
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer = setTimeout(() => CheckoutDraft.save(), 400);
+}
+
+/** A korábban megadott adatok visszatöltése (pl. sikertelen fizetés után). */
+function restoreDraft() {
+  const values = CheckoutDraft.restore();
+  if (!values) return;
+
+  // A csomagautomatát a picker jeleníti meg, mert a rejtett mező önmagában
+  // nem látszik sehol.
+  if (values["f-locker-id"] && typeof FoxpostPicker !== "undefined") {
+    FoxpostPicker.showRestored(values["f-locker-id"], values["f-locker-name"]);
+  }
+
+  const note = document.getElementById("draft-restored");
+  if (note) note.hidden = false;
+}
+
 /* ---------- beküldés ---------- */
 
 function showCheckoutError(message) {
@@ -298,6 +321,10 @@ document.getElementById("checkout-form").addEventListener("submit", async (e) =>
     })),
   };
 
+  // Mentés közvetlenül a beküldés előtt: ha a fizetés félbeszakad, minden
+  // megvan, ami most a képernyőn van.
+  CheckoutDraft.save();
+
   const btn = e.target.querySelector('button[type="submit"]');
   btn.disabled = true;
   btn.textContent = paymentMethod === "barion" ? "Átirányítás a fizetéshez…" : "Feldolgozás…";
@@ -339,10 +366,20 @@ async function loadPricing() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // A visszatöltés a UI-állapot beállítása ELŐTT fut, hogy a szállítási és
+  // fizetési mód, valamint a címmezők a mentett értékek szerint jelenjenek meg.
+  restoreDraft();
+
   renderReview();
   applyShippingLabels();
   applyShippingMethod();
   loadPricing();
+
+  // Minden változást mentünk, hogy egy megszakadt fizetés után ne kelljen
+  // újra begépelni semmit.
+  const form = document.getElementById("checkout-form");
+  form.addEventListener("input", scheduleDraftSave);
+  form.addEventListener("change", scheduleDraftSave);
 
   document.querySelectorAll('input[name="shipping_method"]').forEach((radio) => {
     radio.addEventListener("change", applyShippingMethod);

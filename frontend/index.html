@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fény·kép Stúdió — Egyedi 3D lithophane ajándékok</title>
 <link rel="stylesheet" href="css/style.css?v=20260914a">
+<script src="js/cart.js?v=20260914a"></script>
 </head>
 <body>
 <div class="site-wrapper">
@@ -23,7 +24,7 @@
       <a href="kosar.html">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
         Kosár
-        <span class="cart-count">0</span>
+        <span class="cart-count"></span>
       </a>
     </div>
     <button class="nav-burger" id="nav-burger" aria-label="Menü">
@@ -31,6 +32,13 @@
     </button>
   </div>
 </header>
+
+<script>
+  /* A kosár száma még az oldal kirajzolása előtt a helyére kerül.
+     Ha csak a DOMContentLoaded-nél írnánk be, a látogató egy pillanatra
+     üres (korábban: 0-s) kosarat látna minden oldalbetöltéskor. */
+  renderCartBadge();
+</script>
 
 <section class="hero">
   <div class="hero-bg" style="background-image:url('assets/hero-poster.jpg');">
@@ -78,52 +86,12 @@
   <img src="assets/folyamat-kollazs.jpg" alt="A litofán készítésének folyamata" style="width:100%; border-radius:12px; display:block;">
 </section>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <a class="site-logo" href="index.html">Fény·kép Stúdió</a>
-        <p>Egyedi, kézzel utómunkált 3D lithophane ajándékok a kedvenc fényképeidből.</p>
-      </div>
-      <div class="footer-col">
-        <h4>Termékek</h4>
-        <ul>
-          <li><a href="index.html">Összes termék</a></li>
-          <li><a href="galeria.html">Elkészült munkák</a></li>
-          <li><a href="kiprobalom.html">Próbáld ki 3D-ben</a></li>
-          <li><a href="kosar.html">Kosár</a></li>
-          <li><a href="penztar.html">Pénztár</a></li>
-        </ul>
-      </div>
-      <div class="footer-col">
-        <h4>Stúdió</h4>
-        <ul>
-          <li><a href="kapcsolat.html">Kapcsolat</a></li>
-          <li><a href="aszf.html">ÁSZF</a></li>
-          <li><a href="adatvedelem.html">Adatvédelem</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>&copy; 2026 Fény·kép Stúdió — Minden jog fenntartva</span>
-      <!-- Barion Smart Payment Banner — a nyitóoldalon kötelező eleme egy
-           Barion shopnak (infra/barion-smart-banner-dev-guide.pdf). -->
-      <div class="barion-banner barion-banner--footer">
-        <a href="https://www.barion.com/hu/" target="_blank" rel="noopener noreferrer" aria-label="Barion — biztonságos online fizetés">
-          <img src="assets/barion/barion-smart-banner-light.svg"
-               alt="Barion — biztonságos bankkártyás fizetés: Mastercard, Maestro, Visa, Visa Electron, American Express"
-               width="567" height="108" loading="lazy">
-        </a>
-      </div>
-    </div>
-  </div>
-</footer>
 
 </div>
 <script src="js/config.js?v=20260914a"></script>
-<script src="js/cart.js?v=20260914a"></script>
 <script src="js/api.js?v=20260914a"></script>
 <script src="js/home.js?v=20260914a"></script>
 <script src="js/nav.js?v=20260914a"></script>
+<script src="js/site-footer.js?v=20260914a"></script>
 </body>
 </html>

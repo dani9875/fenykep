@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kosár — Fény·kép Stúdió</title>
 <link rel="stylesheet" href="css/style.css?v=20260914a">
+<script src="js/cart.js?v=20260914a"></script>
 </head>
 <body class="litho-cart-page">
 <div class="site-wrapper">
@@ -19,12 +20,19 @@
       <a href="index.html#how">Hogyan készül</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
-    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count">0</span></a></div>
+    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count"></span></a></div>
     <button class="nav-burger" id="nav-burger" aria-label="Menü">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
   </div>
 </header>
+
+<script>
+  /* A kosár száma még az oldal kirajzolása előtt a helyére kerül.
+     Ha csak a DOMContentLoaded-nél írnánk be, a látogató egy pillanatra
+     üres (korábban: 0-s) kosarat látna minden oldalbetöltéskor. */
+  renderCartBadge();
+</script>
 
 <div class="container">
   <div class="litho-steps-wrap">
@@ -43,8 +51,8 @@
 </div>
 <script src="js/config.js?v=20260914a"></script>
 <script src="js/photo-store.js?v=20260914a"></script>
-<script src="js/cart.js?v=20260914a"></script>
 <script src="js/kosar.js?v=20260914a"></script>
 <script src="js/nav.js?v=20260914a"></script>
+<script src="js/site-footer.js?v=20260914a"></script>
 </body>
 </html>

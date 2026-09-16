@@ -12,6 +12,8 @@ locals {
   # env változók, és hogy milyen jogosultság-csomagokat kap (lásd iam.tf).
   functions = {
     get_products = {
+      # A katalógus statikus és olcsó: itt nem kell külön korlát,
+      # az API Gateway útvonal-throttlingja bőven elég.
       timeout  = 10
       memory   = 256
       env      = {}
@@ -19,23 +21,19 @@ locals {
     }
 
     get_upload_url = {
-      timeout = 10
-      memory  = 256
-      env = {
-        UPLOADS_BUCKET = aws_s3_bucket.uploads.bucket
-      }
-      policies = ["s3_uploads"]
+      timeout  = 10
+      memory   = 256
+      env      = merge(local.guard_env, { UPLOADS_BUCKET = aws_s3_bucket.uploads.bucket })
+      policies = ["s3_uploads", "rate_limit"]
     }
 
     get_foxpost_lockers = {
       # A teljes országos lista letöltése és feldolgozása percekig nem tart,
       # de 10 másodpercnél többet igen — és több memória gyorsabb CPU-t is jelent.
-      timeout = 30
-      memory  = 512
-      env = {
-        CACHE_BUCKET = aws_s3_bucket.uploads.bucket
-      }
-      policies = ["s3_cache"]
+      timeout  = 30
+      memory   = 512
+      env      = merge(local.guard_env, { CACHE_BUCKET = aws_s3_bucket.uploads.bucket })
+      policies = ["s3_cache", "rate_limit"]
     }
 
     create_order = {
@@ -43,16 +41,16 @@ locals {
       # (a kliens 15 mp-et vár rá), plusz az utalásos ág e-mailt is küld.
       timeout  = 25
       memory   = 512
-      env      = local.order_env
-      policies = ["dynamo", "ses"]
+      env      = merge(local.order_env, local.guard_env)
+      policies = ["dynamo", "ses", "rate_limit"]
     }
 
     barion_callback = {
       # A Barion 15 másodpercen belül vár 200-at, különben újrahív.
       timeout  = 14
       memory   = 512
-      env      = local.order_env
-      policies = ["dynamo", "ses"]
+      env      = merge(local.order_env, local.guard_env)
+      policies = ["dynamo", "ses", "rate_limit"]
     }
 
     get_order_status = {
@@ -60,35 +58,43 @@ locals {
       # ha az IPN elmaradt — ezért ugyanaz a környezete és joga.
       timeout  = 20
       memory   = 512
-      env      = local.order_env
-      policies = ["dynamo", "ses"]
+      env      = merge(local.order_env, local.guard_env)
+      policies = ["dynamo", "ses", "rate_limit"]
     }
 
     send_contact_message = {
       timeout = 10
       memory  = 256
-      env = {
+      env = merge(local.guard_env, {
         SES_FROM_ADDRESS = var.ses_from_address
         ADMIN_EMAIL      = var.admin_email
-      }
-      policies = ["ses"]
+      })
+      policies = ["ses", "rate_limit"]
     }
+  }
+
+  # Visszaélés elleni beállítások — minden publikus végpont megkapja.
+  guard_env = {
+    RATE_LIMIT_TABLE = aws_dynamodb_table.rate_limit.name
+    ALLOWED_ORIGINS  = join(",", local.allowed_origins)
+    ENFORCE_ORIGIN   = var.enforce_origin ? "true" : "false"
   }
 
   # A rendeléssel dolgozó három függvény környezete azonos.
   order_env = {
-    ORDERS_TABLE        = aws_dynamodb_table.orders.name
-    UPLOADS_BUCKET      = aws_s3_bucket.uploads.bucket
-    SITE_BASE_URL       = var.site_url
-    SES_FROM_ADDRESS    = var.ses_from_address
-    ADMIN_EMAIL         = var.admin_email
-    BANK_ACCOUNT_NAME   = var.bank_account_name
-    BANK_ACCOUNT_NUMBER = var.bank_account_number
-    BARION_API_BASE     = var.barion_api_base
-    BARION_POSKEY       = var.barion_poskey
-    BARION_PAYEE        = var.barion_payee
-    BARION_CALLBACK_URL = local.barion_callback_url
-    BARION_REDIRECT_URL = "${var.site_url}/koszonjuk.html"
+    ORDERS_TABLE           = aws_dynamodb_table.orders.name
+    UPLOADS_BUCKET         = aws_s3_bucket.uploads.bucket
+    SITE_BASE_URL          = var.site_url
+    SES_FROM_ADDRESS       = var.ses_from_address
+    ADMIN_EMAIL            = var.admin_email
+    BANK_ACCOUNT_NAME      = var.bank_account_name
+    BANK_ACCOUNT_NUMBER    = var.bank_account_number
+    BARION_API_BASE        = var.barion_api_base
+    BARION_POSKEY          = var.barion_poskey
+    BARION_PAYEE           = var.barion_payee
+    BARION_FUNDING_SOURCES = var.barion_funding_sources
+    BARION_CALLBACK_URL    = local.barion_callback_url
+    BARION_REDIRECT_URL    = "${var.site_url}/koszonjuk.html"
   }
 }
 

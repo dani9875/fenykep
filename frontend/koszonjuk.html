@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rendelés visszaigazolása — Fény·kép Stúdió</title>
 <link rel="stylesheet" href="css/style.css?v=20260914a">
+<script src="js/cart.js?v=20260914a"></script>
 </head>
 <body>
 <div class="site-wrapper">
@@ -18,9 +19,16 @@
       <a href="kiprobalom.html">Próbáld ki</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
-    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count">0</span></a></div>
+    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count"></span></a></div>
   </div>
 </header>
+
+<script>
+  /* A kosár száma még az oldal kirajzolása előtt a helyére kerül.
+     Ha csak a DOMContentLoaded-nél írnánk be, a látogató egy pillanatra
+     üres (korábban: 0-s) kosarat látna minden oldalbetöltéskor. */
+  renderCartBadge();
+</script>
 
 <div class="container" style="padding:6rem 0 4rem;">
   <div class="litho-steps-wrap">
@@ -42,10 +50,11 @@
 
 </div>
 <script src="js/config.js?v=20260914a"></script>
-<script src="js/cart.js?v=20260914a"></script>
+<script src="js/checkout-draft.js?v=20260914a"></script>
 <script src="js/photo-store.js?v=20260914a"></script>
 <script src="js/api.js?v=20260914a"></script>
 <script src="js/nav.js?v=20260914a"></script>
+<script src="js/site-footer.js?v=20260914a"></script>
 <script>
 /**
  * Rendelés-visszaigazolás.
@@ -93,7 +102,9 @@
   }
 
   function success(data, title, lead, extra) {
-    Cart.clear(); // a rendelés létrejött — innentől üres kosárral indul a következő vásárlás
+    // A rendelés létrejött: a kosár és a kitöltött űrlap is elévült.
+    Cart.clear();
+    CheckoutDraft.clear();
     render(
       '<div class="litho-order-status__icon litho-order-status__icon--ok">✓</div>' +
       '<h1 class="litho-order-status__title">' + title + "</h1>" +

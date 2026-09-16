@@ -17,6 +17,21 @@ resource "aws_apigatewayv2_api" "api" {
 }
 
 locals {
+  # Útvonalankénti throttling. Ezek GLOBÁLIS korlátok (nem IP-nként), és a
+  # végpont költségéhez igazodnak: egy rendelés Barion-hívást és e-mailt
+  # jelent, egy katalóguslekérés nem. Az IP-nkénti korlát a Lambdában van
+  # (backend/lambda/common/guard.py).
+  route_throttles = {
+    "GET /products"         = { rate = 30, burst = 60 }
+    "GET /foxpost-lockers"  = { rate = 20, burst = 40 }
+    "GET /orders/{orderId}" = { rate = 20, burst = 40 }
+    "POST /uploads"         = { rate = 5, burst = 10 }
+    "POST /orders"          = { rate = 5, burst = 10 }
+    "POST /contact"         = { rate = 2, burst = 5 }
+    # A Barion szerverei hívják; őket nem akarjuk visszafogni.
+    "POST /barion-callback" = { rate = 20, burst = 40 }
+  }
+
   # "METÓDUS /útvonal" => melyik függvény szolgálja ki
   routes = {
     "GET /products"         = "get_products"
@@ -70,4 +85,15 @@ resource "aws_apigatewayv2_stage" "default" {
     throttling_burst_limit = 50
     throttling_rate_limit  = 20
   }
+
+  dynamic "route_settings" {
+    for_each = local.route_throttles
+    content {
+      route_key              = route_settings.key
+      throttling_rate_limit  = route_settings.value.rate
+      throttling_burst_limit = route_settings.value.burst
+    }
+  }
+
+  depends_on = [aws_apigatewayv2_route.route]
 }

@@ -16,15 +16,45 @@ let fpMap = null;
 let fpMarkers = [];
 let fpHintEl = null;
 let fpSearchActive = false; // true while a search result is shown, pauses the zoom-based loader
+let fpSelected = null;      // a kiválasztott automata, hogy az újrarajzolás után is megmaradjon
 
+function escapeHtml(value) {
+  return String(value == null ? "" : value).replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+}
+
+/**
+ * A kiválasztás és a tippszöveg KÜLÖN elemben él.
+ *
+ * Korábban mindkettő a #fp-selected-be írt: a setHint() elrejtette az
+ * elemet, amint volt találat, a térkép mozgása pedig (amit maga a
+ * kiválasztás váltott ki) felül is írta a szöveget. A választás így
+ * láthatatlan maradt, pedig a rejtett mező megkapta az értéket.
+ */
 function selectLocker(locker) {
+  fpSelected = locker;
+
   document.getElementById("f-locker-id").value = locker.id;
   document.getElementById("f-locker-name").value = `${locker.name} — ${locker.address}`;
-  document.getElementById("fp-selected").innerHTML =
-    `<strong>Kiválasztva:</strong> ${locker.name}<br>${locker.address}`;
+
+  const box = document.getElementById("fp-selected");
+  box.innerHTML =
+    `<strong>Kiválasztva:</strong> ${escapeHtml(locker.name)}<br>` +
+    `<span class="fp-selected__address">${escapeHtml(locker.address)}</span>`;
+  box.hidden = false;
+
+  highlightSelected();
 
   // A "válassz automatát" hibaüzenet tűnjön el, amint van választás.
   if (window.FormErrors) FormErrors.clearBlock(document.getElementById("foxpost-error-host"));
+}
+
+/** A lista újrarajzolása után is látszódjon, melyik sor az aktuális. */
+function highlightSelected() {
+  document.querySelectorAll("#fp-list .fp-list-item").forEach((el) => {
+    el.classList.toggle("is-selected", !!fpSelected && String(fpSelected.id) === el.dataset.id);
+  });
 }
 
 function renderFpList(lockers) {
@@ -33,10 +63,10 @@ function renderFpList(lockers) {
     .slice(0, 30)
     .map(
       (l) => `
-      <div class="fp-list-item" data-id="${l.id}" style="padding:0.5rem; border-bottom:1px solid var(--border); cursor:pointer;">
-        <strong>${l.name}</strong><br>
-        <span style="font-size:0.8rem; color:var(--text-muted);">${l.address}</span>
-      </div>`
+      <button type="button" class="fp-list-item" data-id="${escapeHtml(l.id)}">
+        <strong>${escapeHtml(l.name)}</strong>
+        <span class="fp-list-item__address">${escapeHtml(l.address)}</span>
+      </button>`
     )
     .join("");
 
@@ -48,13 +78,15 @@ function renderFpList(lockers) {
       fpMap.setView([locker.lat, locker.lng], 15);
     });
   });
+
+  highlightSelected();
 }
 
 function renderFpMarkers(lockers) {
   fpMarkers.forEach((m) => fpMap.removeLayer(m));
   fpMarkers = lockers.map((l) => {
     const marker = L.marker([l.lat, l.lng]).addTo(fpMap);
-    marker.bindPopup(`<strong>${l.name}</strong><br>${l.address}`);
+    marker.bindPopup(`<strong>${escapeHtml(l.name)}</strong><br>${escapeHtml(l.address)}`);
     marker.on("click", () => selectLocker(l));
     return marker;
   });
@@ -106,7 +138,7 @@ function initFoxpostPicker() {
     attribution: "&copy; OpenStreetMap közreműködők",
   }).addTo(fpMap);
 
-  fpHintEl = document.getElementById("fp-selected");
+  fpHintEl = document.getElementById("fp-hint");
   setHint("Zoomolj be egy városra, vagy keress rá fent, hogy megjelenjenek a csomagautomaták.");
 
   fpMap.on("moveend zoomend", debouncedLoad);
@@ -148,5 +180,19 @@ window.FoxpostPicker = {
   refresh() {
     if (!fpMap) return;
     setTimeout(() => fpMap.invalidateSize(), 0);
+  },
+
+  /**
+   * Egy korábbi (piszkozatból visszatöltött) választás megjelenítése.
+   * A teljes automata-adat nincs meg, csak az id és a kiírandó név —
+   * a rendeléshez ennyi kell, a listát pedig a térkép úgyis feltölti.
+   */
+  showRestored(id, label) {
+    if (!id) return;
+    fpSelected = { id: id };
+    const box = document.getElementById("fp-selected");
+    box.innerHTML = `<strong>Kiválasztva:</strong> ${escapeHtml(label || id)}`;
+    box.hidden = false;
+    highlightSelected();
   },
 };
