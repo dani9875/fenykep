@@ -4,21 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Próbáld ki 3D-ben — Fény·kép Stúdió</title>
-<meta name="description" content="Töltsd fel a fotódat, és nézd meg 3D-ben, hogyan fog kinézni litofánként — még a rendelés előtt.">
-<link rel="stylesheet" href="css/style.css?v=20260914a">
-<script src="js/cart.js?v=20260914a"></script>
+<meta name="description" content="Töltsd fel a fotódat, és nézd meg 3D-ben, hogyan fog kinézni 3D fotóként — még a rendelés előtt.">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="css/style.css?v=20261012b">
+<script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
 <div class="site-wrapper">
 
 <header class="site-header" id="site-header">
   <div class="container">
-    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény<span class="site-logo-dot"></span>kép</a>
     <nav class="site-nav" id="site-nav">
-      <a href="index.html">Termékek</a>
-      <a href="galeria.html">Elkészült munkák</a>
+      <a href="index.html#products">Termékek</a>
+      <a href="galeria.html">Galéria</a>
       <a href="kiprobalom.html">Próbáld ki</a>
-      <a href="index.html#how">Hogyan készül</a>
+      <a href="index.html#beuzemeles">Beüzemelés</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
     <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count"></span></a></div>
@@ -36,10 +37,10 @@
 </script>
 
 <div class="container page-tabs-wrap">
-  <!-- A két nézet külön oldal, de egy fülsávban lakik: a galéria az
-       elkészült munkákat mutatja, a másik fül a saját fotó kipróbálását. -->
+  <!-- A két nézet külön oldal, de egy fülsávban lakik: a galéria egy
+       válogatást mutat, a másik fül a saját fotó kipróbálását. -->
   <nav class="page-tabs" aria-label="Galéria nézetek">
-      <a class="page-tab" href="galeria.html">Elkészült munkák</a>
+      <a class="page-tab" href="galeria.html">Galéria</a>
       <a class="page-tab is-active" href="kiprobalom.html" aria-current="page">Próbáld ki 3D-ben</a>
   </nav>
 </div>
@@ -51,7 +52,7 @@
     <div class="section-header">
       <span class="section-eyebrow">Interaktív előnézet</span>
       <h1 class="section-title">Próbáld ki — <em>töltsd fel a fotódat</em></h1>
-      <p class="section-lead">Feltöltöd a képedet, és azonnal látod 3D-ben, hogyan fog kinézni a litofán — még a rendelés előtt. Forgasd az egérrel, és kapcsold ki-be a háttérvilágítást.</p>
+      <p class="section-lead">Feltöltöd a képedet, és azonnal látod 3D-ben, hogyan fog kinézni a 3D fotó — még a rendelés előtt. Forgasd az egérrel, és kapcsold ki-be a háttérvilágítást.</p>
     </div>
 
     <!-- The viewer shell -->
@@ -69,24 +70,6 @@
         </button>
 
         <div class="la-tryout__sliders">
-
-          <label class="lto-sl">
-            <span class="lto-sl__name">Szélesség</span>
-            <input type="range" id="ltoWidth" min="40" max="300" value="120" step="1">
-            <span class="lto-sl__val" id="ltoWidthV">120 mm</span>
-          </label>
-
-          <label class="lto-sl">
-            <span class="lto-sl__name">Min. vastag</span>
-            <input type="range" id="ltoMinT" min="0.4" max="8" value="0.8" step="0.1">
-            <span class="lto-sl__val" id="ltoMinTV">0.8 mm</span>
-          </label>
-
-          <label class="lto-sl">
-            <span class="lto-sl__name">Max. vastag</span>
-            <input type="range" id="ltoMaxT" min="0.4" max="8" value="3" step="0.1">
-            <span class="lto-sl__val" id="ltoMaxTV">3.0 mm</span>
-          </label>
 
           <label class="lto-sl lto-sl--light">
             <span class="lto-sl__name">
@@ -111,16 +94,6 @@
           </label>
 
         </div><!-- /sliders -->
-
-        <div class="la-tryout__actions">
-          <button class="la-tryout__stl" id="ltoSTL" disabled>
-            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2v9M4 8l4 5 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <line x1="2" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            STL letöltés
-          </button>
-        </div>
 
       </div><!-- /bar -->
 
@@ -161,6 +134,13 @@
 
     </div><!-- /shell -->
 
+    <p class="lto-disclaimer">
+      Az előnézet <strong>tájékoztató jellegű</strong>: a kész termék finomabb
+      részleteket ad vissza, mint ez a gyors 3D modell. A 3D fotó szélére — a
+      mintaképekhez hasonlóan — <strong>vékony keret</strong> kerül, amit az
+      előnézet nem mutat.
+    </p>
+
     <!-- Order panel — appears after image is loaded -->
     <div class="la-tryout__order-panel" id="ltoOrderPanel">
       <div class="la-tryout__order-inner">
@@ -186,7 +166,7 @@
         </div>
 
         <div class="lto-order-choice">
-          <span class="lto-order-choice__label">Méret</span>
+          <span class="lto-order-choice__label">Méret <span class="label-hint">(a leghosszabb oldal mérete)</span></span>
           <div class="lto-order-sizes" id="ltoSizes">
             <label class="lto-size-opt">
               <input type="radio" name="ltoOrderSize" value="15cm" checked>
@@ -255,28 +235,8 @@
   font-size: 0.7rem; color: var(--text-muted); white-space: nowrap;
 }
 .lto-sl__name { min-width: 78px; }
-.lto-sl input[type=range] {
-  -webkit-appearance: none; appearance: none;
-  width: 80px; height: 3px;
-  background: var(--border-mid); border-radius: 2px;
-  cursor: pointer; outline: none; flex-shrink: 0;
-}
-.lto-sl input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 13px; height: 13px; border-radius: 50%;
-  background: var(--charcoal); cursor: pointer;
-}
-.lto-sl--light input[type=range]::-webkit-slider-thumb { background: #b89020; }
 .lto-sl--light { color: #8a6a10; }
-.lto-sl__val {
-  font-size: 0.66rem; color: var(--taupe);
-  min-width: 40px; text-align: right;
-}
 
-/* Actions */
-.la-tryout__actions {
-  display: flex; align-items: center; gap: 0.8rem; flex-shrink: 0;
-}
 .lto-switch {
   display: inline-flex; align-items: center; gap: 0.45rem; cursor: pointer;
 }
@@ -302,22 +262,20 @@
 .lto-switch__label {
   font-size: 0.66rem; color: var(--taupe); min-width: 18px;
 }
-.la-tryout__stl {
-  display: inline-flex; align-items: center; gap: 0.4rem;
-  background: transparent; color: var(--taupe);
-  border: 1px solid var(--border-mid); border-radius: 8px;
-  padding: 0.42rem 0.8rem;
-  font-family: var(--font-sans); font-size: 0.7rem;
-  cursor: pointer; white-space: nowrap;
-  transition: background 0.15s, border-color 0.15s;
+/* Tájékoztató az előnézet alatt */
+.lto-disclaimer {
+  margin: 0.9rem auto 0;
+  max-width: 620px;
+  font-size: 0.74rem; line-height: 1.7;
+  color: var(--text-muted); text-align: center;
 }
-.la-tryout__stl:not(:disabled):hover { background: var(--sand); border-color: var(--taupe); }
-.la-tryout__stl:disabled { opacity: 0.35; cursor: not-allowed; }
+.lto-disclaimer strong { color: var(--taupe); font-weight: 500; }
 
 /* Viewport */
 .la-tryout__view {
   position: relative; height: 560px;
-  background: #1a1714; overflow: hidden;
+  background: radial-gradient(ellipse 80% 70% at 50% 38%, #12566b 0%, #0f4354 45%, #0b2b36 100%);
+  overflow: hidden;
 }
 .la-tryout__drop {
   position: absolute; inset: 0;
@@ -468,7 +426,6 @@
 /* Responsive */
 @media (max-width: 900px) {
   .la-tryout__sliders { gap: 0.7rem; }
-  .lto-sl input[type=range] { width: 60px; }
   .la-tryout__view { height: 420px; }
 }
 @media (max-width: 640px) {
@@ -482,9 +439,9 @@
 <!-- ══ SCRIPT ══════════════════════════════════════════════════ -->
 <!-- Ezek a lenti inline kód ELŐTT kellenek: az árlekérés és a kosárba
      tétel az Api / Cart / PhotoStore modulokra épül. -->
-<script src="js/config.js?v=20260914a"></script>
-<script src="js/photo-store.js?v=20260914a"></script>
-<script src="js/api.js?v=20260914a"></script>
+<script src="js/config.js?v=20261009a"></script>
+<script src="js/photo-store.js?v=20261009a"></script>
+<script src="js/api.js?v=20261009a"></script>
 <!-- Three.js r128 from CDN — same version as the local lib -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -493,22 +450,19 @@
 
 // ── DOM refs ────────────────────────────────────────────────────
 var uploadBtn  = document.getElementById('ltoUpload');
-var stlBtn     = document.getElementById('ltoSTL');
 var dropZone   = document.getElementById('ltoDrop');
 var viewEl     = document.getElementById('ltoView');
 var canvasEl   = document.getElementById('ltoCanvas');
 var spinner    = document.getElementById('ltoSpinner');
 var statusEl   = document.getElementById('ltoStatus');
 
-var sliderCfg = [
-  { el: document.getElementById('ltoWidth'),  valEl: document.getElementById('ltoWidthV'),  suffix: ' mm', key: 'litophaneWidth' },
-  { el: document.getElementById('ltoMinT'),   valEl: document.getElementById('ltoMinTV'),   suffix: ' mm', key: 'minThickness' },
-  { el: document.getElementById('ltoMaxT'),   valEl: document.getElementById('ltoMaxTV'),   suffix: ' mm', key: 'maxThickness' },
-];
-
 // ── State ────────────────────────────────────────────────────────
+// A szélesség és a vastagság nem állítható: ezek a gyártási értékek, a
+// vásárlónak nincs mit kezdenie velük. A méretet a rendelő panelen
+// választja ki, a modell ettől ránézésre nem változna (a kamera úgyis a
+// tárgyra igazodik), ezért a modell egy fix, jellemző méretben épül.
 var params = {
-  litophaneWidth:   120,
+  litophaneWidth:   150,
   minThickness:     0.8,
   maxThickness:     3.0,
   xyAngle:          90,
@@ -526,23 +480,30 @@ var meshW = 0, meshH = 0;  // a háló felbontása (lekicsinyítve, lásd MAX_ME
 // háromszög lenne, amitől a mobil böngésző memóriája elfogy, és a fotó
 // egyszerűen soha nem jelenik meg. Az előnézethez ennél sokkal kevesebb is
 // bőven elég — a nyomtatás amúgy is az eredeti, feltöltött fájlból készül.
+// Mérve: 600 px-es hálónál ~2,5 s a modell felépítése, 800-nál ~6,5 s.
+// A háromszorosára nőtt várakozás nem ér meg 33% több mintát, ezért a
+// felbontás marad. Az élességet inkább a textúra adja: az a TELJES
+// felbontású fotóból jön (lásd processImage), és a háttérvilágított
+// nézet részletei onnan származnak, nem a háló sűrűségéből.
 var MAX_MESH_PX = 600;
 var theMesh, vertexBuffer;
 var frameGroup;
 
 // ── Three.js scene ───────────────────────────────────────────────
-var renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true });
+var renderer = new THREE.WebGLRenderer({ canvas: canvasEl, antialias: true, alpha: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 
 var W = viewEl.clientWidth  || 800;
 var H = viewEl.clientHeight || 560;
 renderer.setSize(W, H);
 
-var camera = new THREE.PerspectiveCamera(75, W / H, 0.5, 2000);
+var camera = new THREE.PerspectiveCamera(42, W / H, 0.5, 2000);
 camera.position.set(0, 120, 180);
 
 var scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf0e6d8);
+// Nincs beégetett háttérszín: a vászon átlátszó, a hátteret a CSS adja
+// (.la-tryout__view), így ugyanaz a kékes tónus, mint a termékfotókon.
+scene.background = null;
 
 var sun = new THREE.DirectionalLight(0xFFFFFF, 1.0);
 sun.position.set(30, 12, 63);
@@ -610,15 +571,46 @@ var materialBacklit = new THREE.ShaderMaterial({
 // OrbitControls — inline minimal implementation
 // (Three r128 global doesn't bundle OrbitControls, so we add a lightweight version)
 var isPointerDown = false, lastX = 0, lastY = 0;
-var spherical = { theta: 0, phi: Math.PI / 3, radius: 220 };
+// phi = PI/2: szemmagasságból nézünk rá. Korábban PI/3 volt, amitől a
+// modell felülről, lebiccentve jelent meg.
+var spherical = { theta: 0, phi: Math.PI / 2, radius: 220 };
+var camTarget = new THREE.Vector3(0, 60, 0);
 
 function updateCamera() {
   camera.position.set(
-    spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta),
-    spherical.radius * Math.cos(spherical.phi) + 60,
-    spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta)
+    camTarget.x + spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta),
+    camTarget.y + spherical.radius * Math.cos(spherical.phi),
+    camTarget.z + spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta)
   );
-  camera.lookAt(0, 60, 0);
+  camera.lookAt(camTarget);
+}
+
+/**
+ * A modell töltse ki a nézetet, ne pedig egy kicsire zoomolva jelenjen
+ * meg. A távolság a befoglaló méretből és a kamera látószögéből jön,
+ * nem egy találomra vett szorzóból.
+ */
+function fitCamera() {
+  if (!theMesh || !theMesh.geometry.boundingBox) return;
+  var bb = theMesh.geometry.boundingBox;
+  camTarget.set(
+    (bb.min.x + bb.max.x) * 0.5,
+    (bb.min.y + bb.max.y) * 0.5,
+    (bb.min.z + bb.max.z) * 0.5
+  );
+  var objH = bb.max.y - bb.min.y;
+  var objW = bb.max.x - bb.min.x;
+  var halfFov = camera.fov * Math.PI / 360;
+  var distV = (objH * 0.5) / Math.tan(halfFov);
+  var distH = (objW * 0.5) / Math.tan(halfFov) / camera.aspect;
+  // 1.18: keskeny levegő a tárgy körül, de ne érjen a széléhez.
+  // A félmélység hozzáadása nem elhanyagolható: a litofán ívelt, és a
+  // kamera a befoglaló KÖZEPÉT nézi, miközben a kép a hozzánk közelebbi
+  // elülső felületen van. Enélkül a modell teteje kifut a képből.
+  spherical.radius = Math.max(distV, distH) * 1.18 + (bb.max.z - bb.min.z) * 0.5;
+  spherical.theta = 0;
+  spherical.phi = Math.PI / 2;
+  updateCamera();
 }
 updateCamera();
 
@@ -634,7 +626,7 @@ canvasEl.addEventListener('pointermove', function(e) {
 });
 canvasEl.addEventListener('wheel', function(e) {
   e.preventDefault();
-  spherical.radius = Math.max(50, Math.min(600, spherical.radius - e.deltaY * 0.3));
+  spherical.radius = Math.max(30, Math.min(900, spherical.radius - e.deltaY * 0.3));
   updateCamera();
 }, { passive: false });
 
@@ -644,6 +636,8 @@ window.addEventListener('resize', function() {
   renderer.setSize(w, h);
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
+  // Az új képarányhoz más befoglaló távolság tartozik.
+  fitCamera();
 });
 
 // ── Render loop ──────────────────────────────────────────────────
@@ -686,7 +680,9 @@ function processImage(img, name) {
     pDest -= 2 * w;
   }
 
-  materialBacklit.uniforms.theMap.value = new THREE.CanvasTexture(imgCanvas);
+  var tex = new THREE.Texture(img);
+  tex.needsUpdate = true;
+  materialBacklit.uniforms.theMap.value = tex;
 
   buildMesh();
 }
@@ -706,19 +702,11 @@ function buildMesh() {
   updateMesh();
   buildFrame();
 
-  stlBtn.disabled = false;
   spinner.style.display = 'none';
   if (orderPanel) orderPanel.classList.add('visible');
 
-  var bb = theMesh.geometry.boundingBox;
-  var bx = bb.max.x - bb.min.x, by = bb.max.y - bb.min.y, bz = bb.max.z - bb.min.z;
-  statusEl.textContent = imageName + ' · ' + image.width + '×' + image.height + ' px · ' +
-    Math.round(bx) + ' × ' + Math.round(bz) + ' × ' + Math.round(by) + ' mm · ' +
-    (theMesh.geometry.getIndex().array.length / 3) + ' háromszög';
-
-  // Fit camera
-  spherical.radius = Math.max(by, bx, bz) * 1.8;
-  updateCamera();
+  statusEl.textContent = 'Kész — forgasd el, és próbáld ki háttérfénnyel.';
+  fitCamera();
 }
 
 function createGeometry() {
@@ -809,7 +797,8 @@ function updateMesh() {
         var x = 0, z = 0, r = 1;
         if (daz !== 0 && dAxy !== 0) r *= Math.cos(az);
         if (plane === 0) {
-          r *= imageGrayValues[pImg++] * dR + minR;
+          // 1 - szürke: a fekete képpont adja a maxT vastagságot, a fehér a minT-t.
+          r *= (1 - imageGrayValues[pImg++]) * dR + minR;
         } else {
           r *= innerR;
         }
@@ -892,42 +881,6 @@ function applyBacklight(val) {
   }
 }
 
-// ── STL export ───────────────────────────────────────────────────
-function saveSTL() {
-  if (!theMesh) return;
-  var geo = theMesh.geometry;
-  var idxArr  = geo.getIndex().array;
-  var posArr  = geo.attributes.position.array;
-  var nTri    = Math.floor(idxArr.length / 3);
-  var buf     = new ArrayBuffer(80 + 4 + nTri * 50);
-  var dv      = new DataView(buf);
-  var offset  = 80;
-  dv.setUint32(offset, nTri, true); offset += 4;
-
-  var p1 = new THREE.Vector3(), p2 = new THREE.Vector3(), p3 = new THREE.Vector3();
-  var p12 = new THREE.Vector3(), p13 = new THREE.Vector3(), n = new THREE.Vector3();
-
-  for (var i = 0; i < idxArr.length; i += 3) {
-    var a = 3*idxArr[i], b = 3*idxArr[i+1], c = 3*idxArr[i+2];
-    p1.set(posArr[a], -posArr[a+2], posArr[a+1]);
-    p2.set(posArr[b], -posArr[b+2], posArr[b+1]);
-    p3.set(posArr[c], -posArr[c+2], posArr[c+1]);
-    p12.subVectors(p2,p1); p13.subVectors(p3,p1);
-    n.crossVectors(p12,p13).normalize();
-    dv.setFloat32(offset, n.x, true);  offset+=4;
-    dv.setFloat32(offset, n.y, true);  offset+=4;
-    dv.setFloat32(offset, n.z, true);  offset+=4;
-    [p1,p2,p3].forEach(function(pt){ dv.setFloat32(offset,pt.x,true); offset+=4; dv.setFloat32(offset,pt.y,true); offset+=4; dv.setFloat32(offset,pt.z,true); offset+=4; });
-    dv.setUint16(offset, 0, true); offset+=2;
-  }
-
-  var blob = new Blob([buf], { type: 'model/stl' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'Litofan_' + (imageName || 'model') + '.stl';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-}
-
 // ── File handling ────────────────────────────────────────────────
 function loadFile(file) {
   if (!file || !file.type.match(/image\/(png|jpe?g)/i)) {
@@ -938,7 +891,6 @@ function loadFile(file) {
   canvasEl.style.display = 'block';
   spinner.style.display  = 'flex';
   statusEl.textContent   = 'Modell számítása…';
-  stlBtn.disabled        = true;
 
   sourceFile = file;
 
@@ -974,18 +926,6 @@ dropZone.addEventListener('click', function() { uploadBtn.click(); });
   });
 });
 
-sliderCfg.forEach(function(cfg) {
-  if (!cfg.el) return;
-  cfg.el.addEventListener('input', function() {
-    var v = parseFloat(cfg.el.value);
-    var label = cfg.display ? cfg.display(v) : (cfg.scale ? Math.round(v * cfg.scale) : v) + cfg.suffix;
-    cfg.valEl.textContent = label;
-    params[cfg.key] = v;
-    if (cfg.key === 'backlightIntensity') { applyBacklight(v); return; }
-    updateMesh();
-  });
-});
-
 // ── Háttérfény kapcsoló ──────────────────────────────────────────
 // Nincs finomhangolás: a vásárlót az érdekli, hogy kikapcsolt és
 // bekapcsolt lámpával hogy néz ki. Alapból bekapcsolva mutatjuk, mert a
@@ -1012,14 +952,12 @@ var orderBtn   = document.getElementById('ltoOrderBtn');
 var orderBtnText = document.getElementById('ltoOrderBtnText');
 var orderError = document.getElementById('ltoOrderError');
 
-stlBtn.addEventListener('click', saveSTL);
-
 // ── Árak a katalógusból ──────────────────────────────────────────
 // Tartalék értékek, ha a /products nem érhető el; a végösszeget úgyis a
 // backend számolja újra a rendeléskor.
 var CATALOG = {
-  'lampa-nelkul': { name: 'Litofán – Lámpa nélkül', base: 9990, sizes: { '15cm': 0, '20cm': 3000 } },
-  'led-talpas':   { name: 'Litofán – LED talppal',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
+  'lampa-nelkul': { name: '3D fotó – Lámpa nélkül', base: 9990, sizes: { '15cm': 0, '20cm': 3000 } },
+  'led-talpas':   { name: '3D fotó – LED talppal',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
 };
 
 function selectedProduct() {
@@ -1043,7 +981,7 @@ function refreshPrices() {
     var el = document.querySelector('[data-price-for="' + id + '"]');
     if (el) el.textContent = formatHuf(unitPrice(id, size));
   });
-  orderBtnText.textContent = 'Kosárba teszem · ' + formatHuf(unitPrice(selectedProduct(), size));
+  orderBtnText.textContent = 'Kosárba teszem';
 }
 
 if (typeof Api !== 'undefined') {
@@ -1157,7 +1095,7 @@ orderBtn.addEventListener('click', async function() {
 
 </div>
 
-<script src="js/nav.js?v=20260914a"></script>
-<script src="js/site-footer.js?v=20260914a"></script>
+<script src="js/nav.js?v=20261009a"></script>
+<script src="js/site-footer.js?v=20261009a"></script>
 </body>
 </html>

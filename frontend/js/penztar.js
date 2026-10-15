@@ -5,10 +5,10 @@
  * a szállítási cím alapból megegyezik a számlázásival — a pipa kivételekor
  * jelennek meg a külön szállítási mezők.
  *
- * Fizetés: bankkártya (Barion), előre utalás, illetve utánvét — utóbbi csak
- * házhozszállításnál, mert a csomagautomata nem fogad készpénzt. Ugyanezt a
- * szabályt a backend is ellenőrzi; itt csak azért van, hogy a vásárló ne
- * fusson bele egy hibaüzenetbe.
+ * Fizetés: bankkártya (Barion) vagy előre utalás. Utánvét nincs.
+ *
+ * A rendelés leadása előtt megerősítést kérünk, mert utána már nincs
+ * jóváhagyási kör: a termék egyedi, és rögtön gyártásba megy.
  *
  * A kosarat itt SOHA nem ürítjük. Egy megszakadt vagy sikertelen bankkártyás
  * fizetés után a vásárló visszakerül a pénztárba a kosarával együtt; a
@@ -24,15 +24,28 @@ function formatHuf(n) {
 const Pricing = {
   freeShippingThreshold: 20000,
   fees: { foxpost: 1490, home: 1990 },
-  codFee: 0,
   labels: { foxpost: "Foxpost csomagautomata", home: "Házhozszállítás (futár)" },
+  products: {
+    "lampa-nelkul": {
+      name: "3D fotó – Lámpa nélkül", base_price_huf: 9990,
+      sizes: { "15cm": { delta_huf: 0 }, "20cm": { delta_huf: 3000 } },
+    },
+    "led-talpas": {
+      name: "3D fotó – LED talppal", base_price_huf: 14990,
+      sizes: { "15cm": { delta_huf: 0 }, "20cm": { delta_huf: 3000 } },
+    },
+  },
 };
+
+// A fényforrás-felajánlás a lámpa nélküli darabot cseréli LED talpasra.
+const LAMP_FROM = "lampa-nelkul";
+const LAMP_TO = "led-talpas";
 
 // Az összegzőben rövid név fér el; a teljes megnevezés a katalógusból jön.
 const SHORT_SHIPPING_LABELS = { foxpost: "Foxpost", home: "Házhozszállítás" };
 
 const PRODUCT_IMAGES = {
-  "lampa-nelkul": "assets/products/lampa-nelkul.jpg",
+  "lampa-nelkul": "assets/gallery/g9-termeszetesfeny3.jpg",
   "led-talpas": "assets/products/led-talpas.jpg",
 };
 
@@ -59,6 +72,21 @@ function sameAsBilling() {
 
 /* ---------- összegzés ---------- */
 
+function computeTotals() {
+  const subtotal = Cart.subtotal();
+  const shippingFee = subtotal >= Pricing.freeShippingThreshold
+    ? 0
+    : Pricing.fees[selectedShippingMethod()] || 0;
+  return { subtotal, shippingFee, total: subtotal + shippingFee };
+}
+
+function unitPriceOf(productId, sizeCode, fallback) {
+  const product = Pricing.products[productId];
+  if (!product) return fallback;
+  const size = product.sizes && product.sizes[sizeCode];
+  return product.base_price_huf + ((size && size.delta_huf) || 0);
+}
+
 function renderReview() {
   const items = Cart.getItems();
   const itemsEl = document.getElementById("review-items");
@@ -84,18 +112,7 @@ function renderReview() {
     .join("");
 
   const method = selectedShippingMethod();
-  const payment = selectedPaymentMethod();
-  const subtotal = Cart.subtotal();
-  const shippingFee = subtotal >= Pricing.freeShippingThreshold ? 0 : Pricing.fees[method] || 0;
-  const codFee = payment === "cod" ? Pricing.codFee : 0;
-  const total = subtotal + shippingFee + codFee;
-
-  const codRow = codFee
-    ? `<div class="litho-rt__row">
-         <span class="litho-rt__label">Utánvét kezelési díj</span>
-         <span class="litho-rt__value">${formatHuf(codFee)}</span>
-       </div>`
-    : "";
+  const { subtotal, shippingFee, total } = computeTotals();
 
   totalsEl.innerHTML = `
     <div class="litho-rt__row">
@@ -106,7 +123,6 @@ function renderReview() {
       <span class="litho-rt__label">Szállítás (${escapeHtml(SHORT_SHIPPING_LABELS[method] || method)})</span>
       <span class="litho-rt__value">${shippingFee === 0 ? "Ingyenes" : formatHuf(shippingFee)}</span>
     </div>
-    ${codRow}
     <div class="litho-rt__divider"></div>
     <div class="litho-rt__row litho-rt__row--total">
       <span class="litho-rt__label">Összesen</span>
@@ -131,7 +147,6 @@ function applyShippingMethod() {
   }
 
   applyShippingAddressFields();
-  applyPaymentAvailability();
   renderReview();
 }
 
@@ -172,27 +187,6 @@ function readBillingAddress() {
   };
 }
 
-/* ---------- fizetési módok elérhetősége ---------- */
-
-function applyPaymentAvailability() {
-  const method = selectedShippingMethod();
-  const codOption = document.getElementById("pay-cod-opt");
-  const codRadio = codOption.querySelector("input");
-  const codAllowed = method === "home";
-
-  codRadio.disabled = !codAllowed;
-  codOption.classList.toggle("litho-size-opt--disabled", !codAllowed);
-  codOption.title = codAllowed ? "" : "A Foxpost csomagautomaták nem fogadnak készpénzt.";
-  codOption.querySelector("small").textContent = codAllowed
-    ? "Fizetés a futárnál"
-    : "Csak házhozszállításnál";
-
-  if (!codAllowed && codRadio.checked) {
-    document.querySelector('input[name="payment_method"][value="barion"]').checked = true;
-  }
-  applyPaymentNote();
-}
-
 /** A szállítási opciók díja a katalógusból jön, nem a HTML-ből. */
 function applyShippingLabels() {
   const free = Cart.subtotal() >= Pricing.freeShippingThreshold;
@@ -209,11 +203,67 @@ function applyPaymentNote() {
   const value = selectedPaymentMethod();
   if (value === "transfer") {
     note.textContent = "A „Rendelés leadása” után e-mailben küldjük az utaláshoz szükséges adatokat. A gyártás az utalás beérkezése után indul.";
-  } else if (value === "cod") {
-    note.textContent = "A végösszeget a futárnál fizeted kiszállításkor.";
   } else {
     note.textContent = "A „Rendelés leadása” gomb átirányít a biztonságos Barion fizetőoldalra. A kártyaadataidat a Barion kezeli, hozzánk nem jutnak el.";
   }
+}
+
+/* ---------- fényforrás-felajánlás ---------- */
+
+/**
+ * Sokan csak elfelejtik a lámpát a kosárba tenni, aztán a lámpa nélküli
+ * darab csalódás. Ezért a pénztárban egyszer rákérdezünk — egy pipával
+ * LED talpasra váltható az összes lámpa nélküli tétel.
+ */
+function lampUpgradeDelta() {
+  const from = Pricing.products[LAMP_FROM];
+  const to = Pricing.products[LAMP_TO];
+  if (!from || !to) return 0;
+  return to.base_price_huf - from.base_price_huf;
+}
+
+function applyLampOffer() {
+  const card = document.getElementById("lamp-offer");
+  const check = document.getElementById("f-add-lamp");
+  if (!card || !check) return;
+
+  const items = Cart.getItems();
+  const plain = items.filter((i) => i.productId === LAMP_FROM);
+  // Amit mi cseréltünk ki: csak ezt szabad visszacserélni, ha a vásárló
+  // kiveszi a pipát. A saját döntésből LED talpas tételhez nem nyúlunk.
+  const upgraded = items.filter((i) => i.lampAdded);
+
+  if (plain.length === 0 && upgraded.length === 0) {
+    card.hidden = true;
+    return;
+  }
+  card.hidden = false;
+  check.checked = plain.length === 0;
+  document.getElementById("lamp-offer-price").textContent =
+    "+" + formatHuf(lampUpgradeDelta());
+}
+
+function applyLampChoice() {
+  const on = document.getElementById("f-add-lamp").checked;
+  const targetId = on ? LAMP_TO : LAMP_FROM;
+  const target = Pricing.products[targetId];
+
+  Cart.getItems().forEach((item) => {
+    const affected = on ? item.productId === LAMP_FROM : Boolean(item.lampAdded);
+    if (!affected) return;
+    Cart.updateItem(item.cartItemId, {
+      productId: targetId,
+      productName: (target && target.name) || item.productName,
+      unitPrice: unitPriceOf(targetId, item.size, item.unitPrice),
+      lampAdded: on ? true : undefined,
+    });
+  });
+
+  // A csere a részösszeget is megmozgatja, azzal pedig az ingyenes
+  // szállítás határát is elérhetjük.
+  applyShippingLabels();
+  renderReview();
+  applyLampOffer();
 }
 
 /* ---------- piszkozat ---------- */
@@ -234,9 +284,56 @@ function restoreDraft() {
   if (values["f-locker-id"] && typeof FoxpostPicker !== "undefined") {
     FoxpostPicker.showRestored(values["f-locker-id"], values["f-locker-name"]);
   }
+}
 
-  const note = document.getElementById("draft-restored");
-  if (note) note.hidden = false;
+/* ---------- megerősítés ---------- */
+
+/**
+ * A rendelés leadása előtti utolsó kérdés. Igaz/hamis értékkel tér
+ * vissza: hamisnál a vásárló a pénztárban marad, a mezői érintetlenül.
+ */
+function confirmOrder() {
+  const host = document.getElementById("order-confirm");
+  const box = host.querySelector(".litho-order-confirm__box");
+  const goBtn = document.getElementById("order-confirm-go");
+  const backBtn = document.getElementById("order-confirm-back");
+
+  document.getElementById("order-confirm-items").innerHTML = Cart.getItems()
+    .map(
+      (i) => `
+      <div class="litho-order-confirm__item">
+        <span>${escapeHtml(i.productName)} · ${escapeHtml(i.size)} · ${i.qty} db</span>
+        <span>${formatHuf(i.unitPrice * i.qty)}</span>
+      </div>`
+    )
+    .join("");
+  document.getElementById("order-confirm-total").textContent =
+    "Fizetendő: " + formatHuf(computeTotals().total);
+
+  host.hidden = false;
+  document.documentElement.classList.add("litho-no-scroll");
+  box.focus();
+
+  return new Promise((resolve) => {
+    function close(answer) {
+      host.hidden = true;
+      document.documentElement.classList.remove("litho-no-scroll");
+      goBtn.removeEventListener("click", onGo);
+      backBtn.removeEventListener("click", onBack);
+      host.removeEventListener("click", onBackdrop);
+      document.removeEventListener("keydown", onKey);
+      resolve(answer);
+    }
+    function onGo() { close(true); }
+    function onBack() { window.location.href = "kosar.html"; }
+    function onBackdrop(e) { if (e.target === host) close(false); }
+    function onKey(e) { if (e.key === "Escape") close(false); }
+
+    goBtn.addEventListener("click", onGo);
+    backBtn.addEventListener("click", onBack);
+    host.addEventListener("click", onBackdrop);
+    document.addEventListener("keydown", onKey);
+  });
 }
 
 /* ---------- beküldés ---------- */
@@ -321,6 +418,10 @@ document.getElementById("checkout-form").addEventListener("submit", async (e) =>
     })),
   };
 
+  // Utolsó kérdés a vásárlónak: mindent beletett-e a kosárba, és tudja-e,
+  // hogy az egyedi terméket a leadás után nem tudjuk visszamondani.
+  if (!(await confirmOrder())) return;
+
   // Mentés közvetlenül a beküldés előtt: ha a fizetés félbeszakad, minden
   // megvan, ami most a képernyőn van.
   CheckoutDraft.save();
@@ -357,12 +458,13 @@ async function loadPricing() {
         Pricing.labels[key] = value.label;
       });
     }
-    if (typeof data.codFeeHuf === "number") Pricing.codFee = data.codFeeHuf;
+    if (data.products) Pricing.products = data.products;
   } catch (e) {
     // A tartalék árak maradnak. A végösszeget úgyis a backend számolja.
   }
   applyShippingLabels();
   renderReview();
+  applyLampOffer();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -373,6 +475,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderReview();
   applyShippingLabels();
   applyShippingMethod();
+  applyPaymentNote();
+  applyLampOffer();
   loadPricing();
 
   // Minden változást mentünk, hogy egy megszakadt fizetés után ne kelljen
@@ -393,6 +497,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.getElementById("f-same-address").addEventListener("change", applyShippingAddressFields);
+  document.getElementById("f-add-lamp").addEventListener("change", applyLampChoice);
 
   // A "megegyezik a számlázási címmel" előnézet kövesse a számlázási mezőket.
   ["f-name", "f-address", "f-city", "f-zip"].forEach((id) => {

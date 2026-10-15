@@ -31,11 +31,21 @@ const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 await ctx.addCookies([{
   name: 'litho_cart',
   value: encodeURIComponent(JSON.stringify([{
-    cartItemId: 'c1', productId: 'lampa-nelkul', productName: 'Litofán – Lámpa nélkül',
+    cartItemId: 'c1', productId: 'lampa-nelkul', productName: '3D fotó – Lámpa nélkül',
     size: '15cm', qty: 1, unitPrice: 9990, photoKey: 'test.jpg',
   }])),
   url: BASE,
 }]);
+
+/**
+ * A pénztár beküldése. A "Rendelés leadása" már nem indítja el azonnal a
+ * fizetést: előbb felugrik a megerősítő ablak, azt is le kell nyomni.
+ */
+async function submitOrder(p) {
+  await p.locator('button.litho-checkout-submit').click();
+  await p.waitForSelector('#order-confirm:not([hidden])', { timeout: 5000 });
+  await p.locator('#order-confirm-go').click();
+}
 
 const page = await ctx.newPage();
 const errors = [];
@@ -49,14 +59,14 @@ check('index: nincs "Ugyanaz a kép" szekció', !(await page.content()).includes
 await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
 await page.waitForTimeout(400);
 check('index: Barion banner a footerben', await page.locator('.barion-banner--footer img').isVisible());
-check('index: nav "Elkészült munkák"', /elkészült munkák/i.test(await page.locator('.site-nav a[href="galeria.html"]').innerText()));
+check('index: nav "Galéria"', /galéria/i.test(await page.locator('.site-nav a[href="galeria.html"]').innerText()));
 check('index: nav "Próbáld ki" fül', await page.locator('.site-nav a[href="kiprobalom.html"]').count() === 1);
 
 /* ---------- galéria ---------- */
 await page.goto(`${BASE}/galeria.html`);
-check('galéria: cím "Elkészült munkák"', (await page.locator('h1.section-title').innerText()).includes('Elkészült munkák'));
-check('galéria: 9 kép', await page.locator('.gallery-thumb').count() === 9);
-check('galéria: aktív fül', /elkészült munkák/i.test(await page.locator('.page-tab.is-active').innerText()));
+check('galéria: cím "Galéria"', (await page.locator('h1.section-title').innerText()).includes('Galéria'));
+check('galéria: 10 kép', await page.locator('.gallery-thumb').count() === 10);
+check('galéria: aktív fül', /galéria/i.test(await page.locator('.page-tab.is-active').innerText()));
 check('galéria: nincs 3D próbáló', await page.locator('#ltoCanvas').count() === 0);
 
 /* ---------- kipróbálom ---------- */
@@ -81,8 +91,8 @@ await page.waitForFunction(
   null, { timeout: 30000 });
 await page.waitForTimeout(3000); // a 3D modell felépítése
 
-check('kipróbálom: a gombon látszik az ár',
-  /kosárba teszem · [\d\s]+ ft/i.test(await page.locator('#ltoOrderBtnText').innerText()),
+check('kipróbálom: a gombon nincs ár, csak a felirat',
+  /^kosárba teszem$/i.test(await page.locator('#ltoOrderBtnText').innerText()),
   await page.locator('#ltoOrderBtnText').innerText());
 
 // A folyamatosan rajzoló WebGL-vászon mellett a Playwright kattintása nem
@@ -96,8 +106,8 @@ await page.evaluate(() => {
   }
 });
 await page.waitForTimeout(200);
-const btnText = await page.locator('#ltoOrderBtnText').innerText();
-check('kipróbálom: az ár követi a termék- és méretváltást', /17\s?990/.test(btnText), btnText);
+const ledPrice = await page.locator('[data-price-for="led-talpas"]').innerText();
+check('kipróbálom: a termékválasztó ára követi a méretváltást', /17\s?990/.test(ledPrice), ledPrice);
 
 // Közvetlen DOM-kattintás: a folyamatosan rajzoló 3D vászon mellett a
 // Playwright "scroll into view" lépése nem ül le ezen az oldalon.
@@ -130,13 +140,16 @@ const emailErr = await page.locator('#f-email').evaluate((el) => {
 check('pénztár: magyar e-mail hibaüzenet', /érvényes e-mail/.test(emailErr), emailErr);
 
 /* ---------- pénztár: szállítási módok ---------- */
-check('pénztár: utánvét tiltva Foxpostnál', await page.locator('#pay-cod-opt input').isDisabled());
+check('pénztár: csak két fizetési mód van',
+  (await page.locator('input[name="payment_method"]').count()) === 2);
+check('pénztár: nincs utánvét opció', (await page.locator('#pay-cod-opt').count()) === 0);
+check('pénztár: nincs utánvét felirat a lapon',
+  !/utánvét/i.test(await page.locator('body').innerText()));
 await page.check('input[name="shipping_method"][value="home"]');
 await page.waitForTimeout(200);
 check('pénztár: házhozszállításnál eltűnik a térkép', await page.locator('#shipping-foxpost').isHidden());
 check('pénztár: "megegyezik a számlázási címmel" alapból bepipálva', await page.locator('#f-same-address').isChecked());
 check('pénztár: külön szállítási mezők rejtve', await page.locator('#shipping-address-fields').isHidden());
-check('pénztár: utánvét engedélyezve házhozszállításnál', !(await page.locator('#pay-cod-opt input').isDisabled()));
 
 await page.uncheck('#f-same-address');
 await page.waitForTimeout(200);
@@ -175,7 +188,7 @@ await page.evaluate(() => {
   document.getElementById('f-locker-id').value = 'HU-TEST-1';
   document.getElementById('f-locker-name').value = 'Teszt automata — Fő utca 1';
 });
-await page.locator('button.litho-checkout-submit').click();
+await submitOrder(page);
 await page.waitForURL(/mock-barion/, { timeout: 5000 });
 check('fizetés: átirányítás a (mock) Barion oldalra', page.url().includes('/mock-barion'));
 
@@ -202,8 +215,6 @@ check('újrapróbálás: a csomagautomata is megmaradt',
   await page.locator('#fp-selected').isVisible());
 check('újrapróbálás: az ÁSZF pipát újra be kell tenni',
   !(await page.locator('#f-aszf').isChecked()));
-check('újrapróbálás: jelezzük, hogy visszatöltöttük az adatokat',
-  await page.locator('#draft-restored').isVisible());
 
 /* ---------- teljes rendelés: sikeres fizetés ---------- */
 await page.goto(`${BASE}/penztar.html`);
@@ -219,7 +230,7 @@ await page.evaluate(() => {
   document.getElementById('f-locker-id').value = 'HU-TEST-1';
   document.getElementById('f-locker-name').value = 'Teszt automata';
 });
-await page.locator('button.litho-checkout-submit').click();
+await submitOrder(page);
 await page.waitForURL(/mock-barion/, { timeout: 5000 });
 await page.locator('button.outcome--success').click();
 await page.waitForURL(/koszonjuk/, { timeout: 5000 });
@@ -234,7 +245,7 @@ check('köszönjük: sikeres fizetés után ürül a kosár',
 await ctx.addCookies([{
   name: 'litho_cart',
   value: encodeURIComponent(JSON.stringify([{
-    cartItemId: 'c1', productId: 'lampa-nelkul', productName: 'Litofán', size: '15cm',
+    cartItemId: 'c1', productId: 'lampa-nelkul', productName: '3D fotó', size: '15cm',
     qty: 1, unitPrice: 9990, photoKey: 'test.jpg',
   }])),
   url: BASE,
@@ -249,13 +260,68 @@ await page.fill('#f-zip', '1053');
 await page.check('#f-aszf');
 await page.check('#f-privacy');
 await page.evaluate(() => { document.getElementById('f-locker-id').value = 'HU-TEST-1'; });
-await page.locator('button.litho-checkout-submit').click();
+await submitOrder(page);
 await page.waitForURL(/mock-barion/, { timeout: 5000 });
 await page.locator('button.outcome--mismatch').click();
 await page.waitForURL(/koszonjuk/, { timeout: 5000 });
 await page.waitForTimeout(1200);
 const mismatchText = await page.locator('#status-root').innerText();
 check('köszönjük: eltérő összeg kézi ellenőrzésre megy', /ellenőrizzük|ellenőrzi/.test(mismatchText), mismatchText.split('\n')[1]);
+
+/* ---------- pénztár: fényforrás-felajánlás és megerősítés ---------- */
+await ctx.clearCookies();
+await ctx.addCookies([{
+  name: 'litho_cart',
+  value: encodeURIComponent(JSON.stringify([{
+    cartItemId: 'lamp1', productId: 'lampa-nelkul', productName: '3D fotó – Lámpa nélkül',
+    size: '15cm', qty: 1, unitPrice: 9990, photoKey: 'test.jpg',
+  }])),
+  url: BASE,
+}]);
+await page.goto(`${BASE}/penztar.html`);
+await page.fill('#f-name', 'Teszt Elek');
+await page.fill('#f-email', 'teszt@example.com');
+await page.fill('#f-phone', '+36 30 123 4567');
+await page.fill('#f-address', 'Fo utca 1');
+await page.fill('#f-city', 'Budapest');
+await page.fill('#f-zip', '1053');
+await page.check('#f-aszf');
+await page.check('#f-privacy');
+await page.evaluate(() => {
+  document.getElementById('f-locker-id').value = 'HU-TEST-1';
+  document.getElementById('f-locker-name').value = 'Teszt automata';
+});
+
+check('pénztár: felajánljuk a fényforrást lámpa nélküli tételre',
+  await page.locator('#lamp-offer').isVisible());
+const lampPrice = await page.locator('#lamp-offer-price').innerText();
+check('pénztár: a felajánlásnál ott az ár', /5\s?000 Ft/.test(lampPrice), lampPrice);
+
+await page.check('#f-add-lamp');
+await page.waitForTimeout(300);
+const afterLamp = await page.locator('#review-totals').innerText();
+check('pénztár: a pipa átváltja LED talpasra (14 990 Ft)', /14\s?990/.test(afterLamp),
+  afterLamp.replace(/\n/g, ' | '));
+check('pénztár: az összegzőben is LED talppal szerepel',
+  /LED talppal/.test(await page.locator('#review-items').innerText()));
+
+await page.uncheck('#f-add-lamp');
+await page.waitForTimeout(300);
+check('pénztár: a pipa kivétele visszaváltja lámpa nélkülire',
+  /9\s?990/.test(await page.locator('#review-totals').innerText()));
+
+await page.locator('button.litho-checkout-submit').click();
+await page.waitForSelector('#order-confirm:not([hidden])', { timeout: 5000 });
+const confirmText = await page.locator('#order-confirm').innerText();
+check('pénztár: a megerősítő ablak felugrik', /Mehet a rendelés/.test(confirmText));
+check('pénztár: figyelmeztet, hogy nem mondható vissza',
+  /nem tudjuk visszamondani/.test(confirmText));
+check('pénztár: a megerősítőben ott a fizetendő összeg', /Fizetendő/.test(confirmText));
+
+await page.keyboard.press('Escape');
+await page.waitForTimeout(200);
+check('pénztár: Escape-re bezárul és a pénztárban maradunk',
+  await page.locator('#order-confirm').isHidden() && page.url().includes('penztar'));
 
 /* ---------- kapcsolat űrlap magyar hibái ---------- */
 await page.goto(`${BASE}/kapcsolat.html`);

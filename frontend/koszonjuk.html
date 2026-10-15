@@ -4,18 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rendelés visszaigazolása — Fény·kép Stúdió</title>
-<link rel="stylesheet" href="css/style.css?v=20260914a">
-<script src="js/cart.js?v=20260914a"></script>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="css/style.css?v=20261012b">
+<script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
 <div class="site-wrapper">
 
 <header class="site-header" id="site-header">
   <div class="container">
-    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény<span class="site-logo-dot"></span>kép</a>
     <nav class="site-nav" id="site-nav">
-      <a href="index.html">Termékek</a>
-      <a href="galeria.html">Elkészült munkák</a>
+      <a href="index.html#products">Termékek</a>
+      <a href="galeria.html">Galéria</a>
       <a href="kiprobalom.html">Próbáld ki</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
@@ -49,12 +50,12 @@
 </div>
 
 </div>
-<script src="js/config.js?v=20260914a"></script>
-<script src="js/checkout-draft.js?v=20260914a"></script>
-<script src="js/photo-store.js?v=20260914a"></script>
-<script src="js/api.js?v=20260914a"></script>
-<script src="js/nav.js?v=20260914a"></script>
-<script src="js/site-footer.js?v=20260914a"></script>
+<script src="js/config.js?v=20261009a"></script>
+<script src="js/checkout-draft.js?v=20261009a"></script>
+<script src="js/photo-store.js?v=20261009a"></script>
+<script src="js/api.js?v=20261009a"></script>
+<script src="js/nav.js?v=20261009a"></script>
+<script src="js/site-footer.js?v=20261009a"></script>
 <script>
 /**
  * Rendelés-visszaigazolás.
@@ -105,13 +106,14 @@
     // A rendelés létrejött: a kosár és a kitöltött űrlap is elévült.
     Cart.clear();
     CheckoutDraft.clear();
+    renderCartBadge();
     render(
       '<div class="litho-order-status__icon litho-order-status__icon--ok">✓</div>' +
       '<h1 class="litho-order-status__title">' + title + "</h1>" +
       '<p class="litho-order-status__text">' + lead + "</p>" +
       orderFacts(data) +
       (extra || "") +
-      '<p class="litho-order-status__text">Visszaigazoló e-mailt küldtünk. 24 órán belül megkapod a digitális előnézetet is — csak a jóváhagyásod után nyomtatunk.</p>' +
+      '<p class="litho-order-status__text">Visszaigazoló e-mailt küldtünk. Egyedi termékeinket általában egy héten belül elkészítjük, és rögtön gondoskodunk a kiszállításukról.</p>' +
       '<div class="litho-order-status__actions">' +
       '<a class="litho-btn-solid" href="index.html">Vissza a webshopba</a>' +
       "</div>"
@@ -142,14 +144,6 @@
         "Köszönjük a rendelésedet!",
         "A rendelést rögzítettük. Előre utalásos fizetést választottál.",
         '<p class="litho-order-status__text">E-mailben elküldtük az utaláshoz szükséges adatokat. Kérjük, a közlemény rovatba a rendelési számot írd — az utalás beérkezése után indul a gyártás.</p>'
-      );
-    },
-    pending_cod: function (data) {
-      success(
-        data,
-        "Köszönjük a rendelésedet!",
-        "A rendelést rögzítettük. A végösszeget a futárnál fizeted átvételkor.",
-        ""
       );
     },
     payment_failed: function (data) {

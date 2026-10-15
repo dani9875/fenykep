@@ -14,7 +14,7 @@ async function initProductPage() {
   }
 
   const PRODUCT_IMAGES = {
-    "lampa-nelkul": "assets/products/lampa-nelkul.jpg",
+    "lampa-nelkul": "assets/gallery/g9-termeszetesfeny3.jpg",
     "led-talpas": "assets/products/led-talpas.jpg",
   };
   const productImage = PRODUCT_IMAGES[productId] || "";
@@ -41,7 +41,7 @@ async function initProductPage() {
 
       <div class="litho-fields">
         <div class="litho-size-wrap">
-          <div class="litho-field-label">Méret <span class="req">*</span></div>
+          <div class="litho-field-label">Méret <span class="label-hint">(a leghosszabb oldal mérete)</span> <span class="req">*</span></div>
           <div class="litho-size-options">${sizeButtons}</div>
         </div>
 

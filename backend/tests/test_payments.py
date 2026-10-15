@@ -88,7 +88,7 @@ def make_order(status="pending_payment", total=11480):
         "customer": {"name": "Teszt Elek", "email": "teszt@example.com", "phone": "+36301234567",
                      "address": "Fő utca 1", "city": "Budapest", "zip": "1053"},
         "shipping": {"method": "foxpost", "lockerName": "Teszt automata", "feeHuf": 1490},
-        "items": [{"productName": "Litofán", "size": "15cm", "qty": 1, "unitPrice": 9990, "photoKey": "k.jpg"}],
+        "items": [{"productName": "3D fotó", "size": "15cm", "qty": 1, "unitPrice": 9990, "photoKey": "k.jpg"}],
     }
 
 
@@ -243,7 +243,7 @@ class BarionRequestTest(unittest.TestCase):
         barion._request = fake_request
 
     def start(self, **kwargs):
-        items = [{"name": "Litofán (15cm)", "qty": 1, "unit_price": 9990},
+        items = [{"name": "3D fotó (15cm)", "qty": 1, "unit_price": 9990},
                  {"name": "Foxpost szállítás", "qty": 1, "unit_price": 1490}]
         return barion.start_payment("order-1", items, 11480, **kwargs)
 

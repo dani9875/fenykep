@@ -3,21 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fény·kép Stúdió — Egyedi 3D lithophane ajándékok</title>
-<link rel="stylesheet" href="css/style.css?v=20260914a">
-<script src="js/cart.js?v=20260914a"></script>
+<title>Fény·kép Stúdió — 3D fotó a saját képedből</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="css/style.css?v=20261012b">
+<script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
 <div class="site-wrapper">
 
 <header class="site-header" id="site-header">
   <div class="container">
-    <a class="site-logo" href="index.html">Fény<span class="site-logo-dot"></span>kép</a>
+    <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény<span class="site-logo-dot"></span>kép</a>
     <nav class="site-nav" id="site-nav">
-      <a href="index.html">Termékek</a>
-      <a href="galeria.html">Elkészült munkák</a>
+      <a href="index.html#products">Termékek</a>
+      <a href="galeria.html">Galéria</a>
       <a href="kiprobalom.html">Próbáld ki</a>
-      <a href="index.html#how">Hogyan készül</a>
+      <a href="index.html#beuzemeles">Beüzemelés</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
     <div class="cart-icon-wrap">
@@ -40,17 +41,18 @@
   renderCartBadge();
 </script>
 
-<section class="hero">
-  <div class="hero-bg" style="background-image:url('assets/hero-poster.jpg');">
-    <video autoplay muted loop playsinline poster="assets/hero-poster.jpg"
-           style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
-      <source src="assets/hero-video.mp4" type="video/mp4">
-    </video>
-  </div>
-  <div class="hero-content">
+<!-- ══ BEVEZETŐ ═══════════════════════════════════════════════
+     A cím és a leírás szándékosan NEM a videón van: a mozgó háttéren
+     nehéz elolvasni, és a fejléc is beleveszett. Ezért a szöveg saját,
+     nyugodt hátteret kap, a videó pedig lejjebb, kisebben szerepel.
+     A .hero osztály eltűnt a lapról: a nav.js abból tudja, hogy a
+     fejlécnek átlátszónak kell-e lennie — így most rögtön tömör. -->
+<section class="home-intro">
+  <div class="container">
     <span class="hero-eyebrow">Fény·kép Stúdió</span>
-    <h1>A kedvenc fotódból — <em>kézzelfogható emlék</em></h1>
-    <p class="hero-sub">Egyedi, 3D nyomtatott lithophane ajándékok. Budapesten készítve, szeretettel csomagolva.</p>
+    <h1 class="home-intro__title">A saját fotód, <em>3D nyomtatva</em></h1>
+    <p class="home-intro__lead">Fény felé tartva vagy lámpával megvilágítva látszik rajta a kép.
+      Lámpával vagy lámpa nélkül rendelheted. Budapesten készítjük, általában egy héten belül.</p>
     <div class="hero-buttons">
       <a href="index.html#products" class="btn-primary">Termékek megtekintése</a>
       <a href="kiprobalom.html" class="btn-outline">
@@ -61,9 +63,58 @@
   </div>
 </section>
 
+<!-- ══ HÁROM FOTÓ ════════════════════════════════════════════
+     Ez az első, amit a látogató lát a szöveg után: pár másodperc alatt
+     el tudja dönteni, hogy érdekli-e. Mindhárom kép valódi környezetben
+     mutatja a terméket, nem stúdióháttéren. -->
+<section class="home-shots">
+  <div class="container">
+    <div class="home-shots__grid">
+      <figure class="home-shot">
+        <img src="assets/gallery/g9-termeszetesfeny3.jpg" alt="3D fotó nappali fényben" loading="eager">
+        <figcaption>Nappali fényben</figcaption>
+      </figure>
+      <figure class="home-shot">
+        <img src="assets/gallery/g2-csaladikep.jpg" alt="Családi fotóból készült 3D fotó, hátulról megvilágítva" loading="eager">
+        <figcaption>Lámpával, esti fényben</figcaption>
+      </figure>
+      <figure class="home-shot">
+        <img src="assets/gallery/g1-babakep3.jpg" alt="Babafotóból készült világító 3D fotó egy dohányzóasztalon" loading="lazy">
+        <figcaption>Dohányzóasztalon</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ══ KÖZELRŐL ══════════════════════════════════════════════
+     A videó nem önállóan áll a lap közepén, hanem a termék tényei
+     mellett: bal oldalon a közeli felvételek, jobb oldalon az, amit a
+     vásárlónak tudnia kell. Mobilon a videó kerül felülre. -->
+<section class="home-film">
+  <div class="container home-film__grid">
+    <div class="home-film__frame">
+      <video autoplay muted loop playsinline preload="metadata" poster="assets/hero-poster.jpg">
+        <source src="assets/hero-video.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="home-film__text">
+      <span class="section-eyebrow">Közelről</span>
+      <h2 class="section-title">Ilyen a kész termék</h2>
+      <ul class="home-film__facts">
+        <li><strong>Anyag:</strong> fehér PLA, 3D nyomtatva</li>
+        <li><strong>Méret:</strong> 15 vagy 20 cm a hosszabb oldalon</li>
+        <li><strong>Lámpa nélkül:</strong> állvánnyal, nappali fényben látszik a kép</li>
+        <li><strong>LED talppal:</strong> sötétben is világít</li>
+        <li><strong>Elkészítés:</strong> általában egy héten belül</li>
+      </ul>
+      <a href="kiprobalom.html" class="btn-outline">Próbáld ki a saját képeddel</a>
+    </div>
+  </div>
+</section>
+
 <section class="container" id="products" style="padding:4rem 0;">
   <div class="section-header">
-    <span class="section-eyebrow">Válassz stílust</span>
+    <span class="section-eyebrow">Lámpával vagy lámpa nélkül</span>
     <h2 class="section-title">Termékeink</h2>
   </div>
 
@@ -72,26 +123,67 @@
   </div>
 </section>
 
-<section class="container" id="how" style="padding:2rem 0 4rem; border-top:1px solid var(--border);">
+<!-- ══ BEÜZEMELÉS ════════════════════════════════════════════
+     Folyamatábra: a LED talpas változat beüzemelése három lépésben,
+     egymás alatt, nyilakkal. A lámpa nélküli változathoz elég egy mondat. -->
+<section class="container" id="beuzemeles" style="padding:3rem 0 4rem; border-top:1px solid var(--border);">
   <div class="section-header">
-    <span class="section-eyebrow">A folyamat</span>
-    <h2 class="section-title">Hogyan készül?</h2>
+    <span class="section-eyebrow">Beüzemelés</span>
+    <h2 class="section-title">Hogyan üzemeld be?</h2>
   </div>
-  <div class="litho-how-grid">
-    <div><h4>1. Fotó feltöltése</h4><p>Bármilyen JPG vagy PNG megfelel.</p></div>
-    <div><h4>2. Digitális minta</h4><p>24 órán belül elküldjük e-mailben.</p></div>
-    <div><h4>3. 3D nyomtatás</h4><p>PLA biopolimerből, réteges technológiával.</p></div>
-    <div><h4>4. Kiszállítás</h4><p>Foxpost csomagautomatába, 3–5 munkanap.</p></div>
-  </div>
-  <img src="assets/folyamat-kollazs.jpg" alt="A litofán készítésének folyamata" style="width:100%; border-radius:12px; display:block;">
+
+  <ol class="how-flow">
+
+    <li class="how-step">
+      <div class="how-step__media">
+        <img src="assets/beuzemeles/lepes-1.jpg" alt="A LED talp a kábelével" loading="lazy">
+      </div>
+      <div class="how-step__text">
+        <span class="how-step__num">1</span>
+        <p>Tedd le a <strong>LED talpat</strong>, és dugd be a kábelét.</p>
+      </div>
+    </li>
+
+      <div class="how-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 48" fill="none"><path d="M12 2v36" stroke="currentColor" stroke-width="7" stroke-linecap="butt"/><path d="M3 34l9 12 9-12" fill="currentColor"/></svg>
+      </div>
+
+    <li class="how-step">
+      <div class="how-step__media">
+        <img src="assets/beuzemeles/lepes-2.jpg" alt="A 3D fotó a talp két tartójába illesztve" loading="lazy">
+      </div>
+      <div class="how-step__text">
+        <span class="how-step__num">2</span>
+        <p>Illeszd a 3D fotót a talp <strong>két tartójába</strong>.</p>
+      </div>
+    </li>
+
+      <div class="how-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 48" fill="none"><path d="M12 2v36" stroke="currentColor" stroke-width="7" stroke-linecap="butt"/><path d="M3 34l9 12 9-12" fill="currentColor"/></svg>
+      </div>
+
+    <li class="how-step">
+      <div class="how-step__media">
+        <img src="assets/beuzemeles/lepes-3.jpg" alt="A bekapcsolt LED hátulról megvilágítja a 3D fotót" loading="lazy">
+      </div>
+      <div class="how-step__text">
+        <span class="how-step__num">3</span>
+        <p>Kapcsold be a lámpát: a fény hátulról átvilágítja a képet.</p>
+      </div>
+    </li>
+
+  </ol>
+
+  <p class="how-note"><strong>Lámpa nélküli változat:</strong> a 3D fotót az ajándék állványba
+    illeszted, és fény felé, például ablak elé teszed.</p>
 </section>
 
 
 </div>
-<script src="js/config.js?v=20260914a"></script>
-<script src="js/api.js?v=20260914a"></script>
-<script src="js/home.js?v=20260914a"></script>
-<script src="js/nav.js?v=20260914a"></script>
-<script src="js/site-footer.js?v=20260914a"></script>
+<script src="js/config.js?v=20261009a"></script>
+<script src="js/api.js?v=20261009a"></script>
+<script src="js/home.js?v=20261009a"></script>
+<script src="js/nav.js?v=20261009a"></script>
+<script src="js/site-footer.js?v=20261009a"></script>
 </body>
 </html>

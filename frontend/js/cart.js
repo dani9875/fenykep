@@ -51,6 +51,21 @@ const Cart = {
     return items;
   },
 
+  /**
+   * Egy tétel mezőinek átírása. A pénztárban ezzel cseréljük LED talpasra
+   * a lámpa nélküli darabot, ha a vásárló mégis kéri a fényforrást.
+   * Árat nem hitelezünk el vele: a végösszeget a backend úgyis a
+   * productId alapján számolja újra.
+   */
+  updateItem(cartItemId, patch) {
+    const items = readCart();
+    const item = items.find((i) => i.cartItemId === cartItemId);
+    if (!item) return items;
+    Object.assign(item, patch);
+    writeCart(items);
+    return items;
+  },
+
   setQty(cartItemId, qty) {
     const items = readCart();
     const item = items.find((i) => i.cartItemId === cartItemId);

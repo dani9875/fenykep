@@ -14,14 +14,14 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a class="site-logo" href="index.html">Fény·kép Stúdió</a>
-          <p>Egyedi, kézzel utómunkált 3D lithophane ajándékok a kedvenc fényképeidből.</p>
+          <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény·kép Stúdió</a>
+          <p>Egyedi, kézzel utómunkált 3D fotók a saját fényképeidből.</p>
         </div>
         <div class="footer-col">
           <h4>Termékek</h4>
           <ul>
             <li><a href="index.html">Összes termék</a></li>
-            <li><a href="galeria.html">Elkészült munkák</a></li>
+            <li><a href="galeria.html">Galéria</a></li>
             <li><a href="kiprobalom.html">Próbáld ki 3D-ben</a></li>
             <li><a href="kosar.html">Kosár</a></li>
           </ul>

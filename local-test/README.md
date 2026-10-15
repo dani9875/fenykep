@@ -27,9 +27,7 @@ ideiglenes másolatban (lásd `infra/DEPLOY.md`).
 - Szállítási módok: Foxpost csomagautomata (térképes választó) és
   házhozszállítás. Házhozszállításnál a "szállítási cím megegyezik a
   számlázási címmel" pipa kivételekor külön címmezők jönnek elő.
-- Fizetési módok: bankkártya (Barion), előre utalás, és utánvét —
-  az utánvét csak házhozszállításnál választható, csomagautomatánál
-  a felület és a backend is tiltja.
+- Fizetési módok: bankkártya (Barion) és előre utalás. Utánvét nincs.
 - A "Rendelés leadása" gomb bankkártyás fizetésnél egy **helyi mock
   Barion oldalra** visz, ahol te döntöd el, mi történjen:
   sikeres · sikertelen · megszakított · lejárt · eltérő összegű fizetés.

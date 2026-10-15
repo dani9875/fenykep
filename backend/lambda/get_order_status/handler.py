@@ -32,7 +32,6 @@ STATUS_MESSAGES = {
     "payment_init": "A fizetés feldolgozás alatt.",
     "paid": "A fizetés sikeres volt.",
     "pending_transfer": "A rendelést rögzítettük, várjuk az átutalást.",
-    "pending_cod": "A rendelést rögzítettük, utánvéttel fizetsz átvételkor.",
     "payment_failed": "A fizetés nem sikerült.",
     "payment_canceled": "A fizetést megszakítottad.",
     "payment_expired": "A fizetési idő lejárt.",

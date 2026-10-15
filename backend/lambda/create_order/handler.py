@@ -16,7 +16,6 @@ from products import (
     MAX_ITEMS_PER_ORDER,
     MAX_QTY_PER_ITEM,
     SHIPPING_METHODS,
-    get_cod_fee,
     get_item_price,
     get_shipping_fee,
     is_payment_allowed,
@@ -26,7 +25,6 @@ import barion
 import guard
 from ses_mail import (
     send_admin_notification,
-    send_cod_confirmation,
     send_transfer_instructions,
 )
 
@@ -156,11 +154,6 @@ def handler(event, context):
     # ---- fizetési mód ----
     payment_method = body.get("paymentMethod", "barion")
     if not is_payment_allowed(payment_method, shipping_method):
-        if payment_method == "cod":
-            return _error(
-                "Utánvét csak házhozszállításnál választható — a Foxpost "
-                "csomagautomaták nem fogadnak készpénzt."
-            )
         return _error("A választott fizetési mód nem használható ezzel a szállítási móddal.")
 
     # ---- tételek, árak ----
@@ -200,8 +193,7 @@ def handler(event, context):
         )
 
     shipping_fee = get_shipping_fee(subtotal, shipping_method)
-    cod_fee = get_cod_fee(payment_method)
-    total = subtotal + shipping_fee + cod_fee
+    total = subtotal + shipping_fee
     if total <= 0:
         return _error("Érvénytelen végösszeg.")
 
@@ -217,7 +209,6 @@ def handler(event, context):
         "items": priced_items,
         "subtotalHuf": subtotal,
         "shippingFeeHuf": shipping_fee,
-        "codFeeHuf": cod_fee,
         "totalHuf": total,
         "currency": "HUF",
     }
@@ -246,27 +237,11 @@ def handler(event, context):
             "redirectUrl": f"{SITE_BASE_URL}/koszonjuk.html?orderId={order_id}",
         })
 
-    # ---- utánvét ----
-    if payment_method == "cod":
-        order["orderStatus"] = "pending_cod"
-        put_order(order)
-        try:
-            send_cod_confirmation(order)
-            send_admin_notification(order)
-        except Exception as exc:  # noqa: BLE001
-            print(f"[ses] cod email failed for {order_id}: {exc}")
-            update_order_status(order_id, "pending_cod", {"emailError": str(exc)[:300]})
-        return _ok({
-            "orderId": order_id,
-            "paymentMethod": payment_method,
-            "redirectUrl": f"{SITE_BASE_URL}/koszonjuk.html?orderId={order_id}",
-        })
-
     # ---- bankkártya (Barion) ----
     barion_items = [
         {
             "name": f"{i['productName']} ({i['size']})",
-            "description": f"Egyedi litofán, {i['size']}",
+            "description": f"Egyedi 3D fotó, {i['size']}",
             "qty": i["qty"],
             "unit_price": i["unitPrice"],
             "sku": f"{i['productId']}-{i['size']}",

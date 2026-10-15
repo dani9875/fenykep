@@ -39,7 +39,14 @@ Text Domain: lithophane-shop
 
 /* ═══ Reset & base ═════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; scroll-behavior: smooth; }
+/* A Cormorant Garamond alapból „régi stílusú” számjegyeket használ: a 3, 5, 9
+   a betűsor alá lóg (3D, 15 cm, 9 990 Ft). Mindenhol egyenes számjegyeket
+   kérünk — az űrlapmezők nem öröklik a betűbeállításokat, ezért a *. */
+* { font-variant-numeric: lining-nums; }
+/* A fejléc fix, ezért a horgonyokra (#products, #beuzemeles) ugráskor rá kell
+   hagyni a fejléc magasságát — különben a szakasz címe a fejléc alá
+   kerül, és úgy tűnik, mintha rossz helyre ugrott volna. */
+html { font-size: 16px; scroll-behavior: smooth; scroll-padding-top: 96px; }
 body {
   background: var(--sand);
   color: var(--text);
@@ -113,6 +120,15 @@ main, .site-main { display: block; }
   flex-shrink: 0;
 }
 .site-logo em { font-style: italic; color: var(--taupe); font-weight: 300; }
+/* A favicon a szó előtt, logóként: a sötét csempe a szöveg színével egyezik,
+   a lekerekítés és a magasság a betűmérethez igazodik. */
+.site-logo-mark {
+  width: 1.3em; height: 1.3em;
+  border-radius: 0.26em;
+  align-self: center;
+  margin-right: 0.2rem;
+  flex-shrink: 0;
+}
 .site-logo-dot {
   width: 7px; height: 7px; border-radius: 50%;
   background: var(--taupe); display: inline-block;
@@ -161,59 +177,172 @@ main, .site-main { display: block; }
   letter-spacing: 0;
 }
 
-/* ═══ Hero ═════════════════════════════════════════════════ */
-.hero {
-  position: relative;
-  min-height: 92vh;
-  display: flex;
-  align-items: center;
-  overflow: hidden;
+/* ═══ Főoldal: bevezető ════════════════════════════════════
+   A cím a videón kívül, saját háttéren. Szándékosan nem tölti ki a
+   képernyőt: a fotósor és a videó felső széle is látszódjon már az
+   első képernyőn, hogy a látogató letekerjen. */
+.home-intro {
   background: var(--sand);
+  padding: 6rem 0 2rem;
+  text-align: center;
 }
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center 30%;
+.home-intro__title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.3rem, 4.6vw, 3.9rem);
+  font-weight: 300;
+  line-height: 1.08;
+  margin-bottom: 1.1rem;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
-.hero-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, rgba(245,237,224,0.7) 0%, rgba(245,237,224,0.35) 55%, rgba(245,237,224,0.1) 100%);
+.home-intro__title em { font-style: italic; color: var(--taupe); font-weight: 300; }
+.home-intro__lead {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  max-width: 660px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.85;
+  text-wrap: pretty;
 }
-.hero-content {
-  position: relative;
-  z-index: 2;
-  max-width: 620px;
-  padding: 4rem 2rem 4rem 5vw;
+.home-intro .hero-buttons { justify-content: center; }
+
+/* ═══ Főoldal: három fotó ══════════════════════════════════ */
+.home-shots { background: var(--sand); padding: 0 0 1.8rem; }
+.home-shots__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.1rem;
 }
+.home-shot { margin: 0; position: relative; }
+.home-shot img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.home-shot figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 2.5rem 1.1rem 0.95rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fdfaf6;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background: linear-gradient(to top, rgba(20,14,8,0.62), rgba(20,14,8,0));
+}
+
+/* ═══ Főoldal: videó ═══════════════════════════════════════ */
+.home-film { background: var(--sand-light); padding: 4rem 0; }
+.home-film__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 3.5rem;
+  align-items: center;
+}
+.home-film__frame {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: var(--charcoal);
+}
+/* A videó 16:9-es, így nem vágunk le belőle semmit. */
+.home-film__frame video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.home-film__text .section-title { margin-bottom: 1.25rem; }
+.home-film__facts {
+  list-style: none;
+  margin: 0 0 1.75rem;
+  padding: 0;
+  border-top: 1px solid var(--border);
+}
+.home-film__facts li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.home-film__facts strong { color: var(--charcoal); font-weight: 500; }
+@media (max-width: 860px) {
+  .home-film { padding: 3rem 0; }
+  .home-film__grid { grid-template-columns: 1fr; gap: 2rem; }
+}
+
+/* ═══ Főoldal: folyamatábra ════════════════════════════════ */
+.how-flow { list-style: none; margin: 0 auto; padding: 0; max-width: 760px; }
+.how-step {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 1.8rem;
+  align-items: center;
+}
+.how-step__media img {
+  display: block; width: 100%;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+/* A lámpa nélküli változat egy mondatban, a folyamatábra alatt. */
+.how-note {
+  max-width: 760px;
+  margin: 2.5rem auto 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+.how-note strong { color: var(--charcoal); font-weight: 500; }
+.how-step__text { display: flex; gap: 0.9rem; align-items: flex-start; }
+.how-step__num {
+  flex-shrink: 0;
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  background: var(--charcoal); color: var(--warm-white);
+  font-family: var(--font-serif); font-size: 1rem; line-height: 1;
+}
+.how-step__text p {
+  font-size: 0.9rem; line-height: 1.8; color: var(--text-muted);
+  margin: 0.15rem 0 0;
+}
+.how-step__text strong { color: var(--text); font-weight: 400; }
+.how-step__text a { color: var(--taupe); text-decoration: underline; text-underline-offset: 3px; }
+/* A nyíl a lépések között: ugyanaz a kékzöld, mint a skiccen. */
+.how-arrow {
+  color: #2e7f8c;
+  display: flex; justify-content: center;
+  padding: 0.55rem 0;
+  width: 300px;   /* a képoszlop szélessége — a nyíl a képek alatt áll */
+}
+.how-arrow svg { width: 22px; height: 44px; display: block; }
+
+@media (max-width: 900px) {
+  .home-intro { padding: 6.5rem 0 2rem; }
+  .how-step { grid-template-columns: 220px 1fr; gap: 1.3rem; }
+  .how-arrow { width: 220px; }
+}
+@media (max-width: 640px) {
+  .home-shots__grid { grid-template-columns: 1fr; gap: 0.9rem; }
+  .how-step { grid-template-columns: 1fr; gap: 0.9rem; }
+  .how-arrow { width: 100%; padding: 0.35rem 0; }
+  .how-arrow svg { height: 34px; }
+}
+
 .hero-eyebrow {
   display: inline-block;
   font-size: 0.66rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--taupe);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   font-weight: 400;
-}
-.hero h1 {
-  font-family: var(--font-serif);
-  font-size: clamp(2.8rem, 6vw, 5.2rem);
-  font-weight: 300;
-  line-height: 1.05;
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.01em;
-  text-wrap: balance;
-}
-.hero h1 em { font-style: italic; color: var(--taupe); font-weight: 300; }
-.hero-sub {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  max-width: 420px;
-  margin-bottom: 2.5rem;
-  line-height: 1.9;
-  text-wrap: pretty;
 }
 .hero-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 
@@ -1437,9 +1566,13 @@ main, .site-main { display: block; }
   font-size: 1.5rem;
   font-weight: 300;
   color: rgba(255,255,255,0.9);
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
+/* A sötét láblécen a csempe széle beleolvadna — egy halvány keret kirajzolja. */
+.footer-brand .site-logo-mark { box-shadow: 0 0 0 1px rgba(255,255,255,0.08); }
 .footer-brand p { font-size: 0.84rem; line-height: 1.7; max-width: 320px; font-weight: 300; }
 .footer-col h4 {
   font-size: 0.65rem;
@@ -1692,7 +1825,8 @@ p.cart-empty.woocommerce-info {
 
 /* Left info panel */
 .litho-contact-info {
-  background: var(--charcoal);
+  background: var(--sand-light);
+  border-right: 1px solid var(--border);
   padding: 6rem 3.5rem;
   display: flex;
   flex-direction: column;
@@ -1700,20 +1834,11 @@ p.cart-empty.woocommerce-info {
   position: relative;
   overflow: hidden;
 }
-.litho-contact-info::before {
-  content: '';
-  position: absolute;
-  bottom: -80px; left: -80px;
-  width: 300px; height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(138,122,110,0.18) 0%, transparent 70%);
-  pointer-events: none;
-}
 .litho-contact-info__eyebrow {
   font-size: 0.66rem;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: var(--taupe-light);
+  color: var(--taupe);
   display: block;
   margin-bottom: 1.5rem;
   font-weight: 400;
@@ -1722,16 +1847,16 @@ p.cart-empty.woocommerce-info {
   font-family: var(--font-serif);
   font-size: clamp(2.4rem, 4vw, 3.2rem);
   font-weight: 300;
-  color: rgba(255,255,255,0.92);
+  color: var(--charcoal);
   line-height: 1.08;
   letter-spacing: -0.01em;
   margin-bottom: 1.5rem;
   text-wrap: balance;
 }
-.litho-contact-info__title em { font-style: italic; color: var(--taupe-light); font-weight: 300; }
+.litho-contact-info__title em { font-style: italic; color: var(--taupe); font-weight: 300; }
 .litho-contact-info__desc {
   font-size: 0.88rem;
-  color: rgba(255,255,255,0.45);
+  color: var(--text-muted);
   line-height: 1.85;
   max-width: 320px;
   text-wrap: pretty;
@@ -1750,9 +1875,9 @@ p.cart-empty.woocommerce-info {
 .litho-contact-detail__icon {
   width: 38px; height: 38px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid var(--border-mid);
   display: flex; align-items: center; justify-content: center;
-  color: var(--taupe-light);
+  color: var(--taupe);
   flex-shrink: 0;
   font-size: 0.95rem;
 }
@@ -1760,21 +1885,21 @@ p.cart-empty.woocommerce-info {
   font-size: 0.62rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
+  color: var(--text-light);
   display: block;
   margin-bottom: 0.2rem;
   font-weight: 400;
 }
 .litho-contact-detail__value {
   font-size: 0.88rem;
-  color: rgba(255,255,255,0.75);
+  color: var(--text);
   font-weight: 300;
 }
 .litho-contact-detail__value a {
   color: inherit;
   transition: color 0.18s;
 }
-.litho-contact-detail__value a:hover { color: rgba(255,255,255,0.95); }
+.litho-contact-detail__value a:hover { color: var(--taupe); }
 
 .litho-contact-socials {
   display: flex;
@@ -1785,15 +1910,15 @@ p.cart-empty.woocommerce-info {
   display: inline-flex; align-items: center; justify-content: center;
   width: 40px; height: 40px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.5);
+  border: 1px solid var(--border-mid);
+  color: var(--text-muted);
   font-size: 0.8rem;
   transition: border-color 0.18s, color 0.18s;
   text-decoration: none;
 }
 .litho-contact-socials a:hover {
-  border-color: rgba(255,255,255,0.4);
-  color: rgba(255,255,255,0.9);
+  border-color: var(--taupe);
+  color: var(--charcoal);
 }
 
 /* Right form panel */
@@ -1933,7 +2058,7 @@ p.cart-empty.woocommerce-info {
 /* Responsive contact */
 @media (max-width: 900px) {
   .litho-contact-wrap { grid-template-columns: 1fr; }
-  .litho-contact-info { padding: 4rem 2rem; }
+  .litho-contact-info { padding: 4rem 2rem; border-right: none; border-bottom: 1px solid var(--border); }
   .litho-contact-form-wrap { padding: 3.5rem 2rem; }
 }
 @media (max-width: 600px) {
@@ -2416,6 +2541,7 @@ p.cart-empty.woocommerce-info {
    can band even when the panels are taller than the screen. */
 .litho-contact-page { background: var(--sand-light); }
 .litho-contact-wrap {
+  background: var(--sand-light);
   min-height: 100vh;
   min-height: 100svh; /* ignores mobile browser chrome that comes and goes */
 }
@@ -3048,18 +3174,6 @@ p.cart-empty.woocommerce-info {
 }
 .fp-list-item.is-selected strong { color: #3c6837; }
 
-/* Visszatöltött piszkozat jelzése a pénztárban */
-.litho-draft-note {
-  margin-bottom: 1rem;
-  padding: 0.7rem 0.9rem;
-  border: 1px solid rgba(160, 130, 100, 0.35);
-  border-radius: var(--radius);
-  background: var(--sand-light);
-  font-size: 0.82rem;
-  line-height: 1.55;
-  color: var(--text-muted);
-}
-
 /* Mézesbödön mező: a képernyőn sehol, de a robotok kitöltik. */
 .litho-cf__hp {
   position: absolute;
@@ -3067,4 +3181,109 @@ p.cart-empty.woocommerce-info {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+/* ═══ Fényforrás-felajánlás a pénztárban ═══════════════════ */
+.litho-lamp-offer {
+  border-color: rgba(184, 144, 32, 0.45);
+  background: linear-gradient(180deg, rgba(255, 248, 225, 0.75), var(--warm-white));
+}
+.litho-lamp-offer__text {
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: var(--text-muted);
+  margin-bottom: 0.9rem;
+}
+.litho-lamp-offer__check { align-items: center; }
+.litho-lamp-offer__check strong { color: var(--text); font-weight: 500; }
+
+/* ═══ Megerősítés a rendelés leadása előtt ═════════════════ */
+.litho-no-scroll { overflow: hidden; }
+.litho-order-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(28, 25, 23, 0.72);
+}
+.litho-order-confirm[hidden] { display: none; }
+.litho-order-confirm__box {
+  width: 100%;
+  max-width: 480px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 1.9rem 1.7rem 1.6rem;
+  border-radius: var(--radius-lg);
+  background: var(--warm-white);
+  box-shadow: var(--shadow-lg);
+}
+.litho-order-confirm__box:focus-visible { outline: 2px solid var(--taupe); outline-offset: 3px; }
+.litho-order-confirm__title {
+  font-family: var(--font-serif);
+  font-size: 1.7rem;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+.litho-order-confirm__lead {
+  font-size: 0.86rem;
+  color: var(--text-muted);
+  margin-bottom: 1.1rem;
+  text-align: center;
+}
+.litho-order-confirm__items {
+  border-top: 1px solid var(--border);
+  margin-bottom: 0.9rem;
+}
+.litho-order-confirm__item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.litho-order-confirm__item span:last-child { white-space: nowrap; color: var(--text); }
+.litho-order-confirm__total {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  margin-bottom: 1.1rem;
+}
+.litho-order-confirm__warn {
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  background: var(--sand);
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin-bottom: 1.3rem;
+}
+.litho-order-confirm__warn strong { color: var(--text); font-weight: 500; }
+.litho-order-confirm__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+/* A gombok alapból nagy vízszintes belső térrel jönnek; ebben a szűk
+   ablakban egymás mellé kell férniük. */
+.litho-order-confirm__actions > * {
+  padding-left: 0.9rem;
+  padding-right: 0.9rem;
+  text-align: center;
+}
+@media (max-width: 420px) {
+  .litho-order-confirm__actions { grid-template-columns: 1fr; }
+}
+
+/* Zárójeles magyarázat a csupa nagybetűs mezőcímkék mellett, pl. hogy a
+   15/20 cm a leghosszabb oldalra vonatkozik, nem a szélességre. */
+.label-hint {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }

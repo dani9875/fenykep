@@ -66,8 +66,6 @@ def _totals_rows(order: dict) -> str:
     rows += (
         f"<tr><td>Szállítás</td><td>{'Ingyenes' if not shipping_fee else _huf(shipping_fee)}</td></tr>"
     )
-    if order.get("codFeeHuf"):
-        rows += f"<tr><td>Utánvét kezelési díj</td><td>{_huf(order['codFeeHuf'])}</td></tr>"
     rows += f"<tr><td><strong>Végösszeg</strong></td><td><strong>{_huf(order.get('totalHuf', 0))}</strong></td></tr>"
     return rows
 
@@ -105,8 +103,7 @@ def send_customer_confirmation(order: dict) -> None:
     <p>Rendelési szám: <strong>{_e(order['orderId'])}</strong></p>
     <p>A fizetés sikeresen megérkezett.</p>
     {_order_table(order)}
-    <p>24 órán belül e-mailben elküldjük a digitális előnézetet.
-       Csak akkor nyomtatunk, ha jóváhagyod.</p>
+    <p>Egyedi termékeinket általában egy héten belül elkészítjük, és rögtön gondoskodunk a kiszállításukról.</p>
     """
     _send(order["customer"]["email"], "Rendelés visszaigazolás — Fény·kép Stúdió", html_body)
 
@@ -125,23 +122,10 @@ def send_transfer_instructions(order: dict) -> None:
       <tr><td>Közlemény</td><td>{_e(order['orderId'])}</td></tr>
     </table>
     {_order_table(order)}
-    <p>Az utalás beérkezése után kezdjük el a gyártást, és digitális mintát küldünk
-       jóváhagyásra.</p>
+    <p>Az utalás beérkezése után rögtön elkezdjük a gyártást.
+       Egyedi termékeinket általában egy héten belül elkészítjük, és rögtön gondoskodunk a kiszállításukról.</p>
     """
     _send(order["customer"]["email"], "Fizetési adatok — Fény·kép Stúdió rendelés", html_body)
-
-
-def send_cod_confirmation(order: dict) -> None:
-    html_body = f"""
-    <h2>Köszönjük a rendelésedet, {_e(order['customer']['name'])}!</h2>
-    <p>Rendelési szám: <strong>{_e(order['orderId'])}</strong></p>
-    <p>Utánvétes fizetést választottál: a végösszeget a futárnál kell
-       kiegyenlítened átvételkor.</p>
-    {_order_table(order)}
-    <p>24 órán belül e-mailben elküldjük a digitális előnézetet.
-       Csak akkor nyomtatunk, ha jóváhagyod.</p>
-    """
-    _send(order["customer"]["email"], "Rendelés visszaigazolás — Fény·kép Stúdió", html_body)
 
 
 def send_payment_failed_notice(order: dict) -> None:
@@ -176,7 +160,6 @@ def send_admin_notification(order: dict) -> None:
     headline = {
         "paid": "Új fizetett rendelés",
         "pending_transfer": "Új rendelés — előre utalásra vár",
-        "pending_cod": "Új rendelés — utánvét",
         "payment_mismatch": "FIGYELEM: eltérő fizetett összeg",
         "payment_review": "FIGYELEM: kézi ellenőrzést igénylő fizetés",
     }.get(status, f"Rendelés státusz: {status}")

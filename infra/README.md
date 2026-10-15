@@ -216,16 +216,15 @@ csomagfeladás egyelőre kézi. Szólj, ha melyiket kössük be.
 |---|---|---|---|
 | Bankkártya (Barion) | ✔ | ✔ | `pending_payment` |
 | Előre utalás | ✔ | ✔ | `pending_transfer` |
-| Utánvét | ✖ | ✔ | `pending_cod` |
 
 A párosítások egyetlen helyen, a `products.py` `PAYMENT_METHODS`
 táblájában élnek. A frontend a `GET /products` válaszából tudja, mit
 engedjen választani; a `create_order` ugyanezt újra ellenőrzi, tehát a
 felület megkerülése sem visz át tiltott kombinációt.
 
-- **Utánvét**: csomagautomatánál fizikailag sem működne (nem fogad
-  készpénzt), ezért csak házhozszállításnál választható. Kezelési díja
-  a `COD_FEE_HUF` (alapértelmezésben 0).
+- **Utánvét nincs**: a csomagautomata nem fogad készpénzt, futárnál
+  pedig a be nem vett csomag költsége a miénk lenne — miközben a termék
+  egyedi, tehát nem adható el másnak.
 - **Előre utalás**: a vásárló azonnal emailt kap a `BANK_ACCOUNT_*`
   env változókban megadott számlaadatokkal. A beérkezést **kézzel**
   kell ellenőrizni, és a rendelés státuszát átállítani (nincs admin

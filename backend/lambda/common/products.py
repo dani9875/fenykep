@@ -11,7 +11,7 @@ any change.
 
 PRODUCTS = {
     "lampa-nelkul": {
-        "name": "Litofán – Lámpa nélkül",
+        "name": "3D fotó – Lámpa nélkül",
         "base_price_huf": 9990,
         "sizes": {
             "15cm": {"label": "15 cm · Klasszikus", "delta_huf": 0},
@@ -19,7 +19,7 @@ PRODUCTS = {
         },
     },
     "led-talpas": {
-        "name": "Litofán – LED talppal",
+        "name": "3D fotó – LED talppal",
         "base_price_huf": 14990,
         "sizes": {
             "15cm": {"label": "15 cm · Klasszikus", "delta_huf": 0},
@@ -32,10 +32,6 @@ FREE_SHIPPING_THRESHOLD_HUF = 20000
 FOXPOST_SHIPPING_FEE_HUF = 1490
 HOME_DELIVERY_FEE_HUF = 1990
 
-# Utánvét kezelési költség. Csak házhozszállításnál választható
-# (csomagautomata nem fogad készpénzt).
-COD_FEE_HUF = 0
-
 # Egy tételből ennyinél többet nem lehet kosárba tenni. Az elgépelt vagy
 # szándékosan felnagyított darabszám ellen véd, mielőtt Barion felé
 # indulna a fizetés.
@@ -47,11 +43,13 @@ SHIPPING_METHODS = {
     "home": {"label": "Házhozszállítás (futár)", "fee_huf": HOME_DELIVERY_FEE_HUF},
 }
 
-# Melyik fizetési mód melyik szállítási móddal használható.
+# Melyik fizetési mód melyik szállítási móddal használható. Utánvét nincs:
+# a csomagautomata nem fogad készpénzt, futárnál pedig a be nem vett
+# csomag költsége a miénk lenne, miközben a termék egyedi, tehát nem
+# adható el másnak.
 PAYMENT_METHODS = {
     "barion": {"label": "Bankkártya (Barion)", "shipping": ("foxpost", "home")},
     "transfer": {"label": "Előre utalás", "shipping": ("foxpost", "home")},
-    "cod": {"label": "Utánvét", "shipping": ("home",)},
 }
 
 
@@ -74,11 +72,6 @@ def get_shipping_fee(subtotal_huf: int, method: str = "foxpost") -> int:
     if not entry:
         raise ValueError(f"Unknown shipping method: {method}")
     return entry["fee_huf"]
-
-
-def get_cod_fee(payment_method: str) -> int:
-    """Cash-on-delivery handling fee, 0 for every other payment method."""
-    return COD_FEE_HUF if payment_method == "cod" else 0
 
 
 def is_payment_allowed(payment_method: str, shipping_method: str) -> bool:

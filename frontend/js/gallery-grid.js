@@ -8,6 +8,7 @@ const GALLERY_IMAGES = [
   "assets/gallery/g7-topografia.jpg",
   "assets/gallery/g8-kisbabakep5.jpg",
   "assets/gallery/g9-termeszetesfeny3.jpg",
+  "assets/gallery/g10-parenteriorsocial.jpg",
 ];
 
 function renderGalleryGrid() {
@@ -17,7 +18,7 @@ function renderGalleryGrid() {
   grid.innerHTML = GALLERY_IMAGES.map(
     (src) => `
     <button type="button" class="gallery-thumb" data-src="${src}" aria-label="Kép nagyítása">
-      <img src="${src}" alt="Elkészült litofán" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.3s;">
+      <img src="${src}" alt="Elkészült 3D fotó" loading="lazy" style="width:100%; height:100%; object-fit:cover; display:block; transition:transform 0.3s;">
     </button>`
   ).join("");
 
@@ -25,7 +26,7 @@ function renderGalleryGrid() {
   lightbox.id = "gallery-lightbox";
   lightbox.style.cssText =
     "display:none; position:fixed; inset:0; background:rgba(28,25,23,0.92); z-index:10000; align-items:center; justify-content:center; padding:2rem;";
-  lightbox.innerHTML = `<img id="gallery-lightbox-img" alt="Elkészült litofán, nagyítva" style="max-width:90vw; max-height:90vh; border-radius:8px;">`;
+  lightbox.innerHTML = `<img id="gallery-lightbox-img" alt="Elkészült 3D fotó, nagyítva" style="max-width:90vw; max-height:90vh; border-radius:8px;">`;
 
   function closeLightbox() {
     lightbox.style.display = "none";

@@ -3,7 +3,7 @@ function formatHuf(n) {
 }
 
 const PRODUCT_IMAGES = {
-  "lampa-nelkul": "assets/products/lampa-nelkul.jpg",
+  "lampa-nelkul": "assets/gallery/g9-termeszetesfeny3.jpg",
   "led-talpas": "assets/products/led-talpas.jpg",
 };
 
@@ -27,7 +27,7 @@ function renderCartPage() {
           </svg>
         </div>
         <h2 class="litho-empty-cart__title">A kosár üres</h2>
-        <p class="litho-empty-cart__sub">Még nem választottál lithofán képet.<br>Töltsd fel a kedvenc fotódat, és varázsolj belőle egyedi emléket.</p>
+        <p class="litho-empty-cart__sub">Még nem választottál 3D fotót.<br>Töltsd fel a fotódat, és válaszd ki, lámpával vagy lámpa nélkül kéred.</p>
         <a href="index.html" class="litho-empty-cart__btn">Termékek megtekintése</a>
       </div>`;
     return;

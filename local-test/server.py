@@ -43,7 +43,6 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / "backend" / "lambda" / "common"))
 from products import (  # noqa: E402
-    COD_FEE_HUF,
     FOXPOST_SHIPPING_FEE_HUF,
     FREE_SHIPPING_THRESHOLD_HUF,
     HOME_DELIVERY_FEE_HUF,
@@ -51,7 +50,6 @@ from products import (  # noqa: E402
     PAYMENT_METHODS,
     PRODUCTS,
     SHIPPING_METHODS,
-    get_cod_fee,
     get_item_price,
     get_shipping_fee,
     is_payment_allowed,
@@ -64,7 +62,6 @@ STATUS_MESSAGES = {
     "pending_payment": "A fizetés feldolgozás alatt.",
     "paid": "A fizetés sikeres volt.",
     "pending_transfer": "A rendelést rögzítettük, várjuk az átutalást.",
-    "pending_cod": "A rendelést rögzítettük, utánvéttel fizetsz átvételkor.",
     "payment_failed": "A fizetés nem sikerült.",
     "payment_canceled": "A fizetést megszakítottad.",
     "payment_expired": "A fizetési idő lejárt.",
@@ -209,7 +206,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 "freeShippingThresholdHuf": FREE_SHIPPING_THRESHOLD_HUF,
                 "foxpostShippingFeeHuf": FOXPOST_SHIPPING_FEE_HUF,
                 "homeDeliveryFeeHuf": HOME_DELIVERY_FEE_HUF,
-                "codFeeHuf": COD_FEE_HUF,
                 "shippingMethods": SHIPPING_METHODS,
                 "paymentMethods": {
                     k: {"label": v["label"], "shipping": list(v["shipping"])}
@@ -351,9 +347,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             payment_method = body.get("paymentMethod", "barion")
             if not is_payment_allowed(payment_method, shipping_method):
                 return self._json(400, {
-                    "error": "Utánvét csak házhozszállításnál választható — a csomagautomata nem fogad készpénzt."
-                    if payment_method == "cod"
-                    else "A választott fizetési mód nem használható ezzel a szállítási móddal."
+                    "error": "A választott fizetési mód nem használható ezzel a szállítási móddal."
                 })
 
             items = []
@@ -369,14 +363,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"error": "A kosár üres."})
 
             fee = get_shipping_fee(subtotal, shipping_method)
-            cod_fee = get_cod_fee(payment_method)
-            total = subtotal + fee + cod_fee
+            total = subtotal + fee
             order_id = str(uuid.uuid4())
 
-            status = {
-                "transfer": "pending_transfer",
-                "cod": "pending_cod",
-            }.get(payment_method, "pending_payment")
+            status = "pending_transfer" if payment_method == "transfer" else "pending_payment"
 
             order = {
                 "orderId": order_id,
@@ -387,7 +377,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 "items": items,
                 "subtotalHuf": subtotal,
                 "shippingFeeHuf": fee,
-                "codFeeHuf": cod_fee,
                 "totalHuf": total,
                 "updatedAt": int(time.time()),
             }
@@ -402,14 +391,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     "redirectUrl": f"http://localhost:{PORT}/koszonjuk.html?orderId={order_id}",
                 })
 
-            if payment_method == "cod":
-                print(f"\n[MOCK EMAIL] COD confirmation to {customer['email']}: "
-                      f"order {order_id}, total {total} Ft\n")
-                return self._json(200, {
-                    "orderId": order_id,
-                    "paymentMethod": payment_method,
-                    "redirectUrl": f"http://localhost:{PORT}/koszonjuk.html?orderId={order_id}",
-                })
 
             # Bankkártya: a mock fizetőoldalra megyünk, ott dől el a kimenet.
             order["paymentId"] = uuid.uuid4().hex
