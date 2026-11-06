@@ -24,8 +24,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Próbáld ki 3D-ben | Fény·kép</title>
 <meta name="description" content="Töltsd fel a fotódat, és nézd meg 3D-ben, hogyan fog kinézni 3D fotóként, még a rendelés előtt.">
+<link rel="canonical" href="https://www.feny-kep.hu/kiprobalom">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Fény·kép">
+<meta property="og:locale" content="hu_HU">
+<meta property="og:title" content="Próbáld ki 3D-ben | Fény·kép">
+<meta property="og:description" content="Töltsd fel a fotódat, és nézd meg 3D-ben, hogyan fog kinézni 3D fotóként, még a rendelés előtt.">
+<meta property="og:url" content="https://www.feny-kep.hu/kiprobalom">
+<meta property="og:image" content="https://www.feny-kep.hu/assets/hero-poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261106a">
+<link rel="stylesheet" href="css/style.css?v=20261106j">
 <script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
@@ -38,7 +47,7 @@
       <a href="index.html#products">Termékek</a>
       <a href="galeria.html">Galéria</a>
       <a href="kiprobalom.html">Próbáld ki</a>
-      <a href="index.html#beuzemeles">Beüzemelés</a>
+      <a href="index.html#kicsomagolas">Kicsomagolás után</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
     <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count"></span></a></div>
@@ -155,7 +164,7 @@
 
     <p class="lto-disclaimer">
       Az előnézet <strong>tájékoztató jellegű</strong>: a kész termék finomabb
-      részleteket ad vissza, mint ez a gyors 3D modell. A 3D fotó szélére a
+      részleteket ad vissza, mint ez a 3D modell. A 3D fotó szélére a
       mintaképekhez hasonlóan <strong>vékony keret</strong> kerül, amit az
       előnézet nem mutat.
     </p>
@@ -179,7 +188,7 @@
             </label>
             <label class="lto-size-opt">
               <input type="radio" name="ltoProduct" value="led-talpas">
-              <span><strong>LED talppal</strong><small data-price-for="led-talpas">—</small></span>
+              <span><strong>LED világítással</strong><small data-price-for="led-talpas">—</small></span>
             </label>
           </div>
         </div>
@@ -976,7 +985,7 @@ var orderError = document.getElementById('ltoOrderError');
 // backend számolja újra a rendeléskor.
 var CATALOG = {
   'lampa-nelkul': { name: '3D fotó lámpa nélkül', base: 9990, sizes: { '15cm': 0, '20cm': 3000 } },
-  'led-talpas':   { name: '3D fotó LED talppal',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
+  'led-talpas':   { name: '3D fotó LED világítással',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
 };
 
 function selectedProduct() {
@@ -1115,6 +1124,6 @@ orderBtn.addEventListener('click', async function() {
 </div>
 
 <script src="js/nav.js?v=20261009a"></script>
-<script src="js/site-footer.js?v=20261009a"></script>
+<script src="js/site-footer.js?v=20261106a"></script>
 </body>
 </html>

@@ -28,6 +28,7 @@ import http.server
 import json
 import os
 import re
+import shutil
 import socketserver
 import time
 import urllib.parse
@@ -39,6 +40,7 @@ PORT = 8787
 FRONTEND_DIR = Path(__file__).parent.parent / "frontend"
 UPLOAD_DIR = Path(__file__).parent / "uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
+ORDER_PHOTO_DIR = Path(__file__).parent / "orders"
 
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent / "backend" / "lambda" / "common"))
@@ -54,6 +56,7 @@ from products import (  # noqa: E402
     get_shipping_fee,
     is_payment_allowed,
 )
+from photo_files import photo_file_key  # noqa: E402
 
 ORDERS = {}  # orderId -> order dict, in memory only, resets on restart
 FOXPOST_CACHE = {"lockers": None, "fetchedAt": 0}
@@ -380,6 +383,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 "totalHuf": total,
                 "updatedAt": int(time.time()),
             }
+
+            # Mint az éles create_order: beszédes nevű másolat a fotókról
+            # (local-test/orders/<dátum>/ID_Név_Cím_...).
+            for index, item in enumerate(items, start=1):
+                source = UPLOAD_DIR / Path(item.get("photoKey", "")).name
+                if not source.is_file():
+                    return self._json(400, {"error": "Az egyik feltöltött fotót nem találjuk. Töltsd fel újra a kosárban, és próbáld meg ismét."})
+                target = ORDER_PHOTO_DIR / photo_file_key(order, index, item).removeprefix("orders/")
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source, target)
+                item["photoFile"] = str(target.relative_to(ORDER_PHOTO_DIR.parent))
+                print(f"[MOCK S3] photo copied -> {item['photoFile']}")
             ORDERS[order_id] = order
 
             if payment_method == "transfer":

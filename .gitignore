@@ -2,3 +2,7 @@ backend/lambda/common/__pycache__
 .devcontainer/devcontainer-lock.json
 __pycache__/
 node_modules/
+local-test/uploads/
+local-test/orders/
+tools/order-sync/google-service-account.json
+tools/order-sync/.env

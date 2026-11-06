@@ -43,7 +43,7 @@ Text Domain: lithophane-shop
    a betűsor alá lóg (3D, 15 cm, 9 990 Ft). Mindenhol egyenes számjegyeket
    kérünk — az űrlapmezők nem öröklik a betűbeállításokat, ezért a *. */
 * { font-variant-numeric: lining-nums; }
-/* A fejléc fix, ezért a horgonyokra (#products, #beuzemeles) ugráskor rá kell
+/* A fejléc fix, ezért a horgonyokra (#products, #kicsomagolas) ugráskor rá kell
    hagyni a fejléc magasságát — különben a szakasz címe a fejléc alá
    kerül, és úgy tűnik, mintha rossz helyre ugrott volna. */
 html { font-size: 16px; scroll-behavior: smooth; scroll-padding-top: 96px; }
@@ -109,30 +109,34 @@ main, .site-main { display: block; }
   flex-wrap: nowrap;
 }
 .site-logo {
-  font-family: var(--font-serif);
-  font-size: 1.55rem;
-  font-weight: 400;
-  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
+  font-size: 1.35rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   color: var(--charcoal);
   display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
+  align-items: center;
+  gap: 0;
   flex-shrink: 0;
+  line-height: 1;
 }
 .site-logo em { font-style: italic; color: var(--taupe); font-weight: 300; }
 /* A favicon a szó előtt, logóként: a sötét csempe a szöveg színével egyezik,
    a lekerekítés és a magasság a betűmérethez igazodik. */
 .site-logo-mark {
-  width: 1.3em; height: 1.3em;
-  border-radius: 0.26em;
-  align-self: center;
-  margin-right: 0.2rem;
+  width: 1.45em; height: 1.45em;
+  border-radius: 0.3em;
+  margin-right: 0.55em;
   flex-shrink: 0;
 }
+/* A két szótag közötti pont: kicsi, a favicon borostyán színében, a
+   kisbetűk magasságának közepén. Nincs körülötte térköz, a szó egyben marad. */
 .site-logo-dot {
-  width: 7px; height: 7px; border-radius: 50%;
-  background: var(--taupe); display: inline-block;
-  margin: 0 0.1rem 0 0.2rem;
+  width: 0.2em; height: 0.2em; border-radius: 50%;
+  background: #E39A2D; display: inline-block;
+  margin: 0 0.12em;
+  align-self: center;
+  transform: translateY(0.08em);
 }
 
 .site-nav { display: flex; align-items: center; gap: 1.75rem; flex-wrap: nowrap; }
@@ -272,7 +276,7 @@ main, .site-main { display: block; }
   text-align: center;
 }
 .how-note strong { color: var(--charcoal); font-weight: 500; }
-.how-step__text { display: flex; gap: 0.75rem; align-items: flex-start; }
+.how-step__text { display: flex; gap: 0.75rem; align-items: center; justify-content: center; text-align: center; }
 .how-step__num {
   flex-shrink: 0;
   width: 30px; height: 30px;
@@ -1520,23 +1524,23 @@ main, .site-main { display: block; }
 .site-footer {
   background: var(--charcoal);
   color: rgba(255,255,255,0.55);
-  padding: 4rem 0 2rem;
+  padding: 2.5rem 0 1.25rem;
   margin-top: auto;
 }
 .footer-grid {
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr 1fr;
   gap: 3rem;
-  margin-bottom: 3rem;
+  margin-bottom: 1.75rem;
 }
 .footer-brand .site-logo {
-  font-family: var(--font-serif);
-  font-size: 1.5rem;
-  font-weight: 300;
+  font-family: var(--font-sans);
+  font-size: 1.35rem;
+  font-weight: 500;
   color: rgba(255,255,255,0.9);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0;
   margin-bottom: 0.75rem;
 }
 /* A sötét láblécen a csempe széle beleolvadna — egy halvány keret kirajzolja. */
@@ -1550,7 +1554,7 @@ main, .site-main { display: block; }
   margin-bottom: 1.1rem;
   font-weight: 400;
 }
-.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; padding: 0; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; padding: 0; }
 .footer-col a {
   font-size: 0.82rem;
   color: rgba(255,255,255,0.55);
@@ -1560,7 +1564,7 @@ main, .site-main { display: block; }
 .footer-col a:hover { color: rgba(255,255,255,0.95); }
 .footer-bottom {
   border-top: 1px solid rgba(255,255,255,0.08);
-  padding-top: 1.5rem;
+  padding-top: 1rem;
   display: flex; align-items: center; justify-content: space-between;
   font-size: 0.7rem;
   letter-spacing: 0.06em;
@@ -1623,7 +1627,7 @@ main, .site-main { display: block; }
   .hero-content { padding: 4rem 1.5rem; }
   .trust-grid { grid-template-columns: 1fr; }
   .steps-grid { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
   .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
   .litho-size-options { gap: 0.4rem; }
   .litho-size-btn { padding: 0.7rem 0.25rem; }
@@ -1795,7 +1799,7 @@ p.cart-empty.woocommerce-info {
   max-width: 1280px;
   margin: 0 auto;
   padding: 4rem 2rem 6rem;
-  background: var(--sand-light);
+  background: var(--sand);
 }
 .litho-contact-form-title {
   font-family: var(--font-serif);
@@ -2406,9 +2410,9 @@ p.cart-empty.woocommerce-info {
    page background showing underneath on short pages. The wrap now
    fills the viewport, and the body matches the form panel so nothing
    can band even when the panels are taller than the screen. */
-.litho-contact-page { background: var(--sand-light); }
+.litho-contact-page { background: var(--sand); }
 .litho-contact-wrap {
-  background: var(--sand-light);
+  background: var(--sand);
   min-height: 100vh;
   min-height: 100svh; /* ignores mobile browser chrome that comes and goes */
 }
@@ -3192,6 +3196,7 @@ p.cart-empty.woocommerce-info {
 .legal ol, .legal ul { margin: 0 0 0.8rem; padding-left: 1.6rem; }
 .legal li { margin-bottom: 0.25rem; }
 .legal a { color: inherit; text-decoration: underline; word-break: break-word; }
+.legal .legal-small { font-size: 0.82rem; color: var(--text-muted); }
 .legal-table { overflow-x: auto; margin: 0 0 0.8rem; }
 .legal table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 .legal th, .legal td { border: 1px solid var(--charcoal); padding: 0.4rem 0.55rem; text-align: left; vertical-align: top; }
@@ -3201,3 +3206,16 @@ p.cart-empty.woocommerce-info {
   .legal p { text-align: left; }
   .legal table { font-size: 0.82rem; }
 }
+
+/* Kosár: a lábléc rövid kosárnál is az ablak aljára kerül (alatta nem
+   marad bézs sáv), és nem ér hozzá az összesítő dobozhoz. */
+body.litho-cart-page { padding-top: 0; }
+body.litho-cart-page .site-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding-top: 90px;
+  box-sizing: border-box;
+}
+body.litho-cart-page .site-wrapper > .container { padding-bottom: 4rem; }

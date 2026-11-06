@@ -23,8 +23,17 @@
 </noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Termék | Fény·kép</title>
+<meta name="robots" content="noindex">
+<script>
+  /* Régi cím (termek.html?p=...): átirányítás a termék saját oldalára. */
+  (function () {
+    var map = { "lampa-nelkul": "3d-foto-lampa-nelkul.html", "led-talpas": "3d-foto-led-vilagitassal.html" };
+    var p = new URLSearchParams(location.search).get("p");
+    if (map[p]) location.replace(map[p]);
+  })();
+</script>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261106a">
+<link rel="stylesheet" href="css/style.css?v=20261106j">
 <script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
@@ -37,7 +46,7 @@
       <a href="index.html#products">Termékek</a>
       <a href="galeria.html">Galéria</a>
       <a href="kiprobalom.html">Próbáld ki</a>
-      <a href="index.html#beuzemeles">Beüzemelés</a>
+      <a href="index.html#kicsomagolas">Kicsomagolás után</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
     <div class="cart-icon-wrap">
@@ -73,8 +82,8 @@
 <script src="js/photo-store.js?v=20261009a"></script>
 <script src="js/api.js?v=20261009a"></script>
 <script src="js/form-validation.js?v=20261009a"></script>
-<script src="js/product.js?v=20261016d"></script>
+<script src="js/product.js?v=20261106c"></script>
 <script src="js/nav.js?v=20261009a"></script>
-<script src="js/site-footer.js?v=20261009a"></script>
+<script src="js/site-footer.js?v=20261106a"></script>
 </body>
 </html>

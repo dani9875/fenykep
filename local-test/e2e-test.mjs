@@ -18,6 +18,13 @@
 import { chromium } from 'playwright';
 
 const BASE = 'http://localhost:8787';
+
+// A kézzel összerakott kosarak 'test.jpg' fotóra hivatkoznak. A szerver
+// rendeléskor átmásolja a fotót (ID_Név_Cím_... néven), ezért a fájlnak
+// léteznie kell a feltöltések között.
+import { mkdirSync, writeFileSync } from 'node:fs';
+mkdirSync(new URL('./uploads/', import.meta.url), { recursive: true });
+writeFileSync(new URL('./uploads/test.jpg', import.meta.url), Buffer.from([0xff, 0xd8, 0xff, 0xd9]));
 const results = [];
 const check = (name, ok, detail = '') => {
   results.push({ name, ok, detail });

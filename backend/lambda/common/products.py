@@ -19,7 +19,7 @@ PRODUCTS = {
         },
     },
     "led-talpas": {
-        "name": "3D fotó LED talppal",
+        "name": "3D fotó LED világítással",
         "base_price_huf": 14990,
         "sizes": {
             "15cm": {"label": "15 cm · Klasszikus", "delta_huf": 0},

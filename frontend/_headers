@@ -1,0 +1,8 @@
+# Cloudflare Pages fejlécek.
+# A pages.dev címek (fejlesztői és előnézeti változatok) ne kerüljenek be a
+# keresőkbe: az igazi cím a https://www.feny-kep.hu.
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex

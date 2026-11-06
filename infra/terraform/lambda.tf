@@ -42,7 +42,7 @@ locals {
       timeout  = 25
       memory   = 512
       env      = merge(local.order_env, local.guard_env)
-      policies = ["dynamo", "ses", "rate_limit"]
+      policies = ["dynamo", "ses", "rate_limit", "s3_orders"]
     }
 
     barion_callback = {

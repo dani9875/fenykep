@@ -31,7 +31,7 @@ const Pricing = {
       sizes: { "15cm": { delta_huf: 0 }, "20cm": { delta_huf: 3000 } },
     },
     "led-talpas": {
-      name: "3D fotó LED talppal", base_price_huf: 14990,
+      name: "3D fotó LED világítással", base_price_huf: 14990,
       sizes: { "15cm": { delta_huf: 0 }, "20cm": { delta_huf: 3000 } },
     },
   },

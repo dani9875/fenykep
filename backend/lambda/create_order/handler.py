@@ -12,6 +12,8 @@ import os
 import re
 import uuid
 
+import boto3
+
 from products import (
     MAX_ITEMS_PER_ORDER,
     MAX_QTY_PER_ITEM,
@@ -21,6 +23,7 @@ from products import (
     is_payment_allowed,
 )
 from dynamo import put_order, update_order_status
+from photo_files import PhotoMissing, archive_order_photos
 import barion
 import guard
 from ses_mail import (
@@ -34,6 +37,9 @@ HEADERS = {
 }
 
 SITE_BASE_URL = os.environ.get("SITE_BASE_URL", "").rstrip("/")
+UPLOADS_BUCKET = os.environ.get("UPLOADS_BUCKET", "")
+
+s3 = boto3.client("s3")
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s.]+\.[^@\s]{2,}$")
 ZIP_RE = re.compile(r"^\d{4}$")
@@ -212,6 +218,14 @@ def handler(event, context):
         "totalHuf": total,
         "currency": "HUF",
     }
+
+    # A fotókról beszédes nevű másolat készül (ID_Név_Cím_...), még a
+    # rendelés mentése előtt: ha egy fotó hiányzik, a rendelés el se induljon.
+    try:
+        archive_order_photos(order, s3, UPLOADS_BUCKET)
+    except PhotoMissing as exc:
+        print(f"[photos] missing upload for new order {order_id}: {exc}")
+        return _error("Az egyik feltöltött fotót nem találjuk. Töltsd fel újra a kosárban, és próbáld meg ismét.")
 
     # ---- előre utalás ----
     if payment_method == "transfer":

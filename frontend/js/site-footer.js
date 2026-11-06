@@ -14,7 +14,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény·kép</a>
+          <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény<span class="site-logo-dot"></span>kép</a>
           <p>3D fotó a saját fényképedből, lámpával vagy lámpa nélkül.</p>
         </div>
         <div class="footer-col">

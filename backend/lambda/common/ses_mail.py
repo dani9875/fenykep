@@ -168,7 +168,7 @@ def send_admin_notification(order: dict) -> None:
     note_html = f"<p style='color:#b94030'><strong>{_e(note)}</strong></p>" if note else ""
     bucket = os.environ.get("UPLOADS_BUCKET", "")
     photos = "".join(
-        f"<li>{_e(i.get('productName'))} — s3://{_e(bucket)}/{_e(i.get('photoKey'))}</li>"
+        f"<li>{_e(i.get('productName'))} — s3://{_e(bucket)}/{_e(i.get('photoFile') or i.get('photoKey'))}</li>"
         for i in order.get("items", [])
     )
     customer = order.get("customer", {})

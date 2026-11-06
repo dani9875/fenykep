@@ -53,6 +53,19 @@ data "aws_iam_policy_document" "s3_uploads" {
   }
 }
 
+# Rendeléskor a feltöltött fotóról beszédes nevű másolat készül az
+# orders/ mappába (backend/lambda/common/photo_files.py).
+data "aws_iam_policy_document" "s3_orders" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.uploads.arn}/uploads/*"]
+  }
+  statement {
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.uploads.arn}/orders/*"]
+  }
+}
+
 data "aws_iam_policy_document" "s3_cache" {
   statement {
     actions   = ["s3:GetObject", "s3:PutObject"]
@@ -95,6 +108,7 @@ locals {
     dynamo     = data.aws_iam_policy_document.dynamo.json
     s3_uploads = data.aws_iam_policy_document.s3_uploads.json
     s3_cache   = data.aws_iam_policy_document.s3_cache.json
+    s3_orders  = data.aws_iam_policy_document.s3_orders.json
     rate_limit = data.aws_iam_policy_document.rate_limit.json
     ses        = data.aws_iam_policy_document.ses.json
   }

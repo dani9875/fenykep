@@ -3,7 +3,7 @@ function getParam(name) {
 }
 
 async function initProductPage() {
-  const productId = getParam("p");
+  const productId = document.body.dataset.product || getParam("p");
   const root = document.getElementById("product-root");
   const { products } = await Api.getProducts();
   const product = products[productId];
@@ -23,11 +23,11 @@ async function initProductPage() {
       { src: "assets/day-night-nappal.jpg", alt: "Családi fotó lámpa nélkül" },
     ],
     "led-talpas": [
-      { src: "assets/products/led-talpas.jpg", alt: "3D fotó LED talppal, bekapcsolva" },
-      { src: "assets/gallery/g2-csaladikep.jpg", alt: "Családi fotó LED talppal, esti fényben" },
-      { src: "assets/day-night-este.jpg", alt: "Családi fotó LED talppal" },
-      { src: "assets/gallery/g4-magzatkep-vilagit.jpg", alt: "Ultrahangkép LED talppal" },
-      { src: "assets/gallery/g8-kisbabakep5.jpg", alt: "Babafotó LED talppal, polcon" },
+      { src: "assets/products/led-talpas.jpg", alt: "3D fotó LED világítással, bekapcsolva" },
+      { src: "assets/gallery/g2-csaladikep.jpg", alt: "Családi fotó LED világítással, esti fényben" },
+      { src: "assets/day-night-este.jpg", alt: "Családi fotó LED világítással" },
+      { src: "assets/gallery/g4-magzatkep-vilagit.jpg", alt: "Ultrahangkép LED világítással" },
+      { src: "assets/gallery/g8-kisbabakep5.jpg", alt: "Babafotó LED világítással, polcon" },
     ],
   };
   const gallery = PRODUCT_GALLERY[productId] || [];
@@ -69,17 +69,16 @@ async function initProductPage() {
 
       <div class="litho-fields">
         <div class="litho-size-wrap">
-          <div class="litho-field-label">Méret <span class="label-hint">(a leghosszabb oldal mérete)</span> <span class="req">*</span></div>
+          <div class="litho-field-label">Méret <span class="label-hint">(a leghosszabb oldal mérete)</span></div>
           <div class="litho-size-options">${sizeButtons}</div>
         </div>
 
         <div class="litho-upload-wrap">
-          <label for="litho_photo" class="litho-field-label">Fényképed <span class="req">*</span></label>
           <p class="litho-upload-hint">JPG vagy PNG, legalább 1000×1000 px.</p>
           <label for="litho_photo" class="litho-dropzone" id="litho-dropzone">
             <img class="litho-dropzone__preview" id="litho-preview" alt="" hidden />
             <span class="litho-dropzone__text" id="litho-dropzone-text">Húzd ide a fényképet, vagy kattints</span>
-            <span class="litho-dropzone__sub" id="litho-filename">Portrét, tájképet, kedvenc pillanatot</span>
+            <span class="litho-dropzone__sub" id="litho-filename"></span>
             <input type="file" id="litho_photo" name="litho_photo" accept="image/jpeg,image/png" required />
           </label>
         </div>
@@ -127,7 +126,7 @@ async function initProductPage() {
       dropzone.classList.remove("litho-dropzone--selected");
       previewEl.hidden = true;
       dropzoneText.textContent = "Húzd ide a fényképet, vagy kattints";
-      filenameEl.textContent = "Portrét, tájképet, kedvenc pillanatot";
+      filenameEl.textContent = "";
       return;
     }
 
