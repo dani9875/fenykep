@@ -6,7 +6,7 @@ kerülne — a név, a megjegyzés és a cím a vásárlótól jön, tehát nem
 kerülhet nyersen a levélbe.
 
 Env vars required:
-  SES_FROM_ADDRESS   e.g. info@lithophaneshop.hu (must be a verified SES identity)
+  SES_FROM_ADDRESS   e.g. info@feny-kep.hu (must be a verified SES identity)
   ADMIN_EMAIL        where the "new order" notification goes
   SITE_BASE_URL      a webshop nyitóoldala (a levelekben lévő linkekhez)
 """
@@ -76,12 +76,12 @@ def shipping_summary(order: dict) -> str:
     if shipping.get("method") == "home":
         address = shipping.get("address") or {}
         return (
-            "Házhozszállítás — "
+            "Házhozszállítás: "
             f"{_e(address.get('name'))}, {_e(address.get('zip'))} {_e(address.get('city'))}, "
             f"{_e(address.get('address'))}"
         )
     locker = shipping.get("lockerName") or shipping.get("lockerId") or ""
-    return f"Foxpost csomagautomata — {_e(locker)}"
+    return f"Foxpost csomagautomata: {_e(locker)}"
 
 
 def _order_table(order: dict) -> str:
@@ -103,9 +103,9 @@ def send_customer_confirmation(order: dict) -> None:
     <p>Rendelési szám: <strong>{_e(order['orderId'])}</strong></p>
     <p>A fizetés sikeresen megérkezett.</p>
     {_order_table(order)}
-    <p>Egyedi termékeinket általában egy héten belül elkészítjük, és rögtön gondoskodunk a kiszállításukról.</p>
+    <p>A rendelésedet általában egy héten belül elkészítjük és feladjuk.</p>
     """
-    _send(order["customer"]["email"], "Rendelés visszaigazolás — Fény·kép Stúdió", html_body)
+    _send(order["customer"]["email"], "Rendelés visszaigazolás | Fény·kép", html_body)
 
 
 def send_transfer_instructions(order: dict) -> None:
@@ -123,9 +123,9 @@ def send_transfer_instructions(order: dict) -> None:
     </table>
     {_order_table(order)}
     <p>Az utalás beérkezése után rögtön elkezdjük a gyártást.
-       Egyedi termékeinket általában egy héten belül elkészítjük, és rögtön gondoskodunk a kiszállításukról.</p>
+       A rendelésedet általában egy héten belül elkészítjük és feladjuk.</p>
     """
-    _send(order["customer"]["email"], "Fizetési adatok — Fény·kép Stúdió rendelés", html_body)
+    _send(order["customer"]["email"], "Fizetési adatok | Fény·kép", html_body)
 
 
 def send_payment_failed_notice(order: dict) -> None:
@@ -147,12 +147,12 @@ def send_payment_failed_notice(order: dict) -> None:
     <p>{_e(reason)} A rendelésedet ezért nem indítottuk el.</p>
     <p>Rendelési szám: <strong>{_e(order['orderId'])}</strong></p>
     <p>Nem vontunk le semmit a kártyádról. Ha szeretnéd, indítsd újra a
-       rendelést — a kosaradat megtartottuk. Előre utalást is választhatsz
+       rendelést, a kosaradat megtartottuk. Előre utalást is választhatsz
        a pénztárban.</p>
     {shop_link}
     <p>Ha többször is elakadsz, írj vissza erre a levélre, és segítünk.</p>
     """
-    _send(order["customer"]["email"], "Sikertelen fizetés — Fény·kép Stúdió", html_body)
+    _send(order["customer"]["email"], "Sikertelen fizetés | Fény·kép", html_body)
 
 
 def send_admin_notification(order: dict) -> None:

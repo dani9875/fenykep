@@ -14,8 +14,8 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény·kép Stúdió</a>
-          <p>Egyedi, kézzel utómunkált 3D fotók a saját fényképeidből.</p>
+          <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény·kép</a>
+          <p>3D fotó a saját fényképedből, lámpával vagy lámpa nélkül.</p>
         </div>
         <div class="footer-col">
           <h4>Termékek</h4>
@@ -27,7 +27,7 @@
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Stúdió</h4>
+          <h4>Információ</h4>
           <ul>
             <li><a href="kapcsolat.html">Kapcsolat</a></li>
             <li><a href="aszf.html">ÁSZF</a></li>
@@ -36,12 +36,12 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <span>&copy; ${YEAR} Fény·kép Stúdió — Minden jog fenntartva</span>
+        <span>&copy; ${YEAR} Fény·kép. Minden jog fenntartva.</span>
         <div class="barion-banner barion-banner--footer">
           <a href="https://www.barion.com/hu/" target="_blank" rel="noopener noreferrer"
-             aria-label="Barion — biztonságos online fizetés">
+             aria-label="Barion, biztonságos online fizetés">
             <img src="assets/barion/barion-smart-banner-light.svg"
-                 alt="Barion — biztonságos bankkártyás fizetés: Mastercard, Maestro, Visa, Visa Electron, American Express"
+                 alt="Barion, biztonságos bankkártyás fizetés: Mastercard, Maestro, Visa, Visa Electron, American Express"
                  width="567" height="108" loading="lazy">
           </a>
         </div>

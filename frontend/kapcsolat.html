@@ -2,10 +2,29 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
+<!-- Barion Pixel (alapkód, csalásmegelőzéshez is szükséges) -->
+<script>
+  window["bp"] = window["bp"] || function () {
+    (window["bp"].q = window["bp"].q || []).push(arguments);
+  };
+  window["bp"].l = 1 * new Date();
+  (function () {
+    var scriptElement = document.createElement("script");
+    var firstScript = document.getElementsByTagName("script")[0];
+    scriptElement.async = true;
+    scriptElement.src = "https://pixel.barion.com/bp.js";
+    firstScript.parentNode.insertBefore(scriptElement, firstScript);
+  })();
+  window["barion_pixel_id"] = "BP-apDEqbljWH-A2";
+  bp("init", "addBarionPixelId", window["barion_pixel_id"]);
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none" alt="Barion Pixel" src="https://pixel.barion.com/a.gif?ba_pixel_id=BP-apDEqbljWH-A2&amp;ev=contentView&amp;noscript=1">
+</noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kapcsolat — Fény·kép Stúdió</title>
+<title>Kapcsolat | Fény·kép</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261012b">
+<link rel="stylesheet" href="css/style.css?v=20261016e">
 <script src="js/cart.js?v=20261009a"></script>
 </head>
 <body class="litho-contact-page">
@@ -37,59 +56,10 @@
 
 <div class="litho-contact-wrap" style="padding-top:90px;">
 
-  <div class="litho-contact-info">
-    <div>
-      <span class="litho-contact-info__eyebrow">Kapcsolatfelvétel</span>
-      <h1 class="litho-contact-info__title">Írj nekünk,<br><em>szívesen segítünk</em></h1>
-      <p class="litho-contact-info__desc">Kérdésed van a termékkel, rendeléssel vagy szállítással kapcsolatban? Keress minket bátran — általában 24 órán belül válaszolunk.</p>
-
-      <div class="litho-contact-details">
-        <div class="litho-contact-detail">
-          <span class="litho-contact-detail__icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
-          </span>
-          <div>
-            <span class="litho-contact-detail__label">E-mail</span>
-            <span class="litho-contact-detail__value"><a href="mailto:info@lithophaneshop.hu">info@lithophaneshop.hu</a></span>
-          </div>
-        </div>
-        <div class="litho-contact-detail">
-          <span class="litho-contact-detail__icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-7.5 8-13a8 8 0 1 0-16 0c0 5.5 8 13 8 13Z"/><circle cx="12" cy="9" r="2.5"/></svg>
-          </span>
-          <div>
-            <span class="litho-contact-detail__label">Helyszín</span>
-            <span class="litho-contact-detail__value">Budapest, Magyarország</span>
-          </div>
-        </div>
-        <div class="litho-contact-detail">
-          <span class="litho-contact-detail__icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-          </span>
-          <div>
-            <span class="litho-contact-detail__label">Válaszidő</span>
-            <span class="litho-contact-detail__value">Általában 24 órán belül</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="litho-contact-socials">
-      <a href="#" aria-label="Instagram">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
-      </a>
-      <a href="#" aria-label="Facebook">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 9h3V6h-3a3 3 0 0 0-3 3v2H8v3h3v7h3v-7h3l1-3h-4V9a1 1 0 0 1 1-1Z"/></svg>
-      </a>
-      <a href="mailto:info@lithophaneshop.hu" aria-label="E-mail">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
-      </a>
-    </div>
-  </div>
-
   <div class="litho-contact-form-wrap">
-    <h2 class="litho-contact-form-title">Küldd el az üzeneted</h2>
-    <p class="litho-contact-form-sub">Minden mező kitöltése segít, hogy gyorsabban tudjunk válaszolni.</p>
+    <h1 class="litho-contact-form-title">Küldd el az üzeneted</h1>
+    <p class="litho-contact-form-sub">Általában 24 órán belül válaszolunk. E-mailben is írhatsz:
+      <a href="mailto:info@feny-kep.hu">info@feny-kep.hu</a></p>
 
     <form class="litho-cf" id="contact-form">
       <div class="litho-cf__row">

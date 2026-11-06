@@ -83,7 +83,7 @@ function renderRow(item) {
           <span class="litho-ci__size">${escapeHtml(item.size)}</span>
           <span class="litho-ci__file" title="${escapeAttr(fileName)}">${escapeHtml(fileName)}</span>
         </span>
-        ${preview ? "" : `<span class="litho-ci__no-preview">Az előnézet ezen a gépen nem érhető el — a feltöltött fotó rendben megvan.</span>`}
+        ${preview ? "" : `<span class="litho-ci__no-preview">Az előnézet ezen a gépen nem érhető el, de a feltöltött fotó rendben megvan.</span>`}
       </div>
       <div class="litho-qty" role="group" aria-label="Példányszám">
         <button type="button" class="litho-qty__btn" data-qty-step="-1" data-id="${item.cartItemId}"

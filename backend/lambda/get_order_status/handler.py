@@ -36,7 +36,7 @@ STATUS_MESSAGES = {
     "payment_canceled": "A fizetést megszakítottad.",
     "payment_expired": "A fizetési idő lejárt.",
     "payment_start_failed": "A fizetést nem sikerült elindítani.",
-    "payment_mismatch": "A fizetett összeg nem egyezik a rendelés végösszegével — kollégánk ellenőrzi.",
+    "payment_mismatch": "A fizetett összeg nem egyezik a rendelés végösszegével, kollégánk ellenőrzi.",
     "payment_review": "A fizetés ellenőrzés alatt.",
 }
 

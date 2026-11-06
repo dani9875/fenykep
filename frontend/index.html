@@ -2,10 +2,29 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
+<!-- Barion Pixel (alapkód, csalásmegelőzéshez is szükséges) -->
+<script>
+  window["bp"] = window["bp"] || function () {
+    (window["bp"].q = window["bp"].q || []).push(arguments);
+  };
+  window["bp"].l = 1 * new Date();
+  (function () {
+    var scriptElement = document.createElement("script");
+    var firstScript = document.getElementsByTagName("script")[0];
+    scriptElement.async = true;
+    scriptElement.src = "https://pixel.barion.com/bp.js";
+    firstScript.parentNode.insertBefore(scriptElement, firstScript);
+  })();
+  window["barion_pixel_id"] = "BP-apDEqbljWH-A2";
+  bp("init", "addBarionPixelId", window["barion_pixel_id"]);
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none" alt="Barion Pixel" src="https://pixel.barion.com/a.gif?ba_pixel_id=BP-apDEqbljWH-A2&amp;ev=contentView&amp;noscript=1">
+</noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Fény·kép Stúdió — 3D fotó a saját képedből</title>
+<title>Fény·kép | 3D fotó a saját képedből</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261012b">
+<link rel="stylesheet" href="css/style.css?v=20261016e">
 <script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
@@ -42,72 +61,35 @@
 </script>
 
 <!-- ══ BEVEZETŐ ═══════════════════════════════════════════════
-     A cím és a leírás szándékosan NEM a videón van: a mozgó háttéren
-     nehéz elolvasni, és a fejléc is beleveszett. Ezért a szöveg saját,
-     nyugodt hátteret kap, a videó pedig lejjebb, kisebben szerepel.
-     A .hero osztály eltűnt a lapról: a nav.js abból tudja, hogy a
-     fejlécnek átlátszónak kell-e lennie — így most rögtön tömör. -->
+     Bal oldalon a szöveg, jobb oldalon a videó keretben. A szöveg nem a
+     videón van, mert a mozgó háttéren nehéz elolvasni. A .hero osztály
+     nincs a lapon: a nav.js ebből tudja, hogy a fejléc rögtön tömör.
+     Mozgáscsökkentést kérő látogatónál a videó nem indul el magától,
+     a gombbal bárki megállíthatja. -->
 <section class="home-intro">
-  <div class="container">
-    <span class="hero-eyebrow">Fény·kép Stúdió</span>
-    <h1 class="home-intro__title">A saját fotód, <em>3D nyomtatva</em></h1>
-    <p class="home-intro__lead">Fény felé tartva vagy lámpával megvilágítva látszik rajta a kép.
-      Lámpával vagy lámpa nélkül rendelheted. Budapesten készítjük, általában egy héten belül.</p>
-    <div class="hero-buttons">
-      <a href="index.html#products" class="btn-primary">Termékek megtekintése</a>
-      <a href="kiprobalom.html" class="btn-outline">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="margin-right:0.4rem; vertical-align:-2px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-        Próbáld ki a saját képeddel!
-      </a>
+  <div class="container home-intro__grid">
+    <div class="home-intro__text">
+      <span class="hero-eyebrow">Fény·kép</span>
+      <h1 class="home-intro__title">A saját fotód, <em>3D nyomtatva</em></h1>
+      <p class="home-intro__lead">Fény felé tartva vagy lámpával megvilágítva látszik rajta a kép.
+        Lámpával vagy lámpa nélkül rendelheted. Budapesten készítjük, általában egy héten belül.</p>
+      <div class="hero-buttons">
+        <a href="index.html#products" class="btn-primary">Termékek megtekintése</a>
+        <a href="kiprobalom.html" class="btn-outline">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="margin-right:0.4rem; vertical-align:-2px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          Próbáld ki a saját képeddel!
+        </a>
+      </div>
     </div>
-  </div>
-</section>
 
-<!-- ══ HÁROM FOTÓ ════════════════════════════════════════════
-     Ez az első, amit a látogató lát a szöveg után: pár másodperc alatt
-     el tudja dönteni, hogy érdekli-e. Mindhárom kép valódi környezetben
-     mutatja a terméket, nem stúdióháttéren. -->
-<section class="home-shots">
-  <div class="container">
-    <div class="home-shots__grid">
-      <figure class="home-shot">
-        <img src="assets/gallery/g9-termeszetesfeny3.jpg" alt="3D fotó nappali fényben" loading="eager">
-        <figcaption>Nappali fényben</figcaption>
-      </figure>
-      <figure class="home-shot">
-        <img src="assets/gallery/g2-csaladikep.jpg" alt="Családi fotóból készült 3D fotó, hátulról megvilágítva" loading="eager">
-        <figcaption>Lámpával, esti fényben</figcaption>
-      </figure>
-      <figure class="home-shot">
-        <img src="assets/gallery/g1-babakep3.jpg" alt="Babafotóból készült világító 3D fotó egy dohányzóasztalon" loading="lazy">
-        <figcaption>Dohányzóasztalon</figcaption>
-      </figure>
-    </div>
-  </div>
-</section>
-
-<!-- ══ KÖZELRŐL ══════════════════════════════════════════════
-     A videó nem önállóan áll a lap közepén, hanem a termék tényei
-     mellett: bal oldalon a közeli felvételek, jobb oldalon az, amit a
-     vásárlónak tudnia kell. Mobilon a videó kerül felülre. -->
-<section class="home-film">
-  <div class="container home-film__grid">
-    <div class="home-film__frame">
-      <video autoplay muted loop playsinline preload="metadata" poster="assets/hero-poster.jpg">
+    <div class="home-film">
+      <video id="home-film-video" muted loop playsinline preload="metadata" poster="assets/hero-poster.jpg" aria-label="Videó a termékről">
         <source src="assets/hero-video.mp4" type="video/mp4">
       </video>
-    </div>
-    <div class="home-film__text">
-      <span class="section-eyebrow">Közelről</span>
-      <h2 class="section-title">Ilyen a kész termék</h2>
-      <ul class="home-film__facts">
-        <li><strong>Anyag:</strong> fehér PLA, 3D nyomtatva</li>
-        <li><strong>Méret:</strong> 15 vagy 20 cm a hosszabb oldalon</li>
-        <li><strong>Lámpa nélkül:</strong> állvánnyal, nappali fényben látszik a kép</li>
-        <li><strong>LED talppal:</strong> sötétben is világít</li>
-        <li><strong>Elkészítés:</strong> általában egy héten belül</li>
-      </ul>
-      <a href="kiprobalom.html" class="btn-outline">Próbáld ki a saját képeddel</a>
+      <button type="button" class="home-film__toggle" id="home-film-toggle" aria-label="Videó megállítása">
+        <svg class="icon-pause" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        <svg class="icon-play" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>
+      </button>
     </div>
   </div>
 </section>
@@ -182,7 +164,7 @@
 </div>
 <script src="js/config.js?v=20261009a"></script>
 <script src="js/api.js?v=20261009a"></script>
-<script src="js/home.js?v=20261009a"></script>
+<script src="js/home.js?v=20261016c"></script>
 <script src="js/nav.js?v=20261009a"></script>
 <script src="js/site-footer.js?v=20261009a"></script>
 </body>

@@ -31,7 +31,7 @@ const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 await ctx.addCookies([{
   name: 'litho_cart',
   value: encodeURIComponent(JSON.stringify([{
-    cartItemId: 'c1', productId: 'lampa-nelkul', productName: '3D fotó – Lámpa nélkül',
+    cartItemId: 'c1', productId: 'lampa-nelkul', productName: '3D fotó lámpa nélkül',
     size: '15cm', qty: 1, unitPrice: 9990, photoKey: 'test.jpg',
   }])),
   url: BASE,
@@ -273,7 +273,7 @@ await ctx.clearCookies();
 await ctx.addCookies([{
   name: 'litho_cart',
   value: encodeURIComponent(JSON.stringify([{
-    cartItemId: 'lamp1', productId: 'lampa-nelkul', productName: '3D fotó – Lámpa nélkül',
+    cartItemId: 'lamp1', productId: 'lampa-nelkul', productName: '3D fotó lámpa nélkül',
     size: '15cm', qty: 1, unitPrice: 9990, photoKey: 'test.jpg',
   }])),
   url: BASE,

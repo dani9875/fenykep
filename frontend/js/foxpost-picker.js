@@ -36,7 +36,7 @@ function selectLocker(locker) {
   fpSelected = locker;
 
   document.getElementById("f-locker-id").value = locker.id;
-  document.getElementById("f-locker-name").value = `${locker.name} — ${locker.address}`;
+  document.getElementById("f-locker-name").value = `${locker.name}, ${locker.address}`;
 
   const box = document.getElementById("fp-selected");
   box.innerHTML =

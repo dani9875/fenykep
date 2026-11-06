@@ -1,4 +1,4 @@
-build: 20260914a
+build: 20261016e
 
 Ha ezt a fájlt látod a böngészőben (<a te URL-ed>/VERZIO.txt), akkor a
 kiszolgált mappa AZ, amit szerkesztettem:

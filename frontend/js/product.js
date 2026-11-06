@@ -13,13 +13,26 @@ async function initProductPage() {
     return;
   }
 
-  const PRODUCT_IMAGES = {
-    "lampa-nelkul": "assets/gallery/g9-termeszetesfeny3.jpg",
-    "led-talpas": "assets/products/led-talpas.jpg",
+  // Az első kép a nagy kép, a többi alatta bélyegképként; kattintásra cserélődnek.
+  const PRODUCT_GALLERY = {
+    "lampa-nelkul": [
+      { src: "assets/gallery/g9-termeszetesfeny3.jpg", alt: "3D fotó lámpa nélkül, nappali fényben" },
+      { src: "assets/products/lampa-nelkul.jpg", alt: "Babafotó lámpa nélkül, az állványon" },
+      { src: "assets/gallery/g5-parkep.jpg", alt: "Páros fotó lámpa nélkül" },
+      { src: "assets/gallery/g3-magzatkep.jpg", alt: "Ultrahangkép lámpa nélkül" },
+      { src: "assets/day-night-nappal.jpg", alt: "Családi fotó lámpa nélkül" },
+    ],
+    "led-talpas": [
+      { src: "assets/products/led-talpas.jpg", alt: "3D fotó LED talppal, bekapcsolva" },
+      { src: "assets/gallery/g2-csaladikep.jpg", alt: "Családi fotó LED talppal, esti fényben" },
+      { src: "assets/day-night-este.jpg", alt: "Családi fotó LED talppal" },
+      { src: "assets/gallery/g4-magzatkep-vilagit.jpg", alt: "Ultrahangkép LED talppal" },
+      { src: "assets/gallery/g8-kisbabakep5.jpg", alt: "Babafotó LED talppal, polcon" },
+    ],
   };
-  const productImage = PRODUCT_IMAGES[productId] || "";
+  const gallery = PRODUCT_GALLERY[productId] || [];
 
-  document.title = `${product.name} — Fény·kép Stúdió`;
+  document.title = `${product.name} | Fény·kép`;
   document.getElementById("crumb-name").textContent = product.name;
 
   const sizeButtons = Object.entries(product.sizes)
@@ -32,12 +45,27 @@ async function initProductPage() {
     )
     .join("");
 
+  // A hu-HU formázás a négyjegyű számot nem tagolja (9990, de 14 990),
+  // ezért kézzel tesszük be a nem törő szóközt.
+  const huf = (n) => String(Math.round(Number(n))).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0") + " Ft";
+
   root.innerHTML = `
     <div class="litho-single-grid">
-      <img class="litho-single-photo" src="${productImage}" alt="${product.name}">
+      <div class="litho-single-gallery">
+        <img class="litho-single-photo" id="litho-main-photo" src="${gallery[0] ? gallery[0].src : ""}" alt="${gallery[0] ? gallery[0].alt : product.name}">
+        <div class="litho-thumbs">
+          ${gallery
+            .map(
+              (g, i) => `<button type="button" class="litho-thumb${i === 0 ? " is-active" : ""}" data-index="${i}" aria-label="${g.alt}">
+                <img src="${g.src}" alt="" loading="lazy">
+              </button>`
+            )
+            .join("")}
+        </div>
+      </div>
       <div class="product-summary">
       <h1 style="font-family:var(--font-serif);">${product.name}</h1>
-      <p class="litho-price" id="litho-price" style="font-size:1.4rem;">${product.base_price_huf.toLocaleString("hu-HU")} Ft</p>
+      <p class="litho-price" id="litho-price" style="font-size:1.4rem;">${huf(product.base_price_huf)}</p>
 
       <div class="litho-fields">
         <div class="litho-size-wrap">
@@ -63,11 +91,22 @@ async function initProductPage() {
     </div>
   `;
 
+  const mainPhoto = document.getElementById("litho-main-photo");
+  const thumbs = document.querySelectorAll(".litho-thumb");
+  thumbs.forEach((t) =>
+    t.addEventListener("click", () => {
+      const g = gallery[Number(t.dataset.index)];
+      mainPhoto.src = g.src;
+      mainPhoto.alt = g.alt;
+      thumbs.forEach((x) => x.classList.toggle("is-active", x === t));
+    })
+  );
+
   const priceEl = document.getElementById("litho-price");
   document.querySelectorAll('input[name="litho_size"]').forEach((r) => {
     r.addEventListener("change", () => {
       const delta = parseInt(r.dataset.delta, 10);
-      priceEl.textContent = (product.base_price_huf + delta).toLocaleString("hu-HU") + " Ft";
+      priceEl.textContent = huf(product.base_price_huf + delta);
     });
   });
 

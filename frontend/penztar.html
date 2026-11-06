@@ -2,10 +2,29 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
+<!-- Barion Pixel (alapkód, csalásmegelőzéshez is szükséges) -->
+<script>
+  window["bp"] = window["bp"] || function () {
+    (window["bp"].q = window["bp"].q || []).push(arguments);
+  };
+  window["bp"].l = 1 * new Date();
+  (function () {
+    var scriptElement = document.createElement("script");
+    var firstScript = document.getElementsByTagName("script")[0];
+    scriptElement.async = true;
+    scriptElement.src = "https://pixel.barion.com/bp.js";
+    firstScript.parentNode.insertBefore(scriptElement, firstScript);
+  })();
+  window["barion_pixel_id"] = "BP-apDEqbljWH-A2";
+  bp("init", "addBarionPixelId", window["barion_pixel_id"]);
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none" alt="Barion Pixel" src="https://pixel.barion.com/a.gif?ba_pixel_id=BP-apDEqbljWH-A2&amp;ev=contentView&amp;noscript=1">
+</noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pénztár — Fény·kép Stúdió</title>
+<title>Pénztár | Fény·kép</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261012b">
+<link rel="stylesheet" href="css/style.css?v=20261016e">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/cart.js?v=20261009a"></script>
@@ -174,9 +193,9 @@
                  fejlesztői útmutatója ezt írja elő (lásd
                  infra/barion-smart-banner-dev-guide.pdf). -->
             <div class="barion-banner barion-banner--checkout">
-              <a href="https://www.barion.com/hu/" target="_blank" rel="noopener noreferrer" aria-label="Barion — biztonságos online fizetés">
+              <a href="https://www.barion.com/hu/" target="_blank" rel="noopener noreferrer" aria-label="Barion, biztonságos online fizetés">
                 <img src="assets/barion/barion-smart-banner-light.svg"
-                     alt="Barion — biztonságos bankkártyás fizetés: Mastercard, Maestro, Visa, Visa Electron, American Express"
+                     alt="Barion, biztonságos bankkártyás fizetés: Mastercard, Maestro, Visa, Visa Electron, American Express"
                      width="567" height="108" loading="lazy">
               </a>
             </div>
@@ -185,13 +204,13 @@
           <div class="litho-checkout-card litho-lamp-offer" id="lamp-offer" hidden>
             <h3 class="litho-checkout-card__title">Biztosan nem kérsz fényforrást?</h3>
             <p class="litho-lamp-offer__text">
-              Lámpa nélkül a 3D fotó csak természetes fényben — ablak előtt, nappali
-              fényben — rajzolódik ki. A LED talppal esténként is világító kép lesz
+              Lámpa nélkül a 3D fotó csak természetes fényben (ablak előtt, nappali
+              fényben) rajzolódik ki. A LED talppal esténként is világító kép lesz
               belőle, és ez a legtöbb vásárlónk kedvence.
             </p>
             <label class="litho-consent-field litho-lamp-offer__check">
               <input type="checkbox" id="f-add-lamp">
-              <span>Kérem LED talppal — <strong id="lamp-offer-price">+0 Ft</strong> / darab</span>
+              <span>Kérem LED talppal: <strong id="lamp-offer-price">+0 Ft</strong> / darab</span>
             </label>
           </div>
 
@@ -235,7 +254,7 @@
     <p class="litho-order-confirm__total" id="order-confirm-total"></p>
     <p class="litho-order-confirm__warn">
       A termék <strong>egyedileg, csak neked</strong> készül, ezért a rendelés
-      leadása után nem tudjuk visszamondani — amint tudjuk, elkezdjük elkészíteni.
+      leadása után nem tudjuk visszamondani. Amint tudjuk, elkezdjük elkészíteni.
     </p>
     <div class="litho-order-confirm__actions">
       <button type="button" class="litho-btn-ghost" id="order-confirm-back">Vissza a kosárhoz</button>

@@ -11,7 +11,7 @@ any change.
 
 PRODUCTS = {
     "lampa-nelkul": {
-        "name": "3D fotó – Lámpa nélkül",
+        "name": "3D fotó lámpa nélkül",
         "base_price_huf": 9990,
         "sizes": {
             "15cm": {"label": "15 cm · Klasszikus", "delta_huf": 0},
@@ -19,7 +19,7 @@ PRODUCTS = {
         },
     },
     "led-talpas": {
-        "name": "3D fotó – LED talppal",
+        "name": "3D fotó LED talppal",
         "base_price_huf": 14990,
         "sizes": {
             "15cm": {"label": "15 cm · Klasszikus", "delta_huf": 0},

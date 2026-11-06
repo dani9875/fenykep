@@ -2,10 +2,29 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
+<!-- Barion Pixel (alapkód, csalásmegelőzéshez is szükséges) -->
+<script>
+  window["bp"] = window["bp"] || function () {
+    (window["bp"].q = window["bp"].q || []).push(arguments);
+  };
+  window["bp"].l = 1 * new Date();
+  (function () {
+    var scriptElement = document.createElement("script");
+    var firstScript = document.getElementsByTagName("script")[0];
+    scriptElement.async = true;
+    scriptElement.src = "https://pixel.barion.com/bp.js";
+    firstScript.parentNode.insertBefore(scriptElement, firstScript);
+  })();
+  window["barion_pixel_id"] = "BP-apDEqbljWH-A2";
+  bp("init", "addBarionPixelId", window["barion_pixel_id"]);
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none" alt="Barion Pixel" src="https://pixel.barion.com/a.gif?ba_pixel_id=BP-apDEqbljWH-A2&amp;ev=contentView&amp;noscript=1">
+</noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kosár — Fény·kép Stúdió</title>
+<title>Kosár | Fény·kép</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261012b">
+<link rel="stylesheet" href="css/style.css?v=20261016e">
 <script src="js/cart.js?v=20261009a"></script>
 </head>
 <body class="litho-cart-page">

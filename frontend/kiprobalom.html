@@ -2,11 +2,30 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
+<!-- Barion Pixel (alapkód, csalásmegelőzéshez is szükséges) -->
+<script>
+  window["bp"] = window["bp"] || function () {
+    (window["bp"].q = window["bp"].q || []).push(arguments);
+  };
+  window["bp"].l = 1 * new Date();
+  (function () {
+    var scriptElement = document.createElement("script");
+    var firstScript = document.getElementsByTagName("script")[0];
+    scriptElement.async = true;
+    scriptElement.src = "https://pixel.barion.com/bp.js";
+    firstScript.parentNode.insertBefore(scriptElement, firstScript);
+  })();
+  window["barion_pixel_id"] = "BP-apDEqbljWH-A2";
+  bp("init", "addBarionPixelId", window["barion_pixel_id"]);
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none" alt="Barion Pixel" src="https://pixel.barion.com/a.gif?ba_pixel_id=BP-apDEqbljWH-A2&amp;ev=contentView&amp;noscript=1">
+</noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Próbáld ki 3D-ben — Fény·kép Stúdió</title>
-<meta name="description" content="Töltsd fel a fotódat, és nézd meg 3D-ben, hogyan fog kinézni 3D fotóként — még a rendelés előtt.">
+<title>Próbáld ki 3D-ben | Fény·kép</title>
+<meta name="description" content="Töltsd fel a fotódat, és nézd meg 3D-ben, hogyan fog kinézni 3D fotóként, még a rendelés előtt.">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261012b">
+<link rel="stylesheet" href="css/style.css?v=20261016e">
 <script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
@@ -51,8 +70,8 @@
 
     <div class="section-header">
       <span class="section-eyebrow">Interaktív előnézet</span>
-      <h1 class="section-title">Próbáld ki — <em>töltsd fel a fotódat</em></h1>
-      <p class="section-lead">Feltöltöd a képedet, és azonnal látod 3D-ben, hogyan fog kinézni a 3D fotó — még a rendelés előtt. Forgasd az egérrel, és kapcsold ki-be a háttérvilágítást.</p>
+      <h1 class="section-title">Próbáld ki, <em>töltsd fel a fotódat</em></h1>
+      <p class="section-lead">Feltöltöd a képedet, és azonnal látod 3D-ben, hogyan fog kinézni a 3D fotó, még a rendelés előtt. Forgasd az egérrel, és kapcsold ki-be a háttérvilágítást.</p>
     </div>
 
     <!-- The viewer shell -->
@@ -109,7 +128,7 @@
             <path d="M26 49 v-5 M22 47 l4 4 4-4" stroke="var(--border-mid)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <p>Húzd ide a képet<br><small>vagy kattints a „Fotó betöltése" gombra</small></p>
-          <p class="lto-formats">PNG · JPEG — javasolt min. 800 × 800 px</p>
+          <p class="lto-formats">PNG vagy JPEG, javasolt min. 800 × 800 px</p>
         </div>
 
         <!-- Three.js renders here -->
@@ -136,8 +155,8 @@
 
     <p class="lto-disclaimer">
       Az előnézet <strong>tájékoztató jellegű</strong>: a kész termék finomabb
-      részleteket ad vissza, mint ez a gyors 3D modell. A 3D fotó szélére — a
-      mintaképekhez hasonlóan — <strong>vékony keret</strong> kerül, amit az
+      részleteket ad vissza, mint ez a gyors 3D modell. A 3D fotó szélére a
+      mintaképekhez hasonlóan <strong>vékony keret</strong> kerül, amit az
       előnézet nem mutat.
     </p>
 
@@ -147,7 +166,7 @@
 
         <div class="lto-order-left">
           <p class="lto-order-title">Tetszik az előnézet?</p>
-          <p class="lto-order-sub">Válaszd ki a terméket és a méretet — a feltöltött képeddel egyből a kosárba kerül.</p>
+          <p class="lto-order-sub">Válaszd ki a terméket és a méretet, és a feltöltött képeddel egyből a kosárba kerül.</p>
           <p class="lto-order-error" id="ltoOrderError" role="alert" hidden></p>
         </div>
 
@@ -705,7 +724,7 @@ function buildMesh() {
   spinner.style.display = 'none';
   if (orderPanel) orderPanel.classList.add('visible');
 
-  statusEl.textContent = 'Kész — forgasd el, és próbáld ki háttérfénnyel.';
+  statusEl.textContent = 'Kész. Forgasd el, és próbáld ki háttérfénnyel.';
   fitCamera();
 }
 
@@ -956,8 +975,8 @@ var orderError = document.getElementById('ltoOrderError');
 // Tartalék értékek, ha a /products nem érhető el; a végösszeget úgyis a
 // backend számolja újra a rendeléskor.
 var CATALOG = {
-  'lampa-nelkul': { name: '3D fotó – Lámpa nélkül', base: 9990, sizes: { '15cm': 0, '20cm': 3000 } },
-  'led-talpas':   { name: '3D fotó – LED talppal',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
+  'lampa-nelkul': { name: '3D fotó lámpa nélkül', base: 9990, sizes: { '15cm': 0, '20cm': 3000 } },
+  'led-talpas':   { name: '3D fotó LED talppal',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
 };
 
 function selectedProduct() {

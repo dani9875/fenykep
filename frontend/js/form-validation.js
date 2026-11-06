@@ -62,8 +62,8 @@
       if (el.type === "tel") return "Kérjük, adj meg egy érvényes telefonszámot (pl. +36 30 123 4567).";
       return "A megadott érték formátuma nem megfelelő.";
     }
-    if (v.tooShort) return `Túl rövid — legalább ${el.minLength} karakter szükséges.`;
-    if (v.tooLong) return `Túl hosszú — legfeljebb ${el.maxLength} karakter lehet.`;
+    if (v.tooShort) return `Túl rövid, legalább ${el.minLength} karakter szükséges.`;
+    if (v.tooLong) return `Túl hosszú, legfeljebb ${el.maxLength} karakter lehet.`;
     if (v.rangeUnderflow) return `A megadott érték túl kicsi (legalább ${el.min}).`;
     if (v.rangeOverflow) return `A megadott érték túl nagy (legfeljebb ${el.max}).`;
     if (v.stepMismatch) return "A megadott érték nem megengedett lépésköz szerinti.";

@@ -2,10 +2,29 @@
 <html lang="hu">
 <head>
 <meta charset="UTF-8">
+<!-- Barion Pixel (alapkód, csalásmegelőzéshez is szükséges) -->
+<script>
+  window["bp"] = window["bp"] || function () {
+    (window["bp"].q = window["bp"].q || []).push(arguments);
+  };
+  window["bp"].l = 1 * new Date();
+  (function () {
+    var scriptElement = document.createElement("script");
+    var firstScript = document.getElementsByTagName("script")[0];
+    scriptElement.async = true;
+    scriptElement.src = "https://pixel.barion.com/bp.js";
+    firstScript.parentNode.insertBefore(scriptElement, firstScript);
+  })();
+  window["barion_pixel_id"] = "BP-apDEqbljWH-A2";
+  bp("init", "addBarionPixelId", window["barion_pixel_id"]);
+</script>
+<noscript>
+  <img height="1" width="1" style="display:none" alt="Barion Pixel" src="https://pixel.barion.com/a.gif?ba_pixel_id=BP-apDEqbljWH-A2&amp;ev=contentView&amp;noscript=1">
+</noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rendelés visszaigazolása — Fény·kép Stúdió</title>
+<title>Rendelés visszaigazolása | Fény·kép</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261012b">
+<link rel="stylesheet" href="css/style.css?v=20261016e">
 <script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
@@ -113,7 +132,7 @@
       '<p class="litho-order-status__text">' + lead + "</p>" +
       orderFacts(data) +
       (extra || "") +
-      '<p class="litho-order-status__text">Visszaigazoló e-mailt küldtünk. Egyedi termékeinket általában egy héten belül elkészítjük, és rögtön gondoskodunk a kiszállításukról.</p>' +
+      '<p class="litho-order-status__text">Visszaigazoló e-mailt küldtünk. A rendelésedet általában egy héten belül elkészítjük és feladjuk.</p>' +
       '<div class="litho-order-status__actions">' +
       '<a class="litho-btn-solid" href="index.html">Vissza a webshopba</a>' +
       "</div>"
@@ -143,7 +162,7 @@
         data,
         "Köszönjük a rendelésedet!",
         "A rendelést rögzítettük. Előre utalásos fizetést választottál.",
-        '<p class="litho-order-status__text">E-mailben elküldtük az utaláshoz szükséges adatokat. Kérjük, a közlemény rovatba a rendelési számot írd — az utalás beérkezése után indul a gyártás.</p>'
+        '<p class="litho-order-status__text">E-mailben elküldtük az utaláshoz szükséges adatokat. Kérjük, a közlemény rovatba a rendelési számot írd. Az utalás beérkezése után indul a gyártás.</p>'
       );
     },
     payment_failed: function (data) {
@@ -178,7 +197,7 @@
       failure(
         data,
         "A fizetést ellenőrizzük",
-        "A beérkezett összeg nem egyezik a rendelés végösszegével, ezért a rendelést egy kollégánk kézzel ellenőrzi. Hamarosan keresünk e-mailben — kérjük, ne indíts új fizetést.",
+        "A beérkezett összeg nem egyezik a rendelés végösszegével, ezért a rendelést egy kollégánk kézzel ellenőrzi. Hamarosan keresünk e-mailben. Kérjük, ne indíts új fizetést.",
         "warn"
       );
     },
@@ -229,7 +248,7 @@
     render(
       '<div class="litho-order-status__icon litho-order-status__icon--warn">…</div>' +
       '<h1 class="litho-order-status__title">A fizetés feldolgozása folyamatban</h1>' +
-      '<p class="litho-order-status__text">A bank még nem küldte vissza a végeredményt. Amint megérkezik, e-mailben azonnal értesítünk — nem kell újra fizetned.</p>' +
+      '<p class="litho-order-status__text">A bank még nem küldte vissza a végeredményt. Amint megérkezik, e-mailben azonnal értesítünk, nem kell újra fizetned.</p>' +
       orderFacts(last) +
       '<div class="litho-order-status__actions">' +
       '<button class="litho-btn-solid" onclick="window.location.reload()">Állapot frissítése</button>' +

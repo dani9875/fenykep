@@ -241,7 +241,7 @@ def handler(event, context):
     barion_items = [
         {
             "name": f"{i['productName']} ({i['size']})",
-            "description": f"Egyedi 3D fotó, {i['size']}",
+            "description": f"3D fotó, {i['size']}",
             "qty": i["qty"],
             "unit_price": i["unitPrice"],
             "sku": f"{i['productId']}-{i['size']}",
