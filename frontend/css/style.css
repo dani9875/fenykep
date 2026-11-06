@@ -3180,3 +3180,24 @@ p.cart-empty.woocommerce-info {
   font-size: 0.72rem;
   color: var(--text-muted);
 }
+
+/* ── Jogi oldalak (adatkezelési tájékoztató) ── */
+.legal { max-width: 860px; padding-top: 110px; padding-bottom: 4rem; font-size: 0.95rem; line-height: 1.6; color: var(--text); }
+.legal h1 { font-family: var(--font-sans); font-weight: 600; font-size: 1.75rem; margin: 0 0 0.4rem; }
+.legal .legal-meta { color: var(--text-muted); margin: 0 0 2rem; }
+.legal h2 { font-family: var(--font-sans); font-weight: 600; font-size: 1.2rem; margin: 2.2rem 0 0.8rem; }
+.legal h3 { font-family: var(--font-sans); font-weight: 600; font-size: 1.05rem; margin: 1.6rem 0 0.6rem; }
+.legal h4 { font-family: var(--font-sans); font-weight: 600; font-size: 0.95rem; margin: 1.3rem 0 0.5rem; }
+.legal p { margin: 0 0 0.8rem; text-align: justify; hyphens: auto; }
+.legal ol, .legal ul { margin: 0 0 0.8rem; padding-left: 1.6rem; }
+.legal li { margin-bottom: 0.25rem; }
+.legal a { color: inherit; text-decoration: underline; word-break: break-word; }
+.legal-table { overflow-x: auto; margin: 0 0 0.8rem; }
+.legal table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.legal th, .legal td { border: 1px solid var(--charcoal); padding: 0.4rem 0.55rem; text-align: left; vertical-align: top; }
+.legal th { background: var(--sand-mid); font-weight: 400; }
+@media (max-width: 600px) {
+  .legal { padding-top: 90px; padding-bottom: 3rem; }
+  .legal p { text-align: left; }
+  .legal table { font-size: 0.82rem; }
+}

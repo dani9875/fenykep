@@ -22,18 +22,238 @@
   <img height="1" width="1" style="display:none" alt="Barion Pixel" src="https://pixel.barion.com/a.gif?ba_pixel_id=BP-apDEqbljWH-A2&amp;ev=contentView&amp;noscript=1">
 </noscript>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Adatvédelmi tájékoztató | Fény·kép</title>
+<title>Adatkezelési tájékoztató | Fény·kép</title>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261016e">
+<link rel="stylesheet" href="css/style.css?v=20261106a">
+<script src="js/cart.js?v=20261009a"></script>
 </head>
 <body>
 <div class="site-wrapper">
-<header class="site-header"><div class="container"><a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény<span class="site-logo-dot"></span>kép</a></div></header>
-<div class="container" style="padding:3rem 0; max-width:800px;">
-<h1>Adatvédelmi tájékoztató</h1>
-<p>Ide kerül a GDPR-nak megfelelő adatvédelmi tájékoztató. Térj ki a strictly necessary kosár-cookie-ra, az S3-ba feltöltött fotókra, és a Barion/Foxpost adatátadásra.</p>
+
+<header class="site-header" id="site-header">
+  <div class="container">
+    <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény<span class="site-logo-dot"></span>kép</a>
+    <nav class="site-nav" id="site-nav">
+      <a href="index.html#products">Termékek</a>
+      <a href="galeria.html">Galéria</a>
+      <a href="kiprobalom.html">Próbáld ki</a>
+      <a href="index.html#beuzemeles">Beüzemelés</a>
+      <a href="kapcsolat.html">Kapcsolat</a>
+    </nav>
+    <div class="cart-icon-wrap"><a href="kosar.html">Kosár <span class="cart-count"></span></a></div>
+    <button class="nav-burger" id="nav-burger" aria-label="Menü">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<script>
+  /* A kosár száma még az oldal kirajzolása előtt a helyére kerül.
+     Ha csak a DOMContentLoaded-nél írnánk be, a látogató egy pillanatra
+     üres (korábban: 0-s) kosarat látna minden oldalbetöltéskor. */
+  renderCartBadge();
+</script>
+
+<main class="container legal">
+<h1>Adatkezelési tájékoztató</h1>
+<p class="legal-meta">Határ Dániel egyéni vállalkozó · feny-kep.hu · Hatályos: 2026.11.06.</p>
+
+<h2>I. Az adatkezelési tájékoztató célja</h2>
+<p>Ez a dokumentum Határ Dániel egyéni vállalkozó (a továbbiakban: adatkezelő) adatkezeléseiről tájékoztat. Alapja az Európai Parlament és a Tanács (EU) 2016/679 rendelete (a továbbiakban: Rendelet, GDPR) és az információs önrendelkezési jogról és az információszabadságról szóló 2011. évi CXII. törvény (a továbbiakban: Infotv.). A tájékoztató hatálya kiterjed az adatkezelő webshopjára (https://www.feny-kep.hu), közösségi felületeire, az e-mailes kapcsolattartásra és a vállalkozás offline adatkezelésére. Érintett minden természetes személy, akinek személyes adatát az adatkezelő a vállalkozással kapcsolatban kezeli: vásárlók, érdeklődők, partnerek.</p>
+
+<h2>II. Az adatkezelő adatai</h2>
+<div class="legal-table"><table>
+<thead><tr><th>Adat</th><th>Érték</th></tr></thead>
+<tbody>
+<tr><td>Név</td><td>Határ Dániel egyéni vállalkozó</td></tr>
+<tr><td>Székhely</td><td>1105 Bp. Maláta köz 4. 2/4/6</td></tr>
+<tr><td>Adószám</td><td>45766730-1-42</td></tr>
+<tr><td>Nyilvántartási szám</td><td>58350964</td></tr>
+<tr><td>E-mail</td><td><a href="mailto:info@feny-kep.hu">info@feny-kep.hu</a></td></tr>
+<tr><td>Telefonszám</td><td><a href="tel:+36703657251">+36703657251</a></td></tr>
+<tr><td>Honlap</td><td><a href="https://www.feny-kep.hu">https://www.feny-kep.hu</a></td></tr>
+</tbody>
+</table></div>
+
+<h2>III. Adatvédelmi tisztviselő</h2>
+<p>Az adatkezelő nem végez olyan tevékenységet, amely adatvédelmi tisztviselő kijelölését teszi kötelezővé (GDPR 37. cikk).</p>
+
+<h2>IV. Az adatkezelés alapelvei</h2>
+<p>Az adatkezelő a GDPR 5. cikkében és az Infotv.-ben rögzített alapelvek szerint kezeli a személyes adatokat:</p>
+<ol>
+<li><strong>Jogszerűség, tisztességes eljárás, átláthatóság:</strong> az adatkezelés jogszerű, tisztességes és az érintett számára átlátható.</li>
+<li><strong>Célhoz kötöttség:</strong> az adatkezelő csak meghatározott, egyértelmű és jogszerű célra gyűjt adatot, és azt nem kezeli e céllal össze nem egyeztethető módon. A GDPR 89. cikk (1) bekezdése szerinti archiválási, kutatási vagy statisztikai célú további kezelés nem minősül összeegyeztethetetlennek.</li>
+<li><strong>Adattakarékosság:</strong> a kezelt adat a cél szempontjából megfelelő, releváns, és a szükségesre korlátozódik.</li>
+<li><strong>Pontosság:</strong> az adat pontos és szükség esetén naprakész. Az adatkezelő a pontatlan adatot haladéktalanul törli vagy helyesbíti.</li>
+<li><strong>Korlátozott tárolhatóság:</strong> az adatkezelő az adatot csak a cél eléréséhez szükséges ideig tárolja olyan formában, amely az érintett azonosítását lehetővé teszi.</li>
+<li><strong>Integritás és bizalmasság:</strong> az adatkezelő megfelelő technikai és szervezési intézkedésekkel védi az adatot a jogosulatlan vagy jogellenes kezelés, a véletlen elvesztés, megsemmisítés és károsodás ellen.</li>
+</ol>
+<p>Az adatkezelő minden észszerű intézkedést megtesz, hogy a kezelt adatokhoz illetéktelen személy ne férjen hozzá.</p>
+
+<h2>V. Az adatkezelés jogalapjai</h2>
+<p>Személyes adat a GDPR 6. cikk (1) bekezdése szerint csak az alábbi jogalapok egyikén kezelhető:</p>
+<div class="legal-table"><table>
+<thead><tr><th>Jogalap</th><th>GDPR 6. cikk (1)</th></tr></thead>
+<tbody>
+<tr><td>Az érintett hozzájárulása</td><td>a) pont</td></tr>
+<tr><td>Szerződés teljesítése, szerződéskötést megelőző lépések</td><td>b) pont</td></tr>
+<tr><td>Jogi kötelezettség teljesítése</td><td>c) pont</td></tr>
+<tr><td>Az érintett vagy más természetes személy létfontosságú érdeke</td><td>d) pont</td></tr>
+<tr><td>Közérdekű feladat, közhatalmi jogosítvány</td><td>e) pont</td></tr>
+<tr><td>Az adatkezelő vagy harmadik fél jogos érdeke</td><td>f) pont</td></tr>
+</tbody>
+</table></div>
+<p>Ha az érintett nem saját személyes adatát adja meg (például más személyt ábrázoló fényképet tölt fel), az adatközlő köteles beszerezni az érintett hozzájárulását.</p>
+
+<h2>VI. Az egyes adatkezelések</h2>
+
+<h3>VI.1. Webshopos rendelés</h3>
+<p>Az adatkezelő a rendeléshez szükséges adatokat szerződés teljesítése és jogi kötelezettség teljesítése jogalapján kezeli.</p>
+<p><strong>Érintettek köre:</strong> a webshopban rendelő vásárlók.</p>
+<div class="legal-table"><table>
+<thead><tr><th>Kezelt adat</th><th>Adatkezelés célja</th><th>Jogalap</th><th>Tárolási idő</th></tr></thead>
+<tbody>
+<tr><td>Név</td><td>Azonosítás, szerződés teljesítése</td><td>GDPR 6. cikk (1) b)</td><td>A rendelés teljesítését követő 5 év (Ptk. elévülés)</td></tr>
+<tr><td>E-mail cím</td><td>Rendelés visszaigazolása, értesítés a rendelés állapotáról</td><td>GDPR 6. cikk (1) b)</td><td>A rendelés teljesítését követő 5 év</td></tr>
+<tr><td>Telefonszám</td><td>Kapcsolattartás a rendeléssel és a kiszállítással kapcsolatban</td><td>GDPR 6. cikk (1) b)</td><td>A rendelés teljesítését követő 5 év</td></tr>
+<tr><td>Szállítási adatok (cím vagy kiválasztott csomagautomata)</td><td>A termék kiszállítása</td><td>GDPR 6. cikk (1) b)</td><td>A rendelés teljesítését követő 5 év</td></tr>
+<tr><td>Számlázási név és cím</td><td>Számla kiállítása</td><td>GDPR 6. cikk (1) c), Számv. tv. 169. §</td><td>A számla kiállítását követő 8 év</td></tr>
+<tr><td>Feltöltött fénykép</td><td>A megrendelt 3D kép elkészítése</td><td>GDPR 6. cikk (1) b)</td><td>A rendelés teljesítését követő 30 nap</td></tr>
+<tr><td>Rendelés adatai (termék, összeg, időpont)</td><td>Szerződés teljesítése, számvitel</td><td>GDPR 6. cikk (1) b) és c)</td><td>A rendelés teljesítését követő 8 év</td></tr>
+</tbody>
+</table></div>
+<p><strong>Az adatszolgáltatás elmaradásának következménye:</strong> az adatkezelő nem tudja teljesíteni a rendelést, kiszállítani a terméket és kiállítani a számlát.</p>
+
+<h4>VI.1.1. Feltöltött fényképek</h4>
+<p>A vásárló a 3D kép elkészítéséhez fényképet tölt fel. A fénykép személyes adatnak minősülhet, ha azonosítható személyt ábrázol. Az adatkezelő a fényképet kizárólag a megrendelt termék elkészítésére használja. Nem teszi közzé, nem adja át harmadik félnek, és nem használja más célra. A fénykép a táblázatban megadott tárolási idő után törlésre kerül.</p>
+<p>A vásárló szavatolja, hogy a feltöltött fénykép felhasználására jogosult, és a fényképen szereplő személyek hozzájárultak a felhasználáshoz.</p>
+
+<h4>VI.1.2. Online fizetés</h4>
+<p>A bankkártyás fizetést a Barion Payment Zrt. bonyolítja. A kártyaadatokat a Barion kezeli, ezekhez az adatkezelő nem fér hozzá. A fizetéshez az adatkezelő átadja a Barionnak a vásárló e-mail címét és a rendelés adatait (összeg, tételek). A Barion ezekre az adatokra önálló adatkezelőként jár el. Részletek: <a href="https://www.barion.com/hu/adatvedelmi-tajekoztato/" target="_blank" rel="noopener">https://www.barion.com/hu/adatvedelmi-tajekoztato/</a></p>
+
+<h4>VI.1.3. Számlázás</h4>
+<p>A számla kiállítása jogszabályban előírt kötelezettség. Ha a vásárló nem adja meg a számlázási adatokat, az adatkezelő nem tud számlát kiállítani, így a szerződés nem jön létre. Jogi személlyel kötött szerződés személyes adatokat is tartalmazhat (kapcsolattartó neve, telefonszáma, e-mail címe, képviselő neve). Ezek kezelésének jogalapja a szerződés teljesítése.</p>
+
+<h3>VI.2. Kapcsolatfelvétel</h3>
+<p><strong>Érintettek köre:</strong> az info@feny-kep.hu címre vagy a közösségi felületeken üzenetet küldő természetes személyek, valamint jogi személyek kapcsolattartói.</p>
+<div class="legal-table"><table>
+<thead><tr><th>Kezelt adat</th><th>Adatkezelés célja</th><th>Jogalap</th><th>Tárolási idő</th></tr></thead>
+<tbody>
+<tr><td>Név</td><td>Azonosítás</td><td>GDPR 6. cikk (1) a)</td><td>A megkeresés lezárását követő 1 év, vagy a hozzájárulás visszavonásáig</td></tr>
+<tr><td>E-mail cím</td><td>Válaszadás, kapcsolattartás</td><td>GDPR 6. cikk (1) a)</td><td>A megkeresés lezárását követő 1 év, vagy a hozzájárulás visszavonásáig</td></tr>
+<tr><td>Az üzenetben megadott egyéb adat</td><td>A megkeresés megválaszolása</td><td>GDPR 6. cikk (1) a)</td><td>A megkeresés lezárását követő 1 év, vagy a hozzájárulás visszavonásáig</td></tr>
+</tbody>
+</table></div>
+<p><strong>Az adatszolgáltatás elmaradásának következménye:</strong> az adatkezelő nem tud válaszolni a megkeresésre.</p>
+<p>Ha a megkeresésből rendelés lesz, az adatkezelés jogalapja szerződés teljesítésére, illetve jogi kötelezettség teljesítésére változik (VI.1. pont).</p>
+
+<h3>VI.3. Közösségi oldalak</h3>
+<p>Az adatkezelő Facebook, Instagram és TikTok oldalt üzemeltethet.</p>
+<div class="legal-table"><table>
+<thead><tr><th>Kezelt adat</th><th>Adatkezelés célja</th><th>Jogalap</th><th>Tárolási idő</th></tr></thead>
+<tbody>
+<tr><td>Felhasználónév, nyilvános profilkép</td><td>A vállalkozás és termékei bemutatása, kapcsolattartás, vélemények fogadása</td><td>GDPR 6. cikk (1) a)</td><td>Az adott közösségi oldal szabályai szerint</td></tr>
+</tbody>
+</table></div>
+<p><strong>Érintettek köre:</strong> akik az adatkezelő közösségi oldalát követik, kedvelik, vagy ott hozzászólnak.</p>
+<p>Az adatkezelés a közösségi oldalon valósul meg. Az adatkezelés időtartamára, módjára, a törlés és módosítás lehetőségére az adott közösségi oldal szabályai vonatkoznak. A közösségi oldalak üzemeltetői (Meta Platforms Ireland Ltd., TikTok Technology Limited) önálló adatkezelők.</p>
+
+<h3>VI.4. Üzleti partnerek (jogos érdek)</h3>
+<p>Az adatkezelő a vállalkozásban közreműködő partnerek (beszállítók, alvállalkozók) kapcsolattartási adatait jogos érdek alapján kezeli.</p>
+<div class="legal-table"><table>
+<thead><tr><th>Kezelt adat</th><th>Adatkezelés célja</th><th>Jogalap</th><th>Tárolási idő</th></tr></thead>
+<tbody>
+<tr><td>Név, e-mail cím, telefonszám, székhely</td><td>Üzleti kapcsolattartás</td><td>GDPR 6. cikk (1) f)</td><td>Az üzleti kapcsolat fennállásáig, vagy törlési kérelemig</td></tr>
+</tbody>
+</table></div>
+<p>Az adatkezelő ezeket az adatokat harmadik félnek nem adja át, kivéve jogi kötelezettség teljesítése esetén.</p>
+
+<h2>VII. Sütik (cookie-k)</h2>
+<p>A weboldal kizárólag a működéshez feltétlenül szükséges sütiket használ. Analitikai és marketing célú sütit az adatkezelő nem használ. A szükséges sütik használatához nem kell hozzájárulás (Eht. 155. § (4) bekezdés).</p>
+<div class="legal-table"><table>
+<thead><tr><th>Süti típusa</th><th>Célja</th><th>Jogalap</th><th>Lejárat</th></tr></thead>
+<tbody>
+<tr><td>Kosár</td><td>A kosár tartalmának megőrzése látogatások között</td><td>GDPR 6. cikk (1) f), működéshez szükséges</td><td>30 nap</td></tr>
+<tr><td>Barion Pixel (alap mód)</td><td>Csalásmegelőzés az online fizetésnél</td><td>GDPR 6. cikk (1) f), a Barion előírása</td><td>A Barion szabályai szerint</td></tr>
+</tbody>
+</table></div>
+<p>A Barion Pixelről bővebben: <a href="https://www.barion.com/hu/adatvedelmi-tajekoztato/" target="_blank" rel="noopener">https://www.barion.com/hu/adatvedelmi-tajekoztato/</a></p>
+
+<h2>VIII. Adatfeldolgozók és címzettek</h2>
+<p>Az adatkezelő az alábbi adatfeldolgozókat veszi igénybe:</p>
+<div class="legal-table"><table>
+<thead><tr><th>Név</th><th>Cím</th><th>Tevékenység</th><th>Érintett adatok</th></tr></thead>
+<tbody>
+<tr><td>Amazon Web Services EMEA SARL</td><td>38 Avenue John F. Kennedy, L-1855 Luxembourg</td><td>Felhőinfrastruktúra: rendelések tárolása, feltöltött fényképek tárolása, rendelési e-mailek küldése (adatközpont: Frankfurt, eu-central-1)</td><td>Rendelési adatok, feltöltött fénykép, e-mail cím</td></tr>
+<tr><td>Cloudflare, Inc.</td><td>101 Townsend St, San Francisco, CA 94107, USA</td><td>Weboldal kiszolgálása (hosting, CDN)</td><td>IP-cím, technikai adatok</td></tr>
+<tr><td>Namecheap, Inc.</td><td>4600 East Washington Street, Suite 305, Phoenix, AZ 85034, USA</td><td>E-mail tárhely (info@feny-kep.hu)</td><td>E-mailben küldött adatok</td></tr>
+<tr><td>KBOSS.hu Kft.</td><td>1031 Budapest, Záhony utca 7.</td><td>Számlázás (szamlazz.hu)</td><td>Számlázási név és cím, rendelés adatai</td></tr>
+<tr><td>FoxPost Zrt.</td><td>1097 Budapest, Könyves Kálmán körút 12–14.</td><td>Megrendelt termék kiszállítása</td><td>Név, telefonszám, e-mail cím, csomagautomata</td></tr>
+</tbody>
+</table></div>
+<p>Az alábbi címzettek önálló adatkezelőként kapnak adatot:</p>
+<div class="legal-table"><table>
+<thead><tr><th>Név</th><th>Cím</th><th>Tevékenység</th></tr></thead>
+<tbody>
+<tr><td>Barion Payment Zrt.</td><td>1117 Budapest, Infopark sétány 1. I. épület 5. emelet 5.</td><td>Online fizetés</td></tr>
+<tr><td>Meta Platforms Ireland Ltd.</td><td>Merrion Road, Dublin 4, D04 X2K5, Írország</td><td>Facebook, Instagram közösségi oldal</td></tr>
+<tr><td>TikTok Technology Limited</td><td>10 Earlsfort Terrace, Dublin, D02 T380, Írország</td><td>TikTok közösségi oldal</td></tr>
+</tbody>
+</table></div>
+
+<h2>IX. Harmadik országba történő adattovábbítás</h2>
+<p>A rendelési adatokat és a feltöltött fényképeket az adatkezelő az Európai Unióban (Frankfurt) tárolja.</p>
+<p>A Cloudflare, Inc. és a Namecheap, Inc. az Egyesült Államokban működik. Az ezekhez kerülő adatok továbbítása az alábbi garanciák egyike alapján történik:</p>
+<ul>
+<li>az EU–USA adatvédelmi keretrendszer (Data Privacy Framework) szerinti tanúsítás, az Európai Bizottság 2023. július 10-i megfelelőségi határozata alapján (GDPR 45. cikk);</li>
+<li>az Európai Bizottság által elfogadott általános szerződési feltételek (Standard Contractual Clauses, SCC) (GDPR 46. cikk (2) c) pont).</li>
+</ul>
+<p>Az adatfeldolgozók a garanciákat adatfeldolgozási szerződésükben (DPA) vállalják.</p>
+
+<h2>X. Az érintettek jogai</h2>
+<p>Az érintett az adatkezelés teljes időtartama alatt élhet a GDPR-ban és az Infotv.-ben biztosított jogaival.</p>
+<div class="legal-table"><table>
+<thead><tr><th>Jog</th><th>Tartalma</th><th>GDPR</th></tr></thead>
+<tbody>
+<tr><td>Hozzáférés</td><td>Az érintett visszajelzést kérhet arról, hogy az adatkezelő kezeli-e a személyes adatait. Ha igen, hozzáférést kérhet az adatokhoz és a GDPR-ban meghatározott információkhoz.</td><td>15. cikk</td></tr>
+<tr><td>Helyesbítés</td><td>Az érintett kérheti a pontatlan adatok helyesbítését és a hiányos adatok kiegészítését.</td><td>16. cikk</td></tr>
+<tr><td>Törlés</td><td>Az érintett kérheti adatai törlését, ha a GDPR feltételei fennállnak. Jogszabályban előírt adatkezelés esetén a kérelem nem teljesíthető.</td><td>17. cikk</td></tr>
+<tr><td>Korlátozás</td><td>Az érintett kérheti az adatkezelés korlátozását, ha a GDPR feltételei fennállnak.</td><td>18. cikk</td></tr>
+<tr><td>Adathordozhatóság</td><td>Az érintett tagolt, géppel olvasható formátumban megkaphatja az általa megadott adatokat, és továbbíthatja azokat másik adatkezelőnek.</td><td>20. cikk</td></tr>
+<tr><td>Tiltakozás</td><td>Az érintett tiltakozhat a jogos érdeken alapuló adatkezelés ellen. Ekkor az adatkezelő az adatot nem kezeli tovább, kivéve, ha kényszerítő erejű jogos ok vagy jogi igény indokolja.</td><td>21. cikk</td></tr>
+<tr><td>Hozzájárulás visszavonása</td><td>Az érintett hozzájárulását bármikor visszavonhatja. A visszavonás nem érinti a korábbi adatkezelés jogszerűségét.</td><td>7. cikk (3)</td></tr>
+</tbody>
+</table></div>
+<p>A kérelmet az adatkezelő postacímére vagy az <a href="mailto:info@feny-kep.hu">info@feny-kep.hu</a> e-mail címre kell küldeni. Az adatkezelő a kérelemre indokolatlan késedelem nélkül, legfeljebb egy hónapon belül válaszol. Ez a határidő szükség esetén további két hónappal meghosszabbítható; a hosszabbításról az adatkezelő egy hónapon belül tájékoztatja az érintettet (GDPR 12. cikk (3)).</p>
+
+<h2>XI. Panaszkezelés</h2>
+<p>Panasz vagy kérdés esetén az érintett az <a href="mailto:info@feny-kep.hu">info@feny-kep.hu</a> címen fordulhat az adatkezelőhöz. Az adatkezelő a problémát saját hatáskörben igyekszik orvosolni.</p>
+<p>Az érintett bírósághoz fordulhat. A pert az érintett lakóhelye vagy tartózkodási helye szerinti törvényszék előtt is megindíthatja. Az adatkezelő a per előtt és alatt is nyitott közvetítői eljárásra.</p>
+<p>Az érintett panaszt tehet a felügyeleti hatóságnál:</p>
+<div class="legal-table"><table>
+<thead><tr><th>Nemzeti Adatvédelmi és Információszabadság Hatóság (NAIH)</th><th></th></tr></thead>
+<tbody>
+<tr><td>Cím</td><td>1055 Budapest, Falk Miksa utca 9–11.</td></tr>
+<tr><td>Levelezési cím</td><td>1363 Budapest, Pf. 9.</td></tr>
+<tr><td>E-mail</td><td><a href="mailto:ugyfelszolgalat@naih.hu">ugyfelszolgalat@naih.hu</a></td></tr>
+<tr><td>Honlap</td><td><a href="https://www.naih.hu" target="_blank" rel="noopener">https://www.naih.hu</a></td></tr>
+</tbody>
+</table></div>
+
+<h2>XII. Adatbiztonság</h2>
+<p>Az adatkezelő megfelelő technikai és szervezési intézkedésekkel védi a kezelt adatokat. Az intézkedések kialakításakor figyelembe vette a technológia állását, az adatkezelés jellegét, hatókörét, körülményeit és céljait, valamint az érintettek jogait érintő kockázatokat.</p>
+<ul>
+<li>A weboldal kizárólag titkosított (HTTPS) kapcsolaton érhető el.</li>
+<li>A rendelési adatokhoz és a feltöltött fényképekhez csak az adatkezelő fér hozzá, jelszóval és kétlépcsős azonosítással védett fiókon keresztül.</li>
+<li>A kártyaadatokat az adatkezelő nem kezeli és nem tárolja.</li>
+<li>Az adatkezelő a feltöltött fényképeket a tárolási idő lejárta után törli.</li>
+</ul>
+
+<h2>XIII. Egyéb rendelkezések</h2>
+<p>Az adatkezelő fenntartja a jogot, hogy ezt a tájékoztatót módosítsa. A módosított tájékoztató a weboldalon történő közzététellel lép hatályba. Ha a módosítás az adatkezelés célját vagy jogalapját érinti, az adatkezelő erről előzetesen tájékoztatja az érintetteket.</p>
+</main>
 </div>
-</div>
+<script src="js/nav.js?v=20261009a"></script>
 <script src="js/site-footer.js?v=20261009a"></script>
 </body>
 </html>
