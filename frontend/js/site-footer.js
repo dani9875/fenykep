@@ -15,14 +15,14 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <a class="site-logo" href="index.html"><img class="site-logo-mark" src="assets/favicon.svg" alt="" aria-hidden="true">Fény<span class="site-logo-dot"></span>kép</a>
-          <p>A legjobb fotóid nem a telefonodba valók, hanem a polcra.</p>
+          <p>A kedvenc pillanataid nem a telefonodba valók, hanem az otthonodba.</p>
         </div>
         <div class="footer-col">
           <h4>Termékek</h4>
           <ul>
             <li><a href="index.html">Összes termék</a></li>
             <li><a href="galeria.html">Galéria</a></li>
-            <li><a href="kiprobalom.html">Próbáld ki 3D-ben</a></li>
+            <li><a href="kiprobalom.html">3D előnézet</a></li>
             <li><a href="kosar.html">Kosár</a></li>
           </ul>
         </div>

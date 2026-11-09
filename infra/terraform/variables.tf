@@ -10,6 +10,15 @@ variable "region" {
   default     = "eu-central-1"
 }
 
+variable "manage_ses_identities" {
+  description = <<-EOT
+    true: ez a környezet hozza létre az SES címeket (dev).
+    false: a címek már léteznek a fiókban, csak használjuk őket (prod).
+  EOT
+  type        = bool
+  default     = true
+}
+
 variable "environment" {
   description = "Környezet neve. Több környezetet külön name_prefix-szel futtass."
   type        = string
@@ -69,7 +78,7 @@ variable "barion_api_base" {
 }
 
 variable "barion_poskey" {
-  description = "Barion POSKey a kereskedői admin felületről. Titok — dev.auto.tfvars-ba tedd, ne ide."
+  description = "Barion POSKey a kereskedői admin felületről. Titok: a dev.tfvars / prod.tfvars-ba tedd, ne ide."
   type        = string
   sensitive   = true
 }

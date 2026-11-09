@@ -37,7 +37,7 @@
 {"@context":"https://schema.org","@type":"OnlineStore","name":"Fény·kép","url":"https://www.feny-kep.hu/","logo":"https://www.feny-kep.hu/assets/favicon.svg","email":"info@feny-kep.hu","telephone":"+36703657251","address":{"@type":"PostalAddress","addressLocality":"Budapest","addressCountry":"HU"}}
 </script>
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261109f">
+<link rel="stylesheet" href="css/style.css?v=20261109k">
 <script src="js/cart.js?v=20261109a"></script>
 </head>
 <body>
@@ -49,14 +49,14 @@
     <nav class="site-nav" id="site-nav">
       <a href="index.html#products">Termékek</a>
       <a href="galeria.html">Galéria</a>
-      <a href="kiprobalom.html">Próbáld ki</a>
-      <a href="index.html#kicsomagolas">Kicsomagolás után</a>
+      <a href="kiprobalom.html">3D előnézet</a>
+      <a href="index.html#kicsomagolas">Így működik</a>
       <a href="kapcsolat.html">Kapcsolat</a>
     </nav>
     <div class="cart-icon-wrap">
-      <a href="kosar.html">
+      <a href="kosar.html" aria-label="Kosár">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
-        Kosár
+        <span class="cart-label">Kosár</span>
         <span class="cart-count"></span>
       </a>
     </div>
@@ -83,7 +83,7 @@
   <div class="container home-intro__grid">
     <div class="home-intro__text">
       <h1 class="home-intro__title">A legszebb emlékek <em>egyedi megvilágításban</em></h1>
-      <p class="home-intro__lead">A legjobb fotóid nem a telefonodba valók, hanem a polcra.</p>
+      <p class="home-intro__lead">A kedvenc pillanataid nem a telefonodba valók, hanem az otthonodba.</p>
       <div class="hero-buttons">
         <a href="index.html#products" class="btn-primary">Termékek megtekintése</a>
         <a href="kiprobalom.html" class="btn-outline">
@@ -115,58 +115,81 @@
   </div>
 </section>
 
-<!-- ══ BEÜZEMELÉS ════════════════════════════════════════════
-     Folyamatábra: a fényforrással rendelt változat összeállítása három lépésben,
-     egymás alatt, nyilakkal. A lámpa nélküli változathoz elég egy mondat. -->
-<section class="container" id="kicsomagolas" style="padding-top:3rem; padding-bottom:4rem; border-top:1px solid var(--border);">
-  <div class="section-header">
-    <h2 class="section-title">Mit csinálj, ha megérkezett?</h2>
+<!-- ══ FOLYAMAT ══════════════════════════════════════════════
+     Három szakasz egymás alatt, lefelé mutató nyilakkal: a feltöltött
+     fotó, a fényforrás összeállítása három lépésben, végül a kész 3D fotó
+     természetes fénnyel és LED-del. Az id marad #kicsomagolas, erre mutat
+     a menü. -->
+<section class="container how-section-flow" id="kicsomagolas">
+  <div class="how-stage">
+    <h2 class="how-stage__title">Megrendelés<small>(saját fotód feltöltése)</small></h2>
+    <img class="how-stage__single" src="assets/beuzemeles/megrendeles-foto.jpg" alt="A feltöltött fotó: alvó kisbaba" loading="lazy">
   </div>
 
-  <ol class="how-flow">
+    <div class="how-down" aria-hidden="true">
+      <svg viewBox="0 0 24 48" fill="none"><path d="M12 2v36" stroke="currentColor" stroke-width="7" stroke-linecap="butt"/><path d="M3 34l9 12 9-12" fill="currentColor"/></svg>
+    </div>
 
-    <li class="how-step">
-      <div class="how-step__media">
-        <img src="assets/beuzemeles/lepes-1.jpg" alt="A fényforrás a vezetékével" loading="lazy">
-      </div>
-      <div class="how-step__text">
-        <span class="how-step__num">1</span>
-        <p>Tedd le a fényforrást, és dugd be a vezetékét.</p>
-      </div>
-    </li>
-
-      <div class="how-arrow" aria-hidden="true">
-        <svg viewBox="0 0 24 48" fill="none"><path d="M12 2v36" stroke="currentColor" stroke-width="7" stroke-linecap="butt"/><path d="M3 34l9 12 9-12" fill="currentColor"/></svg>
-      </div>
-
-    <li class="how-step">
-      <div class="how-step__media">
-        <img src="assets/beuzemeles/lepes-2.jpg" alt="A 3D fotó a fényforrás két tartójába illesztve" loading="lazy">
-      </div>
-      <div class="how-step__text">
-        <span class="how-step__num">2</span>
-        <p>Illeszd a 3D fotót a fényforrás két tartójába.</p>
-      </div>
-    </li>
+  <div class="how-stage">
+    <h2 class="how-stage__title">Összeállítás</h2>
+    <ol class="how-flow">
+      <li class="how-step">
+        <div class="how-step__media">
+          <img src="assets/gallery/babakep-folyamat-1.jpg" alt="A fényforrás a vezetékével" loading="lazy">
+        </div>
+        <div class="how-step__text">
+          <span class="how-step__num">1</span>
+          <p>Csatlakoztasd a fényforrást USB-n egy áramforráshoz!</p>
+        </div>
+      </li>
 
       <div class="how-arrow" aria-hidden="true">
         <svg viewBox="0 0 24 48" fill="none"><path d="M12 2v36" stroke="currentColor" stroke-width="7" stroke-linecap="butt"/><path d="M3 34l9 12 9-12" fill="currentColor"/></svg>
       </div>
 
-    <li class="how-step">
-      <div class="how-step__media">
-        <img src="assets/beuzemeles/lepes-3.jpg" alt="A bekapcsolt LED hátulról megvilágítja a 3D fotót" loading="lazy">
-      </div>
-      <div class="how-step__text">
-        <span class="how-step__num">3</span>
-        <p>Kapcsold be.</p>
-      </div>
-    </li>
+      <li class="how-step">
+        <div class="how-step__media">
+          <img src="assets/gallery/babakep-folyamat-2.jpg" alt="A 3D fotó a fényforrás tartójába illesztve" loading="lazy">
+        </div>
+        <div class="how-step__text">
+          <span class="how-step__num">2</span>
+          <p>Helyezd a Fény·képedet a fényforrás tartójába!</p>
+        </div>
+      </li>
 
-  </ol>
+      <div class="how-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 48" fill="none"><path d="M12 2v36" stroke="currentColor" stroke-width="7" stroke-linecap="butt"/><path d="M3 34l9 12 9-12" fill="currentColor"/></svg>
+      </div>
 
-  <p class="how-note">Lámpa nélküli változat: keress neki egy helyet,
-    ahol nappal átsüt rajta a fény, például az ablakban.</p>
+      <li class="how-step">
+        <div class="how-step__media">
+          <img src="assets/gallery/babakep-folyamat-3.jpg" alt="A bekapcsolt LED hátulról megvilágítja a 3D fotót" loading="lazy">
+        </div>
+        <div class="how-step__text">
+          <span class="how-step__num">3</span>
+          <p>Kapcsold fel a fényt, és keltsd életre a képed részleteit!</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+    <div class="how-down" aria-hidden="true">
+      <svg viewBox="0 0 24 48" fill="none"><path d="M12 2v36" stroke="currentColor" stroke-width="7" stroke-linecap="butt"/><path d="M3 34l9 12 9-12" fill="currentColor"/></svg>
+    </div>
+
+  <div class="how-stage">
+    <h2 class="how-stage__title">Otthonod dísze</h2>
+    <div class="how-result">
+      <figure>
+        <img src="assets/beuzemeles/eredmeny-termeszetes.jpg" alt="3D fotó természetes fényben" loading="lazy">
+        <figcaption>Természetes háttérvilágítással</figcaption>
+      </figure>
+      <figure>
+        <img src="assets/gallery/g1-babakep3.jpg" alt="3D fotó LED világítással, egy kisasztalon" loading="lazy">
+        <figcaption>LED háttérvilágítással</figcaption>
+      </figure>
+    </div>
+  </div>
 </section>
 
 
@@ -175,6 +198,6 @@
 <script src="js/api.js?v=20261009a"></script>
 <script src="js/home.js?v=20261109a"></script>
 <script src="js/nav.js?v=20261009a"></script>
-<script src="js/site-footer.js?v=20261109h"></script>
+<script src="js/site-footer.js?v=20261109j"></script>
 </body>
 </html>

@@ -1,9 +1,9 @@
-# Másold át dev.auto.tfvars néven, és töltsd ki.
-#   cp dev.auto.tfvars.example dev.auto.tfvars
+# Másold át dev.tfvars néven, és töltsd ki.
+#   cp dev.tfvars.example dev.tfvars
 #
-# A dev.auto.tfvars .gitignore-olt — titkok NE kerüljenek a repóba.
-# A ".auto.tfvars" végződés miatt a Terraform magától beolvassa, nem kell
-# -var-file kapcsoló.
+# A dev.tfvars .gitignore-olt — titkok NE kerüljenek a repóba.
+# Ne nevezd .auto.tfvars-ra: azt a Terraform minden workspace-ben (a prodban
+# is) magától beolvasná. A ./scripts/tf.sh dev ... adja át -var-file-lal.
 
 # ── Alapok ──────────────────────────────────────────────────────────────
 aws_profile = "wordpress-deploy"
@@ -12,7 +12,7 @@ name_prefix = "litho-dev"
 
 # A Cloudflare Pages projekted URL-je, záró / nélkül.
 # Ezt a `wrangler pages project create` után tudod (DEPLOY.md 3. lépés).
-site_url = "https://fenykep.pages.dev"
+site_url = "https://dev.fenykep.pages.dev"
 
 # Ha preview deployról is tesztelnél, vedd fel ide a preview URL-t.
 extra_allowed_origins = ["http://localhost:8787"]

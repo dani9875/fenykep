@@ -91,7 +91,7 @@ data "aws_iam_policy_document" "rate_limit" {
 data "aws_iam_policy_document" "ses" {
   statement {
     actions   = ["ses:SendEmail", "ses:SendRawEmail"]
-    resources = [aws_ses_email_identity.from.arn]
+    resources = [local.ses_from_identity_arn]
 
     # Csak a saját feladó címünkről mehet levél, akkor is, ha a kód
     # valamiért mást próbálna beállítani.

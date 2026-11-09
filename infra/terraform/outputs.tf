@@ -31,7 +31,7 @@ output "lambda_function_names" {
 output "ses_identities_to_verify" {
   description = "Ezekre a címekre ment megerősítő levél az AWS-től. Kattints rá mindegyikben."
   value = sort(distinct(concat(
-    [aws_ses_email_identity.from.email],
+    [for identity in aws_ses_email_identity.from : identity.email],
     [for identity in aws_ses_email_identity.admin : identity.email],
     [for identity in aws_ses_email_identity.recipients : identity.email],
   )))

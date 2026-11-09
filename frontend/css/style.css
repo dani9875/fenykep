@@ -197,7 +197,7 @@ main, .site-main { display: block; }
 }
 .home-intro__grid {
   display: grid;
-  grid-template-columns: 1fr 1.15fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
   gap: 3.5rem;
   align-items: center;
 }
@@ -254,7 +254,14 @@ main, .site-main { display: block; }
 
 @media (max-width: 900px) {
   .home-intro { padding: 6.5rem 0 2rem; }
-  .home-intro__grid { grid-template-columns: 1fr; gap: 2rem; }
+  .home-intro__grid { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+}
+/* Keskeny telefonon a gombok teljes szélességűek, és a szövegük
+   sorba törhet, különben szélesebbre tolnák az oldalt a kijelzőnél. */
+@media (max-width: 420px) {
+  .hero-buttons .btn-primary, .hero-buttons .btn-outline {
+    flex: 1 1 100%; white-space: normal; text-align: center; justify-content: center;
+  }
 }
 
 /* ═══ Főoldal: folyamatábra ════════════════════════════════ */
@@ -273,18 +280,41 @@ main, .site-main { display: block; }
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
 }
-/* A lámpa nélküli változat egy mondatban, a folyamatábra alatt. */
-.how-note {
-  max-width: 760px;
-  margin: 2.5rem auto 0;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  text-align: center;
+/* Főoldali folyamat: három szakasz egymás alatt, lefelé mutató nyíllal. */
+.container.how-section-flow { padding-top: 3rem; padding-bottom: 4rem; border-top: 1px solid var(--border); }
+.how-stage { text-align: center; }
+.how-stage__title {
+  font-family: var(--font-serif); font-weight: 400;
+  font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+  margin: 0 0 1.25rem; line-height: 1.25;
 }
-.how-note strong { color: var(--charcoal); font-weight: 500; }
-.how-step__text { display: flex; gap: 0.75rem; align-items: center; justify-content: center; text-align: center; }
+.how-stage__title small {
+  display: block; margin-top: 0.2rem;
+  font-family: var(--font-sans, inherit); font-size: 0.85rem; color: var(--text-muted);
+}
+.how-stage .how-flow { text-align: left; }
+.how-stage__single,
+.how-result img {
+  display: block; width: 100%;
+  aspect-ratio: 5 / 4; object-fit: cover;
+  border-radius: var(--radius); box-shadow: var(--shadow-sm);
+}
+.how-stage__single { max-width: 260px; margin: 0 auto; }
+.how-down { color: #2e7f8c; display: flex; justify-content: center; padding: 1.5rem 0; }
+.how-down svg { width: 22px; height: 44px; display: block; }
+.how-result {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+  max-width: 900px; margin: 0 auto;
+}
+.how-result figure { margin: 0; }
+.how-result figcaption { margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted); }
+@media (max-width: 520px) {
+  .how-result { gap: 0.75rem; }
+  .how-result figcaption { font-size: 0.8rem; }
+}
+/* A szám mindig az első sor mellett áll, akár egy, akár két soros a szöveg,
+   így a három lépés számai egy vonalban maradnak. */
+.how-step__text { display: flex; gap: 0.75rem; align-items: flex-start; justify-content: center; text-align: left; }
 .how-step__num {
   flex-shrink: 0;
   width: 30px; height: 30px;
@@ -294,8 +324,8 @@ main, .site-main { display: block; }
   font-family: var(--font-serif); font-size: 1rem; line-height: 1;
 }
 .how-step__text p {
-  font-size: 0.9rem; line-height: 1.7; color: var(--text-muted);
-  margin: 0.2rem 0 0;
+  font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);
+  margin: 0; padding-top: 2px;
 }
 .how-step__text strong { color: var(--text); font-weight: 400; }
 /* A nyíl a lépések között: ugyanaz a kékzöld, mint a skiccen. A képek
@@ -1629,6 +1659,14 @@ main, .site-main { display: block; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
   .litho-products { grid-template-columns: 1fr; }
   .litho-confirm__details-grid { grid-template-columns: 1fr; }
+}
+/* Keskeny telefonon a kosár gombon csak az ikon és a darabszám marad,
+   különben a logó, a kosár és a menü ikon nem fér el egy sorban. */
+@media (max-width: 420px) {
+  .site-header .container { gap: 0.75rem; }
+  .cart-icon-wrap { margin-left: auto; }
+  .cart-icon-wrap .cart-label { display: none; }
+  .cart-icon-wrap a { padding: 0.55rem 0.8rem; gap: 0.4rem; }
 }
 @media (max-width: 720px) {
   .container { padding: 0 1.25rem; }

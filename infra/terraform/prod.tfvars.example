@@ -1,0 +1,39 @@
+# Éles környezet. Másold át prod.tfvars néven, és töltsd ki.
+#   cp prod.tfvars.example prod.tfvars
+#
+# A prod.tfvars .gitignore-olt — titkok NE kerüljenek a repóba.
+# Használat: ./scripts/tf.sh prod plan  /  ./scripts/tf.sh prod apply
+
+# ── Alapok ──────────────────────────────────────────────────────────────
+aws_profile = "wordpress-deploy"
+region      = "eu-central-1"
+environment = "prod"
+name_prefix = "litho-prod"
+
+# Az éles cím, záró / nélkül. Ebből lesz a Barion visszairányítás és az
+# e-mailekben lévő link.
+site_url = "https://www.feny-kep.hu"
+
+# Amíg a www.feny-kep.hu domain nincs bekötve, a Pages saját címén is
+# működjön a rendelés.
+extra_allowed_origins = ["https://fenykep.pages.dev", "https://feny-kep.hu"]
+
+# ── Barion (éles) ───────────────────────────────────────────────────────
+# Amíg a Barion nem hagyja jóvá az éles shopot, maradhat itt a sandbox
+# (https://api.test.barion.com és a sandbox POSKey). Élesítéskor csak ezt
+# a három sort kell átírni, majd ./scripts/tf.sh prod apply.
+barion_api_base = "https://api.barion.com"
+barion_poskey   = "ide-jon-az-eles-poskey"
+barion_payee    = "a-barion-fiokod@example.com"
+barion_funding_sources = "BankCard"
+
+# ── SES ─────────────────────────────────────────────────────────────────
+# Az SES címet a dev környezet hozza létre és hitelesíti; a prod csak
+# használja. Ezért itt false.
+manage_ses_identities = false
+ses_from_address      = "info@feny-kep.hu"
+admin_email           = "info@feny-kep.hu"
+
+# ── Utalásos fizetés e-mailjéhez ────────────────────────────────────────
+bank_account_name   = "Fény·kép"
+bank_account_number = "ide-jon-a-valodi-szamlaszam"

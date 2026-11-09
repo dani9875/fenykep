@@ -96,8 +96,8 @@ export CF_PAGES_PROJECT=fenykep-dev      # ha nem "fenykep" lett a neve
 
 ```bash
 cd infra/terraform
-cp dev.auto.tfvars.example dev.auto.tfvars
-${EDITOR:-nano} dev.auto.tfvars
+cp dev.tfvars.example dev.tfvars
+${EDITOR:-nano} dev.tfvars
 ```
 
 Amit ki kell tölteni:
@@ -112,7 +112,7 @@ Amit ki kell tölteni:
 | `ses_verified_recipients` | **azok a teszt e-mail címek, amikkel rendelni fogsz** |
 | `bank_account_number` | az utalásos e-mailhez |
 
-A `dev.auto.tfvars` **gitignore-olt** — a POSKey nem kerül a repóba.
+A `dev.tfvars` **gitignore-olt** — a POSKey nem kerül a repóba.
 (A `terraform.tfstate` viszont tartalmazza, ezért az is ignorálva van;
 ne másold máshová, és ne tedd publikus helyre.)
 
@@ -123,11 +123,11 @@ ne másold máshová, és ne tedd publikus helyre.)
 ```bash
 # még mindig: infra/terraform
 terraform init
-terraform plan        # nézd át: ~70 erőforrás jön létre
-terraform apply       # "yes"
+../../scripts/tf.sh dev plan    # nézd át: ~70 erőforrás jön létre
+../../scripts/tf.sh dev apply   # "yes"
 ```
 
-A profilt a Terraform a `dev.auto.tfvars`-ból veszi (`aws_profile =
+A profilt a Terraform a `dev.tfvars`-ból veszi (`aws_profile =
 "wordpress-deploy"`), nem kell `--profile` kapcsoló. Ha mégis felül akarod
 írni egy parancsra:
 
@@ -249,13 +249,18 @@ megszakítottad, és megmarad-e a kosár.
 
 ## 9. A napi fejlesztési ciklus
 
+Két külön környezet van, ugyanazzal a kóddal (lásd 10.). Alapból minden
+parancs a **dev**-re megy; a prodhoz `prod` / `--env prod` kell, és
+megerősítést kér.
+
 | Mit változtattál | Mit futtass |
 |---|---|
-| Csak frontend (HTML/CSS/JS) | `python3 local-test/server.py` a helyi teszthez, majd `./scripts/deploy-frontend.sh` |
-| Lambda handler vagy `common/*.py` | `terraform -chdir=infra/terraform apply` (a zip hash változik, csak az érintett függvény frissül) |
-| Ár, szállítási díj (`products.py`) | ugyanaz az apply — és utána frontend deploy is, mert a felirat onnan jön |
-| Barion kulcs, e-mail cím, site URL | `dev.auto.tfvars` szerkesztése + `apply` |
-| Új API útvonal | `api.tf` `routes` map + új Lambda mappa, majd `apply` |
+| Csak frontend (HTML/CSS/JS) | `python3 local-test/server.py` a helyi teszthez, majd `./scripts/deploy-frontend.sh` (dev) |
+| Lambda handler vagy `common/*.py` | `./scripts/tf.sh dev apply` |
+| Ár, szállítási díj (`products.py`) | ugyanaz az apply, utána frontend deploy is |
+| Barion kulcs, e-mail cím, site URL | `dev.tfvars` / `prod.tfvars` szerkesztése, majd `./scripts/tf.sh <env> apply` |
+| Új API útvonal | `api.tf` `routes` map + új Lambda mappa, majd apply |
+| Kipróbáltad a deven, mehet élesbe | `./scripts/tf.sh prod apply`, majd `./scripts/deploy-frontend.sh --env prod` |
 
 A legtöbb fejlesztést **nem itt** érdemes csinálni: a `local-test/server.py`
 a teljes folyamatot lejátssza AWS nélkül, mock Barion fizetőoldallal
@@ -264,28 +269,57 @@ valódi Barion sandboxot, az SES-t vagy a CORS-t akarod tesztelni.
 
 ---
 
-## 10. Éles üzembe váltás (majd)
+## 10. Dev és prod környezet
 
-1. `terraform apply -var 'name_prefix=litho-prod' -var 'environment=prod' ...`
-   — vagy külön `prod.auto.tfvars` és külön state; a dev stacket **ne**
-   nevezd át, mert akkor mindent újra létrehoz.
-2. `barion_api_base = "https://api.barion.com"` + éles POSKey.
-3. SES **production access** kérése (enélkül csak hitelesített címre megy
+|  | dev | prod |
+|---|---|---|
+| Weboldal | https://dev.fenykep.pages.dev (Pages branch: `dev`) | https://www.feny-kep.hu és https://fenykep.pages.dev (Pages branch: `main`) |
+| Terraform workspace | `default` (a régi state) | `prod` |
+| Beállítások | `infra/terraform/dev.tfvars` | `infra/terraform/prod.tfvars` |
+| AWS nevek | `litho-dev-…` | `litho-prod-…` |
+| Barion | sandbox | éles |
+| Backend | `./scripts/tf.sh dev apply` | `./scripts/tf.sh prod apply` |
+| Frontend | `./scripts/deploy-frontend.sh` | `./scripts/deploy-frontend.sh --env prod` |
+
+A `--no-orders` és az `--offline` mindig csak az adott környezetet érinti.
+Az SES feladó címet (info@feny-kep.hu) a dev hozza létre és hitelesíti, a
+prod csak használja (`manage_ses_identities = false`).
+
+### Átállás (egyszer, ebben a sorrendben)
+
+1. `./scripts/tf.sh dev apply`
+   A dev site_url-je az új dev címre vált. A dev rendelések, fotók megmaradnak.
+2. `./scripts/deploy-frontend.sh`
+   Létrejön a https://dev.fenykep.pages.dev. Itt nézz át mindent.
+3. Opcionális: Cloudflare → Pages → fenykep → Settings → General →
+   Access policy: a preview (nem `main`) deployok csak neked látszanak.
+4. `cp infra/terraform/prod.tfvars.example infra/terraform/prod.tfvars`, és töltsd ki.
+   Amíg a Barion nem hagyja jóvá az éles shopot, maradhat benne a sandbox.
+5. `./scripts/tf.sh prod apply`
+6. `./scripts/deploy-frontend.sh --env prod`
+   A fenykep.pages.dev innentől a prod backendet hívja.
+7. Cloudflare → Pages → fenykep → Custom domains → `www.feny-kep.hu`.
+
+**Az 1. és a 6. lépés között ne futtass `--env prod` deployt:** a
+fenykep.pages.dev addig a dev backendet hívja, és így is marad.
+
+### Élesítés
+
+1. `prod.tfvars`: `barion_api_base = "https://api.barion.com"` + éles POSKey,
+   majd `./scripts/tf.sh prod apply`.
+2. SES **production access** kérése (enélkül csak hitelesített címre megy
    levél):
    ```bash
    aws sesv2 put-account-details \
      --production-access-enabled \
      --mail-type TRANSACTIONAL \
-     --website-url https://a-domained.hu \
+     --website-url https://www.feny-kep.hu \
      --use-case-description "Webshop rendelés-visszaigazoló e-mailek" \
      --profile wordpress-deploy --region eu-central-1
    ```
-   Ehhez domain hitelesítés (DKIM) is kell — szólj, és megírom hozzá a
-   Terraformot a Cloudflare DNS rekordokkal együtt.
-4. Saját domain a Pages projektre (Cloudflare → Pages → Custom domains),
-   utána `site_url` frissítése és `apply`.
-5. ÁSZF és adatvédelmi tájékoztató kitöltése — a Barion ezt kéri a shop
-   jóváhagyásához.
+3. Valódi bankszámlaszám a `prod.tfvars`-ba.
+4. Order sync (Google Sheet, Drive) átállítása a prod táblára és bucketre:
+   `tools/order-sync/README.md`, „Ha élesre váltasz”.
 
 ---
 

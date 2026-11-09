@@ -5,9 +5,8 @@
 .terraform.lock.hcl
 
 # Kitöltött változók: szintén titkok.
-*.auto.tfvars
-!*.auto.tfvars.example
-terraform.tfvars
+*.tfvars
+!*.tfvars.example
 
 # A Terraform által generált Lambda zipek.
 build/

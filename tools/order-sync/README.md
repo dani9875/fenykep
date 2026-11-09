@@ -116,6 +116,22 @@ A `sync_all.sh` előbb a Sheetet frissíti, utána a fotókat másolja.
 
 ## Ha élesre váltasz
 
-Az éles táblának és bucketnek más lesz a neve. Írd át az `ORDERS_TABLE`-t
-és az `ORDER_PHOTOS_BUCKET`-et, és kérj kulcsot az éles `…-order-sync`
-felhasználóhoz.
+A szinkron csak a **prod** rendeléseit húzza le, a dev tesztrendelések ne
+keveredjenek a Sheetbe és a Drive-ra.
+
+```bash
+./scripts/tf.sh prod output order_photos_bucket   # az éles bucket neve
+aws iam create-access-key --user-name litho-prod-order-sync --profile wordpress-deploy
+```
+
+A Pin a `.env`-ben írd át:
+
+```bash
+export ORDERS_TABLE=litho-prod-orders
+export ORDER_PHOTOS_BUCKET=<a fenti bucket név>
+```
+
+és cseréld le a hozzáférési kulcsot az éles `litho-prod-order-sync`
+felhasználóéra (`rclone config` → `aws` remote, ha kulccsal van beállítva,
+illetve az `~/.aws/credentials`). A régi dev kulcsot utána töröld:
+`aws iam delete-access-key --user-name litho-dev-order-sync --access-key-id <AKIA…>`.

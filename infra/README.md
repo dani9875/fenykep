@@ -333,8 +333,8 @@ Részletes parancsokkal: **[DEPLOY.md](DEPLOY.md)**. Dióhéjban:
 1. `aws sts get-caller-identity --profile wordpress-deploy` — van-e hozzáférés.
 2. Barion sandbox POSKey beszerzése.
 3. `npx wrangler pages project create fenykep` — ettől lesz `site_url`-öd.
-4. `infra/terraform/dev.auto.tfvars` kitöltése.
-5. `terraform init && terraform apply`.
+4. `infra/terraform/dev.tfvars` kitöltése (a `dev.tfvars.example` alapján).
+5. `terraform -chdir=infra/terraform init && ./scripts/tf.sh dev apply`.
 6. SES megerősítő linkek kikattintása.
 7. `./scripts/deploy-frontend.sh`.
 8. Végigrendelés a Barion sandbox tesztkártyáival — sikeres ÉS

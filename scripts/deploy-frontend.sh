@@ -10,16 +10,20 @@
 #      továbbra is a localhost:8787-et hívja.
 #   3. Feltölti a másolatot wrangleren keresztül.
 #
-# Használat:
-#   ./scripts/deploy-frontend.sh                    # production deploy
-#   ./scripts/deploy-frontend.sh --preview          # preview (külön URL)
+# Környezet (alapból dev):
+#   ./scripts/deploy-frontend.sh                    # dev  -> https://dev.fenykep.pages.dev
+#   ./scripts/deploy-frontend.sh --env prod         # prod -> www.feny-kep.hu / fenykep.pages.dev
+#   Mindegyik a saját backendjét hívja (Terraform workspace: dev=default, prod=prod),
+#   és a saját rendelésfelvétel-kapcsolóját állítja.
+#
+# További kapcsolók (bármelyik környezettel):
 #   ./scripts/deploy-frontend.sh --dry-run          # összeállítja, de nem tölt fel
 #   ./scripts/deploy-frontend.sh --offline          # kikapcsolja az oldalt (csak egy
 #                                                   # "nem elérhető" lap marad fent)
 #   ./scripts/deploy-frontend.sh --no-orders        # az oldal fent marad, de rendelni
 #                                                   # nem lehet (kapacitáshiány sáv); a
 #                                                   # backend is elutasítja az új rendelést
-#   Visszakapcsolás: sima ./scripts/deploy-frontend.sh
+#   Visszakapcsolás: ugyanaz a parancs a kapcsoló nélkül (prodnál --env prod)
 #   API_URL=https://... ./scripts/deploy-frontend.sh   # Terraform nélkül
 #
 # Környezeti változók:
@@ -33,21 +37,35 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TF_DIR="$ROOT/infra/terraform"
 PROJECT="${CF_PAGES_PROJECT:-fenykep}"
-BRANCH="main"
+ENV="dev"
 DRY_RUN=0
 OFFLINE=0
 NO_ORDERS=0
 
-for arg in "$@"; do
-  case "$arg" in
-    # A main-től eltérő branch-név preview deployt csinál, saját URL-lel.
-    --preview) BRANCH="preview" ;;
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --env) ENV="${2:-}"; shift ;;
+    --env=*) ENV="${1#--env=}" ;;
     --dry-run) DRY_RUN=1 ;;
     --offline) OFFLINE=1 ;;
     --no-orders) NO_ORDERS=1 ;;
-    *) echo "Ismeretlen kapcsoló: $arg" >&2; exit 1 ;;
+    *) echo "Ismeretlen kapcsoló: $1" >&2; exit 1 ;;
   esac
+  shift
 done
+
+# A Pages projekt "main" branche a production (www.feny-kep.hu); minden más
+# branch név saját, állandó címet kap: <branch>.fenykep.pages.dev.
+case "$ENV" in
+  dev)  BRANCH="dev";  export TF_WORKSPACE="default" ;;
+  prod) BRANCH="main"; export TF_WORKSPACE="prod" ;;
+  *) echo "Ismeretlen környezet: '$ENV' (dev vagy prod)" >&2; exit 1 ;;
+esac
+
+if [[ "$ENV" == "prod" && "$DRY_RUN" == "0" ]]; then
+  read -r -p "ÉLES oldal deployolása. Írd be, hogy prod: " answer
+  [[ "$answer" == "prod" ]] || { echo "Megszakítva."; exit 1; }
+fi
 
 # ── Kikapcsolt oldal ────────────────────────────────────────────────────
 # Minden címen ugyanaz a lap jelenik meg (a 404.html miatt a régi
@@ -96,7 +114,7 @@ HTML
   npx --yes wrangler@3 pages deploy "$DIST" \
     --project-name "$PROJECT" --branch "$BRANCH" --commit-dirty=true
   echo
-  echo "Az oldal ki van kapcsolva. Visszakapcsolás: ./scripts/deploy-frontend.sh"
+  echo "Az oldal ki van kapcsolva. Visszakapcsolás: ./scripts/deploy-frontend.sh --env $ENV"
   exit 0
 fi
 
@@ -104,11 +122,14 @@ fi
 if [[ -z "${API_URL:-}" ]]; then
   if [[ ! -d "$TF_DIR/.terraform" ]]; then
     echo "HIBA: a Terraform még nincs inicializálva ($TF_DIR)." >&2
-    echo "Futtasd előbb: cd infra/terraform && terraform init && terraform apply" >&2
+    echo "Futtasd előbb: cd infra/terraform && terraform init, majd ./scripts/tf.sh $ENV apply" >&2
     echo "Vagy add meg kézzel: API_URL=https://... $0" >&2
     exit 1
   fi
-  API_URL="$(terraform -chdir="$TF_DIR" output -raw api_base_url)"
+  if ! API_URL="$(terraform -chdir="$TF_DIR" output -raw api_base_url 2>/dev/null)"; then
+    echo "HIBA: a(z) $ENV backend még nincs létrehozva. Futtasd: ./scripts/tf.sh $ENV apply" >&2
+    exit 1
+  fi
 fi
 
 if [[ -z "$API_URL" || "$API_URL" != https://* ]]; then
@@ -117,6 +138,7 @@ if [[ -z "$API_URL" || "$API_URL" != https://* ]]; then
 fi
 
 echo "API URL:      $API_URL"
+echo "Környezet:    $ENV"
 echo "Pages projekt: $PROJECT (branch: $BRANCH)"
 
 # ── 2. Ideiglenes másolat, behelyettesített URL-lel ─────────────────────
@@ -146,7 +168,7 @@ if [[ "$NO_ORDERS" == "1" ]]; then
     echo "HIBA: a rendelésfelvétel kikapcsolása nem sikerült." >&2
     exit 1
   fi
-  echo "Rendelésfelvétel: SZÜNETEL (visszakapcsolás: sima ./scripts/deploy-frontend.sh)"
+  echo "Rendelésfelvétel: SZÜNETEL (visszakapcsolás: ./scripts/deploy-frontend.sh --env $ENV)"
 fi
 
 # ── Backend kapcsoló ────────────────────────────────────────────────────
@@ -159,13 +181,18 @@ set_backend_orders_switch() {
   region="${AWS_REGION:-$(terraform -chdir="$TF_DIR" output -raw aws_region 2>/dev/null || true)}"
   profile="${AWS_PROFILE:-$(terraform -chdir="$TF_DIR" output -raw aws_profile 2>/dev/null || true)}"
   if [[ -z "$param" || "$param" == *"No outputs"* || "$param" == *"Warning"* ]]; then
-    echo "FIGYELEM: nincs backend kapcsoló (futtasd: cd infra/terraform && terraform apply)." >&2
+    echo "FIGYELEM: nincs backend kapcsoló (futtasd: ./scripts/tf.sh $ENV apply)." >&2
     return 1
   fi
   aws ssm put-parameter --name "$param" --value "$value" --type String --overwrite \
     ${region:+--region "$region"} ${profile:+--profile "$profile"} >/dev/null || return 1
   echo "Backend rendelésfelvétel: $([[ "$value" == "true" ]] && echo SZÜNETEL || echo NYITVA) ($param)"
 }
+
+# A dev oldal ne kerüljön a keresőkbe (a _headers noindexe mellett).
+if [[ "$ENV" == "dev" ]]; then
+  printf 'User-agent: *\nDisallow: /\n' > "$DIST/robots.txt"
+fi
 
 # A VERZIO.txt csak a helyi fejlesztést segíti, nincs rá szükség élesben.
 rm -f "$DIST/VERZIO.txt"
@@ -182,17 +209,15 @@ if [[ "$DRY_RUN" == "1" ]]; then
 fi
 
 # Előbb a backend: szüneteltetésnél így a weboldal frissülése előtt sem
-# csúszhat be rendelés. Preview deploy a backendhez nem nyúl.
-if [[ "$BRANCH" == "main" ]]; then
-  if [[ "$NO_ORDERS" == "1" ]]; then
-    if ! set_backend_orders_switch true; then
-      echo "HIBA: a backend rendelésfelvételt nem sikerült leállítani, nem deployolok." >&2
-      exit 1
-    fi
-  else
-    set_backend_orders_switch false \
-      || echo "FIGYELEM: a backend kapcsolót nem sikerült visszaállítani; ellenőrizd kézzel." >&2
+# csúszhat be rendelés. Mindegyik környezet a saját kapcsolóját állítja.
+if [[ "$NO_ORDERS" == "1" ]]; then
+  if ! set_backend_orders_switch true; then
+    echo "HIBA: a backend rendelésfelvételt nem sikerült leállítani, nem deployolok." >&2
+    exit 1
   fi
+else
+  set_backend_orders_switch false \
+    || echo "FIGYELEM: a backend kapcsolót nem sikerült visszaállítani; ellenőrizd kézzel." >&2
 fi
 
 npx --yes wrangler@3 pages deploy "$DIST" \
@@ -201,5 +226,8 @@ npx --yes wrangler@3 pages deploy "$DIST" \
   --commit-dirty=true
 
 echo
-echo "Kész. Ha ez az első deploy, ellenőrizd, hogy a Terraform site_url"
-echo "változója a fenti URL-re mutat-e — abból lesz a Barion visszairányítás."
+if [[ "$ENV" == "dev" ]]; then
+  echo "Kész: https://$BRANCH.$PROJECT.pages.dev"
+else
+  echo "Kész: https://www.feny-kep.hu (és https://$PROJECT.pages.dev)"
+fi
