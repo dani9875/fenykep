@@ -46,7 +46,15 @@ Text Domain: lithophane-shop
 /* A fejléc fix, ezért a horgonyokra (#products, #kicsomagolas) ugráskor rá kell
    hagyni a fejléc magasságát — különben a szakasz címe a fejléc alá
    kerül, és úgy tűnik, mintha rossz helyre ugrott volna. */
-html { font-size: 16px; scroll-behavior: smooth; scroll-padding-top: 96px; }
+/* A html háttere a lábléc színe: telefonon a lap aljánál túlhúzáskor
+   (rugalmas görgetés) ez látszik ki, nem egy bézs sáv a fekete lábléc
+   alatt. A tartalom háttere a body-n marad. A túlhúzást is letiltjuk,
+   ahol a böngésző engedi, így a lap tetején sem villan fel a sötét szín. */
+html {
+  font-size: 18px; scroll-behavior: smooth; scroll-padding-top: 96px;
+  background: var(--charcoal);
+  overscroll-behavior-y: none;
+}
 body {
   background: var(--sand);
   color: var(--text);
@@ -2184,8 +2192,8 @@ p.cart-empty.woocommerce-info {
   font-family: var(--font-serif);
   font-size: 1.2rem;
   font-weight: 400;
-  margin-bottom: 1.25rem;
-  padding-bottom: 1rem;
+  margin-bottom: 0.4rem;
+  padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
 }
 .litho-totals__row {
@@ -3219,3 +3227,158 @@ body.litho-cart-page .site-wrapper {
   box-sizing: border-box;
 }
 body.litho-cart-page .site-wrapper > .container { padding-bottom: 4rem; }
+
+/* Főoldali termékkártya: a magassága a tartalomhoz igazodik, így a
+   leírás nem lóg ki a keretből. */
+.product-card { aspect-ratio: auto; }
+
+/* Termékoldal: figyelmeztetés kis felbontású fotónál (nem hiba, csak jelzés). */
+.litho-photo-warning {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #FBEFD9;
+  border: 1px solid #E8C48A;
+  color: #7A4F12;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* Pénztár: elkészítési idő a rendelés gomb fölött. */
+.litho-checkout-leadtime {
+  margin: 1rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Pénztár: fizetési módok függőleges listában, kör alakú választóval,
+   a megnevezés alatt a logókkal. */
+.litho-pay-list { display: flex; flex-direction: column; }
+.litho-pay-opt {
+  display: flex; align-items: flex-start; gap: 0.9rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  margin: 0;
+}
+.litho-pay-opt:first-child { padding-top: 0.25rem; }
+.litho-pay-opt input[type="radio"] {
+  width: 20px; height: 20px; min-width: 20px;
+  margin: 0.1rem 0 0;
+  accent-color: var(--charcoal);
+  cursor: pointer;
+}
+.litho-pay-opt__body { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
+.litho-pay-opt__title { font-size: 0.95rem; color: var(--text); font-weight: 400; }
+.litho-pay-opt__sub { font-size: 0.8rem; color: var(--text-muted); }
+/* A Barion banner itt a logósor: körben 8px hely, kép változatlan. */
+.litho-pay-opt .barion-banner--checkout {
+  display: block;
+  margin: 0 0 0 -8px; padding: 8px;
+  border-top: 0;
+}
+.litho-pay-opt .barion-banner--checkout img { max-width: 300px; }
+.litho-pay-note { font-size: 0.8rem; color: var(--text-muted); margin: 0.9rem 0 0; }
+
+/* Pénztár: az ÁSZF és az adatvédelmi pipa az összegzőben, a gomb fölött. */
+.litho-consents--summary {
+  margin: 1rem 0 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+.litho-checkout-leadtime { margin-top: 0.9rem; }
+.litho-pay-opt:last-child { border-bottom: 0; padding-bottom: 0.25rem; }
+.litho-consents--summary .litho-consent-field > span { flex: 1; }
+
+/* Pénztár: hely a tartalom és a lábléc között (a pipák az összegzőbe
+   kerültek, így a bal oszlop alján már nincs ami távolságot tartson). */
+.litho-checkout-page { padding-bottom: 4rem; }
+.litho-rt__value--plain { white-space: nowrap; }
+/* Az elkészítési idő címkéje hosszú: törjön sort, ne tolja ki az értéket. */
+.litho-rt__row .litho-rt__label { flex-shrink: 1; min-width: 0; line-height: 1.5; }
+.litho-rt__row .litho-rt__value--plain { flex-shrink: 0; }
+
+/* Pénztár: lábjegyzet a "Rendelés leadása" gomb alatt. */
+.litho-checkout-footnote {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  text-align: center;
+}
+
+/* ── Süti tájékoztató ─────────────────────────────────────────── */
+.cookie-notice {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 1000;
+  max-width: 420px;
+  width: calc(100% - 32px);
+  background: var(--warm-white);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 1.2rem 1.3rem;
+  font-family: var(--font-sans);
+  color: var(--text);
+}
+.cookie-notice__title {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  margin: 0 0 0.4rem;
+}
+.cookie-notice__text {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+}
+.cookie-notice__text a { color: var(--text); text-decoration: underline; }
+.cookie-notice__btn {
+  background: var(--charcoal);
+  color: var(--warm-white);
+  border: none;
+  border-radius: 30px;
+  padding: 0.7rem 1.6rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+.cookie-notice__btn:hover { background: var(--charcoal-mid); }
+
+/* Az összegző címe és az első tétel között ne legyen dupla térköz. */
+.litho-checkout-summary .litho-checkout-card__title { margin-bottom: 0.4rem; }
+
+/* ── Rendelésfelvétel szüneteltetve (deploy --no-orders) ────────── */
+/* Felül, a fix fejléc fölött. A sáv magasságát (--paused-bar-h) a
+   site-footer.js méri, mert telefonon két sorba törhet. A fejlécet és a
+   teljes tartalmat ennyivel lejjebb toljuk, így semmit nem takar ki. */
+html.orders-paused-root { scroll-padding-top: calc(96px + var(--paused-bar-h, 0px)); }
+html.orders-paused-root body { margin-top: var(--paused-bar-h, 0px) !important; }
+html.orders-paused-root .site-header { top: var(--paused-bar-h, 0px) !important; }
+.orders-paused-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 10000;
+  background: var(--charcoal);
+  color: var(--warm-white);
+  text-align: center;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  padding: 0.6rem 16px;
+}
+.orders-paused #add-to-cart-btn,
+.orders-paused #ltoOrderBtn,
+.orders-paused .litho-checkout-submit,
+.orders-paused .litho-totals__cta {
+  opacity: 0.35;
+  pointer-events: none;
+  cursor: not-allowed;
+}

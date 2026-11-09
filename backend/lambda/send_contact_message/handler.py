@@ -1,6 +1,6 @@
 import json
 
-from ses_mail import _send, ADMIN_EMAIL
+from ses_mail import send_contact_message
 import guard
 
 HEADERS = {
@@ -40,18 +40,9 @@ def handler(event, context):
     full_name = f"{body['firstName']} {body.get('lastName', '')}".strip()
     subject = body.get("subject") or "Kapcsolatfelvétel a weboldalról"
 
-    html = f"""
-    <h2>Új üzenet a kapcsolat űrlapról</h2>
-    <p><strong>Név:</strong> {full_name}</p>
-    <p><strong>E-mail:</strong> {body['email']}</p>
-    <p><strong>Telefon:</strong> {body.get('phone', '—')}</p>
-    <p><strong>Tárgy:</strong> {subject}</p>
-    <p><strong>Üzenet:</strong></p>
-    <p>{body['message']}</p>
-    """
-
+    # A levélbe minden mező escape-elve kerül (ses_mail.send_contact_message).
     try:
-        _send(ADMIN_EMAIL, f"Kapcsolat űrlap: {subject}", html, reply_to=body["email"])
+        send_contact_message(full_name, body["email"], body.get("phone", ""), subject, body["message"])
     except Exception as exc:  # noqa: BLE001
         return _error(f"Email küldési hiba: {exc}", code=502)
 

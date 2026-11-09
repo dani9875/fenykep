@@ -1,19 +1,19 @@
-// A két változat a saját fényében: lámpa nélkül nappal, LED talppal este.
+// A két változat a saját fényében: fényforrás nélkül nappal, fényforrással este.
 const PRODUCT_IMAGES = {
   "lampa-nelkul": "assets/gallery/g9-termeszetesfeny3.jpg",
-  "led-talpas": "assets/gallery/g2-csaladikep.jpg",
+  "led-vilagitassal": "assets/gallery/g2-csaladikep.jpg",
 };
 
 // Minden terméknek saját, keresők által indexelhető oldala van.
 const PRODUCT_PAGES = {
   "lampa-nelkul": "3d-foto-lampa-nelkul.html",
-  "led-talpas": "3d-foto-led-vilagitassal.html",
+  "led-vilagitassal": "3d-foto-led-vilagitassal.html",
 };
 
 // Rövid termékleírás a kártyán, az ár alatt.
 const PRODUCT_TAGLINES = {
-  "lampa-nelkul": "3D nyomtatott kép a saját fotódból, 15 vagy 20 cm-es méretben. Ablakba vagy fény elé állítva látszik rajta a fotó.",
-  "led-talpas": "3D nyomtatott kép a saját fotódból, LED világítással, 15 vagy 20 cm-es méretben. A LED hátulról világítja meg, így bárhol látszik rajta a fotó.",
+  "lampa-nelkul": "3D nyomtatott kép a saját fotódból, 15 vagy 20 cm-es méretben. A fotó akkor látszik jól, ha hátulról éri a fény, például az ablakon beszűrődő fény vagy egy világos helyiség.",
+  "led-vilagitassal": "3D nyomtatott kép a saját fotódból, LED világítással, 15 vagy 20 cm-es méretben. A LED hátulról világítja meg, így bárhol látszik rajta a fotó.",
 };
 
 async function renderProductGrid() {
@@ -38,6 +38,17 @@ async function renderProductGrid() {
   } catch (e) {
     grid.innerHTML = `<p>Nem sikerült betölteni a termékeket. ${e.message}</p>`;
   }
+  rescrollToHash();
+}
+
+/* Ha másik oldalról érkezünk egy horgonyra (pl. index.html#kicsomagolas),
+   a böngésző még az üres terméklistánál ugrik oda. A termékek betöltése
+   után a lista megnő, és a cél lejjebb csúszik, ezért újra odaugrunk. */
+function rescrollToHash() {
+  const id = decodeURIComponent(window.location.hash.slice(1));
+  if (!id || id === "products") return;
+  const target = document.getElementById(id);
+  if (target) target.scrollIntoView({ behavior: "instant", block: "start" });
 }
 
 /* A főoldali videó: magától indul, kivéve ha a látogató mozgáscsökkentést

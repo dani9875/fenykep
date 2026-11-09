@@ -34,8 +34,8 @@
 <meta property="og:image" content="https://www.feny-kep.hu/assets/hero-poster.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261106j">
-<script src="js/cart.js?v=20261009a"></script>
+<link rel="stylesheet" href="css/style.css?v=20261109f">
+<script src="js/cart.js?v=20261109a"></script>
 </head>
 <body>
 <div class="site-wrapper">
@@ -187,8 +187,8 @@
               <span><strong>Lámpa nélkül</strong><small data-price-for="lampa-nelkul">—</small></span>
             </label>
             <label class="lto-size-opt">
-              <input type="radio" name="ltoProduct" value="led-talpas">
-              <span><strong>LED világítással</strong><small data-price-for="led-talpas">—</small></span>
+              <input type="radio" name="ltoProduct" value="led-vilagitassal">
+              <span><strong>LED világítással</strong><small data-price-for="led-vilagitassal">—</small></span>
             </label>
           </div>
         </div>
@@ -467,8 +467,8 @@
 <!-- ══ SCRIPT ══════════════════════════════════════════════════ -->
 <!-- Ezek a lenti inline kód ELŐTT kellenek: az árlekérés és a kosárba
      tétel az Api / Cart / PhotoStore modulokra épül. -->
-<script src="js/config.js?v=20261009a"></script>
-<script src="js/photo-store.js?v=20261009a"></script>
+<script src="js/config.js?v=20261107a"></script>
+<script src="js/photo-store.js?v=20261106a"></script>
 <script src="js/api.js?v=20261009a"></script>
 <!-- Three.js r128 from CDN — same version as the local lib -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -985,7 +985,7 @@ var orderError = document.getElementById('ltoOrderError');
 // backend számolja újra a rendeléskor.
 var CATALOG = {
   'lampa-nelkul': { name: '3D fotó lámpa nélkül', base: 9990, sizes: { '15cm': 0, '20cm': 3000 } },
-  'led-talpas':   { name: '3D fotó LED világítással',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
+  'led-vilagitassal':   { name: '3D fotó LED világítással',  base: 14990, sizes: { '15cm': 0, '20cm': 3000 } }
 };
 
 function selectedProduct() {
@@ -1068,6 +1068,7 @@ function previewDataUrl() {
 }
 
 orderBtn.addEventListener('click', async function() {
+  if (ORDERS_PAUSED) return;
   orderError.hidden = true;
   statusEl.style.color = '';
 
@@ -1124,6 +1125,6 @@ orderBtn.addEventListener('click', async function() {
 </div>
 
 <script src="js/nav.js?v=20261009a"></script>
-<script src="js/site-footer.js?v=20261106a"></script>
+<script src="js/site-footer.js?v=20261109h"></script>
 </body>
 </html>

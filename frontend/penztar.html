@@ -25,10 +25,10 @@
 <title>Pénztár | Fény·kép</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-<link rel="stylesheet" href="css/style.css?v=20261106j">
+<link rel="stylesheet" href="css/style.css?v=20261109f">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/cart.js?v=20261009a"></script>
+<script src="js/cart.js?v=20261109a"></script>
 </head>
 <body>
 <div class="site-wrapper">
@@ -122,7 +122,11 @@
               </label>
               <label class="litho-size-opt">
                 <input type="radio" name="shipping_method" value="home">
-                <span class="litho-size-btn"><strong>Házhozszállítás</strong><small>Futárral · 1990 Ft</small></span>
+                <span class="litho-size-btn"><strong>Foxpost futár</strong><small>Házhoz · 1990 Ft</small></span>
+              </label>
+              <label class="litho-size-opt">
+                <input type="radio" name="shipping_method" value="mpl">
+                <span class="litho-size-btn"><strong>MPL</strong><small>Házhoz · 2500 Ft</small></span>
               </label>
             </div>
 
@@ -177,28 +181,28 @@
           <div class="litho-checkout-card litho-checkout-card--payment">
             <h3 class="litho-checkout-card__title">Fizetési mód</h3>
 
-            <div class="litho-size-options" style="margin-bottom:0.5rem;">
-              <label class="litho-size-opt">
+            <!-- A Barion Smart Payment Banner a bankkártyás opció alatt,
+                 változtatás nélkül (infra/barion-smart-banner-dev-guide.pdf). -->
+            <div class="litho-pay-list">
+              <label class="litho-pay-opt">
                 <input type="radio" name="payment_method" value="barion" checked>
-                <span class="litho-size-btn"><strong>Bankkártya</strong><small>Barion · azonnali</small></span>
+                <span class="litho-pay-opt__body">
+                  <span class="litho-pay-opt__title">Bankkártyás fizetés (Barion)</span>
+                  <span class="litho-pay-opt__sub">A rendelés leadása után átirányítunk a biztonságos Barion fizetőoldalra. A kártyaadataidat a Barion kezeli, hozzánk nem jutnak el.</span>
+                  <span class="barion-banner barion-banner--checkout">
+                    <img src="assets/barion/barion-smart-banner-light.svg"
+                         alt="Barion, biztonságos bankkártyás fizetés: Mastercard, Maestro, Visa, Visa Electron, American Express"
+                         width="567" height="108" loading="lazy">
+                  </span>
+                </span>
               </label>
-              <label class="litho-size-opt">
+              <label class="litho-pay-opt">
                 <input type="radio" name="payment_method" value="transfer">
-                <span class="litho-size-btn"><strong>Előre utalás</strong><small>Az adatokat e-mailben küldjük</small></span>
+                <span class="litho-pay-opt__body">
+                  <span class="litho-pay-opt__title">Előre utalás</span>
+                  <span class="litho-pay-opt__sub">Az utaláshoz szükséges adatokat e-mailben küldjük. A gyártás az utalás beérkezése után indul.</span>
+                </span>
               </label>
-            </div>
-            <p id="payment-method-note" style="font-size:0.8rem; color:var(--text-muted);">A „Rendelés leadása” gomb átirányít a biztonságos Barion fizetőoldalra.</p>
-
-            <!-- Barion Smart Payment Banner.
-                 A fizetési módok mellett, változtatás nélkül — a Barion
-                 fejlesztői útmutatója ezt írja elő (lásd
-                 infra/barion-smart-banner-dev-guide.pdf). -->
-            <div class="barion-banner barion-banner--checkout">
-              <a href="https://www.barion.com/hu/" target="_blank" rel="noopener noreferrer" aria-label="Barion, biztonságos online fizetés">
-                <img src="assets/barion/barion-smart-banner-light.svg"
-                     alt="Barion, biztonságos bankkártyás fizetés: Mastercard, Maestro, Visa, Visa Electron, American Express"
-                     width="567" height="108" loading="lazy">
-              </a>
             </div>
           </div>
 
@@ -215,16 +219,6 @@
             </label>
           </div>
 
-          <div class="litho-consents">
-            <label class="litho-consent-field form-row-wide">
-              <input type="checkbox" id="f-aszf" required
-                     data-error-required="Az ÁSZF elfogadása kötelező a rendelés leadásához."> Elfogadom az <a href="aszf.html" target="_blank">Általános Szerződési Feltételeket</a>
-            </label>
-            <label class="litho-consent-field form-row-wide">
-              <input type="checkbox" id="f-privacy" required
-                     data-error-required="Az adatvédelmi tájékoztató elfogadása kötelező a rendelés leadásához."> Elfogadom az <a href="adatvedelem.html" target="_blank">Adatvédelmi tájékoztatót</a>
-            </label>
-          </div>
 
         </div>
 
@@ -233,7 +227,18 @@
             <h3 class="litho-checkout-card__title">Rendelés összegzése</h3>
             <div id="review-items"></div>
             <div class="litho-review-totals" id="review-totals"></div>
+            <div class="litho-consents litho-consents--summary">
+              <label class="litho-consent-field form-row-wide">
+                <input type="checkbox" id="f-aszf" required
+                       data-error-required="Az ÁSZF elfogadása kötelező a rendelés leadásához."> <span>Elfogadom az <a href="aszf.html" target="_blank">Általános Szerződési Feltételeket</a></span>
+              </label>
+              <label class="litho-consent-field form-row-wide">
+                <input type="checkbox" id="f-privacy" required
+                       data-error-required="Az adatvédelmi tájékoztató elfogadása kötelező a rendelés leadásához."> <span>Elfogadom az <a href="adatvedelem.html" target="_blank">Adatvédelmi tájékoztatót</a></span>
+              </label>
+            </div>
             <button type="submit" class="litho-btn-solid litho-checkout-submit">Rendelés leadása</button>
+            <p class="litho-checkout-footnote">Átlagos elkészítési idő: nagyjából 7 munkanap.</p>
             <p id="checkout-error" class="litho-checkout-error" style="display:none;" role="alert"></p>
           </div>
         </div>
@@ -265,14 +270,14 @@
 </div>
 
 </div>
-<script src="js/config.js?v=20261009a"></script>
-<script src="js/photo-store.js?v=20261009a"></script>
+<script src="js/config.js?v=20261107a"></script>
+<script src="js/photo-store.js?v=20261106a"></script>
 <script src="js/api.js?v=20261009a"></script>
-<script src="js/form-validation.js?v=20261009a"></script>
+<script src="js/form-validation.js?v=20261109a"></script>
 <script src="js/checkout-draft.js?v=20261009a"></script>
-<script src="js/foxpost-picker.js?v=20261009a"></script>
-<script src="js/penztar.js?v=20261106a"></script>
+<script src="js/foxpost-picker.js?v=20261107a"></script>
+<script src="js/penztar.js?v=20261109c"></script>
 <script src="js/nav.js?v=20261009a"></script>
-<script src="js/site-footer.js?v=20261106a"></script>
+<script src="js/site-footer.js?v=20261109h"></script>
 </body>
 </html>

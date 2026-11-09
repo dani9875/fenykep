@@ -103,7 +103,7 @@ async function loadForCurrentView() {
   if (fpMap.getZoom() < MIN_ZOOM_FOR_MARKERS) {
     renderFpMarkers([]);
     renderFpList([]);
-    setHint("Zoomolj be egy városra, vagy keress rá fent, hogy megjelenjenek a csomagautomaták.");
+    setHint("Nagyíts rá egy városra, vagy keress rá fent, hogy megjelenjenek a csomagautomaták.");
     return;
   }
   const bounds = fpMap.getBounds();
@@ -139,7 +139,7 @@ function initFoxpostPicker() {
   }).addTo(fpMap);
 
   fpHintEl = document.getElementById("fp-hint");
-  setHint("Zoomolj be egy városra, vagy keress rá fent, hogy megjelenjenek a csomagautomaták.");
+  setHint("Nagyíts rá egy városra, vagy keress rá fent, hogy megjelenjenek a csomagautomaták.");
 
   fpMap.on("moveend zoomend", debouncedLoad);
 }

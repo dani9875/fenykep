@@ -21,31 +21,12 @@
 
   const GENERIC = "Kérjük, ellenőrizd ezt a mezőt.";
 
-  function fieldLabel(el) {
-    if (el.dataset.label) return el.dataset.label;
-    const id = el.getAttribute("id");
-    if (id) {
-      const label = document.querySelector(`label[for="${id}"]`);
-      if (label) return label.textContent.replace("*", "").trim();
-    }
-    const wrapping = el.closest("label");
-    if (wrapping) {
-      const own = wrapping.querySelector("label");
-      if (own) return own.textContent.replace("*", "").trim();
-    }
-    const row = el.closest(".form-row, .litho-cf__field");
-    const rowLabel = row && row.querySelector("label");
-    if (rowLabel) return rowLabel.textContent.replace("*", "").trim();
-    return "";
-  }
-
   function requiredMessage(el) {
     if (el.dataset.errorRequired) return el.dataset.errorRequired;
-    if (el.type === "checkbox") return "Ezt a jelölőnégyzetet ki kell pipálni a továbblépéshez.";
+    if (el.type === "checkbox") return "A továbblépéshez pipáld be ezt a mezőt.";
     if (el.type === "radio") return "Kérjük, válassz egy lehetőséget.";
     if (el.tagName === "SELECT") return "Kérjük, válassz egy lehetőséget.";
-    const label = fieldLabel(el);
-    return label ? `Kérjük, töltsd ki: ${label.toLowerCase()}.` : "Kérjük, töltsd ki ezt a mezőt.";
+    return "Kérjük töltsd ki!";
   }
 
   function messageFor(el) {

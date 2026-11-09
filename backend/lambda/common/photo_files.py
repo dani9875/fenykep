@@ -30,7 +30,7 @@ MAX_ADDRESS_LEN = 70
 
 PRODUCT_SHORT = {
     "lampa-nelkul": "lampa-nelkul",
-    "led-talpas": "LED",
+    "led-vilagitassal": "LED",
 }
 
 

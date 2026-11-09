@@ -22,31 +22,34 @@ function formatHuf(n) {
 // Tartalék értékek, ha a GET /products nem érhető el. A mérvadó forrás
 // a backend katalógusa (backend/lambda/common/products.py).
 const Pricing = {
-  freeShippingThreshold: 20000,
-  fees: { foxpost: 1490, home: 1990 },
-  labels: { foxpost: "Foxpost csomagautomata", home: "Házhozszállítás (futár)" },
+  freeShippingThreshold: 30000,
+  fees: { foxpost: 1490, home: 1990, mpl: 2500 },
+  labels: { foxpost: "Foxpost csomagautomata", home: "Házhozszállítás (Foxpost futár)", mpl: "MPL házhozszállítás" },
   products: {
     "lampa-nelkul": {
       name: "3D fotó lámpa nélkül", base_price_huf: 9990,
       sizes: { "15cm": { delta_huf: 0 }, "20cm": { delta_huf: 3000 } },
     },
-    "led-talpas": {
+    "led-vilagitassal": {
       name: "3D fotó LED világítással", base_price_huf: 14990,
       sizes: { "15cm": { delta_huf: 0 }, "20cm": { delta_huf: 3000 } },
     },
   },
 };
 
-// A fényforrás-felajánlás a lámpa nélküli darabot cseréli LED talpasra.
+// A fényforrás-felajánlás a fényforrás nélküli darabot cseréli fényforrásosra.
 const LAMP_FROM = "lampa-nelkul";
-const LAMP_TO = "led-talpas";
+const LAMP_TO = "led-vilagitassal";
 
 // Az összegzőben rövid név fér el; a teljes megnevezés a katalógusból jön.
-const SHORT_SHIPPING_LABELS = { foxpost: "Foxpost", home: "Házhozszállítás" };
+const SHORT_SHIPPING_LABELS = { foxpost: "Foxpost", home: "Foxpost futár", mpl: "MPL" };
+
+// Ezeknél a módoknál cím kell (nem csomagautomata).
+const ADDRESS_METHODS = ["home", "mpl"];
 
 const PRODUCT_IMAGES = {
   "lampa-nelkul": "assets/gallery/g9-termeszetesfeny3.jpg",
-  "led-talpas": "assets/products/led-talpas.jpg",
+  "led-vilagitassal": "assets/products/led-vilagitassal.jpg",
 };
 
 function escapeHtml(value) {
@@ -87,6 +90,8 @@ function unitPriceOf(productId, sizeCode, fallback) {
   return product.base_price_huf + ((size && size.delta_huf) || 0);
 }
 
+let lastReviewItemsHtml = null;
+
 function renderReview() {
   const items = Cart.getItems();
   const itemsEl = document.getElementById("review-items");
@@ -97,7 +102,7 @@ function renderReview() {
     return;
   }
 
-  itemsEl.innerHTML = items
+  const itemsHtml = items
     .map(
       (i) => `
       <div class="litho-ri">
@@ -110,15 +115,28 @@ function renderReview() {
       </div>`
     )
     .join("");
+  // A tételeket csak akkor írjuk újra, ha tényleg változtak. Szállítási vagy
+  // fizetési mód váltásakor csak az összegek frissülnek, különben a képek
+  // minden kattintásnál újratöltődnének és felvillannának.
+  if (itemsHtml !== lastReviewItemsHtml) {
+    itemsEl.innerHTML = itemsHtml;
+    lastReviewItemsHtml = itemsHtml;
+  }
 
   const method = selectedShippingMethod();
   const { subtotal, shippingFee, total } = computeTotals();
 
-  totalsEl.innerHTML = `
-    <div class="litho-rt__row">
-      <span class="litho-rt__label">Részösszeg</span>
+  // Egy tételnél a termékek összege ugyanaz, mint a tétel ára közvetlenül
+  // fölötte, ezért csak több tételnél mutatjuk.
+  const subtotalRow = items.length > 1
+    ? `<div class="litho-rt__row">
+      <span class="litho-rt__label">Termék(ek)</span>
       <span class="litho-rt__value">${formatHuf(subtotal)}</span>
-    </div>
+    </div>`
+    : "";
+
+  totalsEl.innerHTML = `
+    ${subtotalRow}
     <div class="litho-rt__row">
       <span class="litho-rt__label">Szállítás (${escapeHtml(SHORT_SHIPPING_LABELS[method] || method)})</span>
       <span class="litho-rt__value">${shippingFee === 0 ? "Ingyenes" : formatHuf(shippingFee)}</span>
@@ -138,7 +156,7 @@ function applyShippingMethod() {
   const homeBlock = document.getElementById("shipping-home");
 
   foxpostBlock.hidden = method !== "foxpost";
-  homeBlock.hidden = method !== "home";
+  homeBlock.hidden = !ADDRESS_METHODS.includes(method);
 
   if (method === "foxpost" && typeof FoxpostPicker !== "undefined") {
     // A Leaflet rossz méretet számol, ha a térkép rejtve volt, amikor
@@ -154,7 +172,7 @@ function applyShippingAddressFields() {
   const method = selectedShippingMethod();
   const fields = document.getElementById("shipping-address-fields");
   const preview = document.getElementById("shipping-address-preview");
-  const separate = method === "home" && !sameAsBilling();
+  const separate = ADDRESS_METHODS.includes(method) && !sameAsBilling();
 
   fields.hidden = !separate;
   // A rejtett mezők tiltva vannak, különben a böngésző kötelezőként
@@ -167,7 +185,7 @@ function applyShippingAddressFields() {
     }
   });
 
-  if (method === "home" && !separate) {
+  if (ADDRESS_METHODS.includes(method) && !separate) {
     const billing = readBillingAddress();
     preview.innerHTML = billing.address
       ? `<strong>Szállítási cím:</strong><br>${escapeHtml(billing.name)}<br>${escapeHtml(billing.zip)} ${escapeHtml(billing.city)}, ${escapeHtml(billing.address)}`
@@ -192,7 +210,7 @@ function applyShippingLabels() {
   const free = Cart.subtotal() >= Pricing.freeShippingThreshold;
   document.querySelectorAll('input[name="shipping_method"]').forEach((radio) => {
     const small = radio.closest(".litho-size-opt").querySelector("small");
-    const base = radio.value === "foxpost" ? "Csomagautomata" : "Futárral";
+    const base = radio.value === "foxpost" ? "Csomagautomata" : "Házhoz";
     const fee = Pricing.fees[radio.value];
     small.textContent = free ? `${base} · ingyenes` : `${base} · ${formatHuf(fee || 0)}`;
   });
@@ -200,9 +218,10 @@ function applyShippingLabels() {
 
 function applyPaymentNote() {
   const note = document.getElementById("payment-method-note");
+  if (!note) return; // a szöveg most az egyes opcióknál áll, nem változik
   const value = selectedPaymentMethod();
   if (value === "transfer") {
-    note.textContent = "A „Rendelés leadása” után e-mailben küldjük az utaláshoz szükséges adatokat. A gyártás az utalás beérkezése után indul.";
+    note.textContent = "A gyártás az utalás beérkezése után indul.";
   } else {
     note.textContent = "A „Rendelés leadása” gomb átirányít a biztonságos Barion fizetőoldalra. A kártyaadataidat a Barion kezeli, hozzánk nem jutnak el.";
   }
@@ -213,7 +232,7 @@ function applyPaymentNote() {
 /**
  * Sokan csak elfelejtik a lámpát a kosárba tenni, aztán a lámpa nélküli
  * darab csalódás. Ezért a pénztárban egyszer rákérdezünk — egy pipával
- * LED talpasra váltható az összes lámpa nélküli tétel.
+ * fényforrásosra váltható az összes lámpa nélküli tétel.
  */
 function lampUpgradeDelta() {
   const from = Pricing.products[LAMP_FROM];
@@ -230,7 +249,7 @@ function applyLampOffer() {
   const items = Cart.getItems();
   const plain = items.filter((i) => i.productId === LAMP_FROM);
   // Amit mi cseréltünk ki: csak ezt szabad visszacserélni, ha a vásárló
-  // kiveszi a pipát. A saját döntésből LED talpas tételhez nem nyúlunk.
+  // kiveszi a pipát. A saját döntésből fényforrásos tételhez nem nyúlunk.
   const upgraded = items.filter((i) => i.lampAdded);
 
   if (plain.length === 0 && upgraded.length === 0) {
@@ -354,6 +373,7 @@ function hideCheckoutError() {
 document.getElementById("checkout-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   hideCheckoutError();
+  if (ORDERS_PAUSED) return;
 
   const items = Cart.getItems();
   if (items.length === 0) {
@@ -502,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // A "megegyezik a számlázási címmel" előnézet kövesse a számlázási mezőket.
   ["f-name", "f-address", "f-city", "f-zip"].forEach((id) => {
     document.getElementById(id).addEventListener("input", () => {
-      if (selectedShippingMethod() === "home" && sameAsBilling()) applyShippingAddressFields();
+      if (ADDRESS_METHODS.includes(selectedShippingMethod()) && sameAsBilling()) applyShippingAddressFields();
     });
   });
 });

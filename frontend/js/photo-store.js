@@ -19,7 +19,18 @@ const PREVIEW_QUALITY = 0.82;
 const PhotoStore = {
   /** Downscale a File to a JPEG data URL suitable for previewing. */
   async makePreview(file) {
+    return (await this.makePreviewWithSize(file)).dataUrl;
+  },
+
+  /**
+   * Same as makePreview, plus the photo's real pixel size (after EXIF
+   * rotation), so the page can warn about a too small photo without
+   * decoding the file twice.
+   */
+  async makePreviewWithSize(file) {
     const bitmap = await loadBitmap(file);
+    const width = bitmap.width;
+    const height = bitmap.height;
     const scale = Math.min(1, PREVIEW_MAX_PX / Math.max(bitmap.width, bitmap.height));
     const w = Math.max(1, Math.round(bitmap.width * scale));
     const h = Math.max(1, Math.round(bitmap.height * scale));
@@ -31,7 +42,7 @@ const PhotoStore = {
     ctx.drawImage(bitmap, 0, 0, w, h);
     if (bitmap.close) bitmap.close();
 
-    return canvas.toDataURL("image/jpeg", PREVIEW_QUALITY);
+    return { dataUrl: canvas.toDataURL("image/jpeg", PREVIEW_QUALITY), width, height };
   },
 
   save(key, dataUrl) {

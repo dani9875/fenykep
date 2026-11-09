@@ -9,6 +9,11 @@
  * privacy policy.
  */
 
+// Rendelésfelvétel szüneteltetése. A repóban mindig false; a
+// scripts/deploy-frontend.sh --no-orders kapcsoló írja át true-ra a
+// deployolt másolatban. Ilyenkor az oldal böngészhető, de rendelni nem lehet.
+const ORDERS_PAUSED = false;
+
 const CART_COOKIE = "litho_cart";
 const CART_MAX_AGE_DAYS = 30;
 const MAX_QTY = 99;
@@ -52,7 +57,7 @@ const Cart = {
   },
 
   /**
-   * Egy tétel mezőinek átírása. A pénztárban ezzel cseréljük LED talpasra
+   * Egy tétel mezőinek átírása. A pénztárban ezzel cseréljük fényforrásosra
    * a lámpa nélküli darabot, ha a vásárló mégis kéri a fényforrást.
    * Árat nem hitelezünk el vele: a végösszeget a backend úgyis a
    * productId alapján számolja újra.

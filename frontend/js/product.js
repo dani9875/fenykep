@@ -22,8 +22,8 @@ async function initProductPage() {
       { src: "assets/gallery/g3-magzatkep.jpg", alt: "Ultrahangkép lámpa nélkül" },
       { src: "assets/day-night-nappal.jpg", alt: "Családi fotó lámpa nélkül" },
     ],
-    "led-talpas": [
-      { src: "assets/products/led-talpas.jpg", alt: "3D fotó LED világítással, bekapcsolva" },
+    "led-vilagitassal": [
+      { src: "assets/products/led-vilagitassal.jpg", alt: "3D fotó LED világítással, bekapcsolva" },
       { src: "assets/gallery/g2-csaladikep.jpg", alt: "Családi fotó LED világítással, esti fényben" },
       { src: "assets/day-night-este.jpg", alt: "Családi fotó LED világítással" },
       { src: "assets/gallery/g4-magzatkep-vilagit.jpg", alt: "Ultrahangkép LED világítással" },
@@ -81,10 +81,11 @@ async function initProductPage() {
             <span class="litho-dropzone__sub" id="litho-filename"></span>
             <input type="file" id="litho_photo" name="litho_photo" accept="image/jpeg,image/png" required />
           </label>
+          <p id="product-photo-warning" class="litho-photo-warning" role="status" hidden></p>
         </div>
       </div>
 
-      <button id="add-to-cart-btn" class="litho-btn-solid litho-add-btn">Kosárba teszem</button>
+      <button id="add-to-cart-btn" class="litho-btn-solid litho-add-btn" ${ORDERS_PAUSED ? "disabled" : ""}>Kosárba teszem</button>
       <p id="product-error" class="litho-form-error" hidden></p>
       </div>
     </div>
@@ -119,9 +120,15 @@ async function initProductPage() {
   // the customer their own photo rather than the generic product shot.
   let previewDataUrl = null;
 
+  // Ennél kisebb fotóból a kész 3D fotó elmosódott lesz. Nem tiltjuk,
+  // csak szólunk, a vásárló dönt.
+  const MIN_PHOTO_PX = 1000;
+  const warningEl = document.getElementById("product-photo-warning");
+
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files[0];
     previewDataUrl = null;
+    warningEl.hidden = true;
     if (!file) {
       dropzone.classList.remove("litho-dropzone--selected");
       previewEl.hidden = true;
@@ -138,9 +145,17 @@ async function initProductPage() {
     errorEl.hidden = true;
 
     try {
-      previewDataUrl = await PhotoStore.makePreview(file);
+      const preview = await PhotoStore.makePreviewWithSize(file);
+      previewDataUrl = preview.dataUrl;
       previewEl.src = previewDataUrl;
       previewEl.hidden = false;
+      if (preview.width < MIN_PHOTO_PX || preview.height < MIN_PHOTO_PX) {
+        warningEl.textContent =
+          `A fotó minősége alacsony (${preview.width}×${preview.height} px). ` +
+          "Előfordulhat, hogy nem tudjuk megfelelő minőségben felhasználni a 3D fotó elkészítéséhez. " +
+          "Kérjük, tölts fel nagyobb felbontású képet.";
+        warningEl.hidden = false;
+      }
     } catch (e) {
       // Régebben ez némán elrejtette az előnézetet: a vásárló csak annyit
       // látott, hogy "nem jelent meg a kép". Telefonon a leggyakoribb ok a
@@ -178,6 +193,7 @@ async function initProductPage() {
   document.getElementById("add-to-cart-btn").addEventListener("click", async () => {
     const errorEl = document.getElementById("product-error");
     errorEl.hidden = true;
+    if (ORDERS_PAUSED) return;
 
     const sizeInput = document.querySelector('input[name="litho_size"]:checked');
     const file = fileInput.files[0];

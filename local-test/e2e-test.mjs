@@ -106,14 +106,14 @@ check('kipróbálom: a gombon nincs ár, csak a felirat',
 // ül le ezeken az 1px-es, vizuálisan rejtett rádiógombokon — az app a
 // change eseményre figyel, azt váltjuk ki közvetlenül.
 await page.evaluate(() => {
-  for (const value of ['led-talpas', '20cm']) {
+  for (const value of ['led-vilagitassal', '20cm']) {
     const radio = document.querySelector(`input[value="${value}"]`);
     radio.checked = true;
     radio.dispatchEvent(new Event('change', { bubbles: true }));
   }
 });
 await page.waitForTimeout(200);
-const ledPrice = await page.locator('[data-price-for="led-talpas"]').innerText();
+const ledPrice = await page.locator('[data-price-for="led-vilagitassal"]').innerText();
 check('kipróbálom: a termékválasztó ára követi a méretváltást', /17\s?990/.test(ledPrice), ledPrice);
 
 // Közvetlen DOM-kattintás: a folyamatosan rajzoló 3D vászon mellett a
@@ -122,7 +122,7 @@ await page.evaluate(() => document.getElementById('ltoOrderBtn').click());
 await page.waitForURL(/kosar/, { timeout: 20000 });
 const cartText = await page.locator('.litho-cart-items').innerText();
 check('kipróbálom: egyenesen a kosárba kerül, újratöltés nélkül',
-  /LED talppal/.test(cartText) && /20CM|20cm/i.test(cartText),
+  /LED világítással/.test(cartText) && /20CM|20cm/i.test(cartText),
   cartText.split('\n').slice(0, 3).join(' · '));
 check('kipróbálom: a feltöltött kép előnézete is megvan a kosárban',
   await page.locator('.litho-cart-items img').first().getAttribute('src').then(src => !!src && src.startsWith('data:')));
@@ -307,10 +307,10 @@ check('pénztár: a felajánlásnál ott az ár', /5\s?000 Ft/.test(lampPrice), 
 await page.check('#f-add-lamp');
 await page.waitForTimeout(300);
 const afterLamp = await page.locator('#review-totals').innerText();
-check('pénztár: a pipa átváltja LED talpasra (14 990 Ft)', /14\s?990/.test(afterLamp),
+check('pénztár: a pipa átváltja LED világítással rendeltre (14 990 Ft)', /14\s?990/.test(afterLamp),
   afterLamp.replace(/\n/g, ' | '));
-check('pénztár: az összegzőben is LED talppal szerepel',
-  /LED talppal/.test(await page.locator('#review-items').innerText()));
+check('pénztár: az összegzőben is LED világítással szerepel',
+  /LED világítással/.test(await page.locator('#review-items').innerText()));
 
 await page.uncheck('#f-add-lamp');
 await page.waitForTimeout(300);

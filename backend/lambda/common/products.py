@@ -18,7 +18,7 @@ PRODUCTS = {
             "20cm": {"label": "20 cm · Nagy", "delta_huf": 3000},
         },
     },
-    "led-talpas": {
+    "led-vilagitassal": {
         "name": "3D fotó LED világítással",
         "base_price_huf": 14990,
         "sizes": {
@@ -28,9 +28,10 @@ PRODUCTS = {
     },
 }
 
-FREE_SHIPPING_THRESHOLD_HUF = 20000
+FREE_SHIPPING_THRESHOLD_HUF = 30000
 FOXPOST_SHIPPING_FEE_HUF = 1490
 HOME_DELIVERY_FEE_HUF = 1990
+MPL_DELIVERY_FEE_HUF = 2500
 
 # Egy tételből ennyinél többet nem lehet kosárba tenni. Az elgépelt vagy
 # szándékosan felnagyított darabszám ellen véd, mielőtt Barion felé
@@ -40,7 +41,8 @@ MAX_ITEMS_PER_ORDER = 20
 
 SHIPPING_METHODS = {
     "foxpost": {"label": "Foxpost csomagautomata", "fee_huf": FOXPOST_SHIPPING_FEE_HUF},
-    "home": {"label": "Házhozszállítás (futár)", "fee_huf": HOME_DELIVERY_FEE_HUF},
+    "home": {"label": "Házhozszállítás (Foxpost futár)", "fee_huf": HOME_DELIVERY_FEE_HUF},
+    "mpl": {"label": "MPL házhozszállítás", "fee_huf": MPL_DELIVERY_FEE_HUF},
 }
 
 # Melyik fizetési mód melyik szállítási móddal használható. Utánvét nincs:
@@ -48,8 +50,8 @@ SHIPPING_METHODS = {
 # csomag költsége a miénk lenne, miközben a termék egyedi, tehát nem
 # adható el másnak.
 PAYMENT_METHODS = {
-    "barion": {"label": "Bankkártya (Barion)", "shipping": ("foxpost", "home")},
-    "transfer": {"label": "Előre utalás", "shipping": ("foxpost", "home")},
+    "barion": {"label": "Bankkártya (Barion)", "shipping": ("foxpost", "home", "mpl")},
+    "transfer": {"label": "Előre utalás", "shipping": ("foxpost", "home", "mpl")},
 }
 
 
@@ -65,12 +67,11 @@ def get_item_price(product_id: str, size_code: str) -> int:
 
 
 def get_shipping_fee(subtotal_huf: int, method: str = "foxpost") -> int:
-    """Shipping fee for the chosen method, or 0 above the free-shipping threshold."""
-    if subtotal_huf >= FREE_SHIPPING_THRESHOLD_HUF:
-        return 0
     entry = SHIPPING_METHODS.get(method)
     if not entry:
         raise ValueError(f"Unknown shipping method: {method}")
+    if subtotal_huf >= FREE_SHIPPING_THRESHOLD_HUF:
+        return 0
     return entry["fee_huf"]
 
 

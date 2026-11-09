@@ -16,7 +16,13 @@ const LOCAL_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "[::1]", ""];
 const DEPLOYED_API_URL = "__API_URL__";
 
 const isLocal = LOCAL_HOSTS.includes(window.location.hostname);
-window.API_URL = isLocal ? "http://localhost:8787" : DEPLOYED_API_URL;
+// Helyben a local-test/server.py adja az oldalt és az API-t is, ezért az
+// API mindig ugyanazon a címen van, mint az oldal. Ha a VS Code a portot
+// másik helyi portra irányítja át (pl. 8788), így sem egy régi, a
+// 8787-en ragadt szervertől kérjük az adatokat.
+window.API_URL = isLocal
+  ? (window.location.protocol.startsWith("http") ? window.location.origin : "http://localhost:8787")
+  : DEPLOYED_API_URL;
 
 // A helyőrzőt darabokból rakjuk össze: ha egyben szerepelne, a deploy
 // szkript ezt a sort is kicserélné, és a figyelmeztetés minden deployolt

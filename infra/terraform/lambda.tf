@@ -41,8 +41,8 @@ locals {
       # (a kliens 15 mp-et vár rá), plusz az utalásos ág e-mailt is küld.
       timeout  = 25
       memory   = 512
-      env      = merge(local.order_env, local.guard_env)
-      policies = ["dynamo", "ses", "rate_limit", "s3_orders"]
+      env      = merge(local.order_env, local.guard_env, { ORDERS_PAUSED_PARAM = aws_ssm_parameter.orders_paused.name })
+      policies = ["dynamo", "ses", "rate_limit", "s3_orders", "orders_switch"]
     }
 
     barion_callback = {

@@ -26,6 +26,7 @@ from dynamo import put_order, update_order_status
 from photo_files import PhotoMissing, archive_order_photos
 import barion
 import guard
+from orders_switch import PAUSED_MESSAGE, orders_paused
 from ses_mail import (
     send_admin_notification,
     send_transfer_instructions,
@@ -89,6 +90,10 @@ def handler(event, context):
         guard.protect(event, bucket="orders", limit=10, window_seconds=300)
     except guard.Rejected as rejection:
         return rejection.response(HEADERS)
+
+    # Kapacitáshiány: a deploy-frontend.sh --no-orders kapcsolja be.
+    if orders_paused():
+        return _error(PAUSED_MESSAGE, 503)
 
     try:
         body = json.loads(event.get("body") or "{}")

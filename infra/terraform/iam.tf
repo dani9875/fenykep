@@ -105,12 +105,13 @@ data "aws_iam_policy_document" "ses" {
 
 locals {
   policy_json = {
-    dynamo     = data.aws_iam_policy_document.dynamo.json
-    s3_uploads = data.aws_iam_policy_document.s3_uploads.json
-    s3_cache   = data.aws_iam_policy_document.s3_cache.json
-    s3_orders  = data.aws_iam_policy_document.s3_orders.json
-    rate_limit = data.aws_iam_policy_document.rate_limit.json
-    ses        = data.aws_iam_policy_document.ses.json
+    dynamo        = data.aws_iam_policy_document.dynamo.json
+    s3_uploads    = data.aws_iam_policy_document.s3_uploads.json
+    s3_cache      = data.aws_iam_policy_document.s3_cache.json
+    s3_orders     = data.aws_iam_policy_document.s3_orders.json
+    rate_limit    = data.aws_iam_policy_document.rate_limit.json
+    ses           = data.aws_iam_policy_document.ses.json
+    orders_switch = data.aws_iam_policy_document.orders_switch.json
   }
 
   # "függvény:csomag" párok kilapítva, hogy for_each-elni lehessen.

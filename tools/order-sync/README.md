@@ -1,7 +1,13 @@
-# Rendelések → Google Sheet (Raspberry Pi)
+# Rendelések → Google Sheet, fotók → Google Drive (Raspberry Pi)
 
 A `sync_orders.py` beolvassa a rendeléseket a DynamoDB-ből, és frissíti a
 Google Sheetet. Egy sor egy tétel (egy fotó).
+
+A fotókat az `rclone` másolja át egy Drive mappába, dátum szerinti
+almappákba, beszédes névvel (rendelésszám, név, szállítási cím, tétel).
+Ugyanez a fájlnév áll a Sheet „Fotó fájl” oszlopában, így a sorból a
+fotó egy kereséssel megvan. Az rclone csak másol: a Drive-ból soha nem
+töröl, és a már átmásolt fotót nem tölti le újra.
 
 - A script csak a saját oszlopait írja (Tétel, Rendelésszám, Dátum, Állapot,
   Név, …, Fotó fájl). **A többi oszlop a tiéd**, azokhoz nem nyúl.
@@ -18,7 +24,8 @@ aws iam create-access-key --user-name litho-dev-order-sync --profile wordpress-d
 ```
 
 Az `AccessKeyId` és a `SecretAccessKey` kell a Pi-re. Ezzel a kulccsal csak
-a rendeléstáblát lehet olvasni, mást semmit.
+a rendeléstáblát és a rendelések fotóit lehet olvasni, mást semmit.
+A bucket nevét a `terraform output order_photos_bucket` írja ki.
 
 ## 2. Google: szolgáltatásfiók (egyszer)
 
@@ -36,7 +43,7 @@ A Sheet azonosítója az URL-ben van: `docs.google.com/spreadsheets/d/`**`EZ`**`
 
 ```bash
 sudo apt install -y python3-venv
-cd ~/order-sync                              # ide másold: sync_orders.py, requirements.txt, google-service-account.json
+cd ~/order-sync                              # ide másold: sync_orders.py, sync_all.sh, requirements.txt, google-service-account.json
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
@@ -49,6 +56,8 @@ export AWS_REGION=eu-central-1
 export ORDERS_TABLE=litho-dev-orders
 export SHEET_ID=1AbC...
 export SHEET_TAB=Rendelések
+export ORDER_PHOTOS_BUCKET=litho-dev-uploads-0fd21d7e
+export DRIVE_FOLDER="Fény·kép rendelések"
 ```
 
 ```bash
@@ -57,15 +66,56 @@ source .env && .venv/bin/python sync_orders.py --dry-run   # csak kiírja, mit c
 source .env && .venv/bin/python sync_orders.py             # élesben
 ```
 
+## 4. Fotók a Google Drive-ba (rclone, egyszer)
+
+```bash
+curl https://rclone.org/install.sh | sudo bash     # az apt-os változat túl régi lehet
+```
+
+**AWS oldal** (a kulcsot a `.env`-ből veszi, nem kell újra beírni):
+
+```bash
+rclone config create aws s3 provider AWS env_auth true region eu-central-1
+```
+
+**Drive oldal.** A Pi-n nincs böngésző, ezért a Google bejelentkezés a
+saját gépeden történik. A saját gépedre is telepítsd az rclone-t
+(rclone.org/downloads), aztán a Pi-n:
+
+1. `rclone config` → `n` (új) → név: `gdrive` → típus: `drive`.
+2. client_id és client_secret: Enter (üresen hagyod) → scope: `drive.file`.
+3. Az „Edit advanced config?” kérdésre `n`, a „Use web browser to
+   automatically authenticate?” kérdésre `n`.
+4. A Pi kiír egy `rclone authorize "drive" "…"` parancsot. Futtasd a
+   **saját gépeden**: megnyílik a böngésző, jelentkezz be azzal a Google
+   fiókkal, amelyiknek a Drive-jába a fotók kerüljenek. A végén kiír egy
+   hosszú `{...}` szöveget, ezt illeszd be a Pi-n.
+5. A többi kérdésre (pl. Shared Drive) `n` vagy Enter, a végén `y` és `q`.
+
+A `drive.file` jog azt jelenti, hogy az rclone csak az általa létrehozott
+mappához és fájlokhoz fér hozzá, a Drive többi részét nem látja.
+
+Próba:
+
+```bash
+source .env && rclone copy "aws:$ORDER_PHOTOS_BUCKET/orders" "gdrive:$DRIVE_FOLDER" --s3-no-check-bucket --dry-run -v
+```
+
+A mappát (`Fény·kép rendelések`) az első futás hozza létre a Drive
+gyökerében.
+
 ### Automatikusan, 15 percenként
 
 `crontab -e`:
 
 ```
-*/15 * * * * cd ~/order-sync && . ./.env && .venv/bin/python sync_orders.py >> sync.log 2>&1
+*/15 * * * * ~/order-sync/sync_all.sh >> ~/order-sync/sync.log 2>&1
 ```
+
+A `sync_all.sh` előbb a Sheetet frissíti, utána a fotókat másolja.
 
 ## Ha élesre váltasz
 
-Az éles táblának más lesz a neve. Írd át az `ORDERS_TABLE`-t, és kérj
-kulcsot az éles `…-order-sync` felhasználóhoz.
+Az éles táblának és bucketnek más lesz a neve. Írd át az `ORDERS_TABLE`-t
+és az `ORDER_PHOTOS_BUCKET`-et, és kérj kulcsot az éles `…-order-sync`
+felhasználóhoz.

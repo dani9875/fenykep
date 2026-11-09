@@ -22,7 +22,7 @@ def order(shipping):
         "customer": {"name": "Kovács Éva Zsófia"},
         "shipping": shipping,
         "items": [
-            {"productId": "led-talpas", "size": "20cm", "photoKey": "uploads/abc-csaladi_kep.JPG"},
+            {"productId": "led-vilagitassal", "size": "20cm", "photoKey": "uploads/abc-csaladi_kep.JPG"},
             {"productId": "lampa-nelkul", "size": "15cm", "photoKey": "uploads/def-baba.png"},
         ],
     }

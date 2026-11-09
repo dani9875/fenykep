@@ -334,7 +334,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return self._json(400, {"error": "Ismeretlen szállítási mód."})
             if shipping_method == "foxpost" and not shipping.get("lockerId"):
                 return self._json(400, {"error": "Válassz egy Foxpost csomagautomatát."})
-            if shipping_method == "home":
+            if shipping_method in ("home", "mpl"):
                 if shipping.get("sameAsBilling"):
                     shipping["address"] = {
                         "name": customer["name"],

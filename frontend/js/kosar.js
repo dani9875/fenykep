@@ -4,7 +4,7 @@ function formatHuf(n) {
 
 const PRODUCT_IMAGES = {
   "lampa-nelkul": "assets/gallery/g9-termeszetesfeny3.jpg",
-  "led-talpas": "assets/products/led-talpas.jpg",
+  "led-vilagitassal": "assets/products/led-vilagitassal.jpg",
 };
 
 function renderCartPage() {
@@ -42,12 +42,12 @@ function renderCartPage() {
       <div class="litho-totals">
         <h2 class="litho-totals__title">Összesítő</h2>
         <div class="litho-totals__row litho-totals__row--sub">
-          <span class="litho-totals__label">Részösszeg</span>
-          <span class="litho-totals__value">${formatHuf(subtotal)}</span>
+          <span class="litho-totals__label">Termék(ek)</span>
+          <span class="litho-totals__value" id="cart-subtotal">${formatHuf(subtotal)}</span>
         </div>
         <div class="litho-totals__divider"></div>
         <p class="litho-totals__note">A szállítási díj a következő lépésben kerül meghatározásra.</p>
-        <a href="penztar.html" class="litho-btn-solid litho-totals__cta">Tovább a pénztárhoz</a>
+        <a href="penztar.html" class="litho-btn-solid litho-totals__cta">Pénztárhoz</a>
       </div>
     </div>`;
 
@@ -75,7 +75,7 @@ function renderRow(item) {
     : `<span class="litho-ci__thumb"><img class="litho-ci__thumb-img" src="${escapeAttr(thumb)}" alt="${escapeAttr(item.productName)}"></span>`;
 
   return `
-    <div class="litho-ci cart_item">
+    <div class="litho-ci cart_item" data-row-id="${item.cartItemId}">
       ${thumbCell}
       <div class="litho-ci__info">
         <span class="litho-ci__name">${escapeHtml(item.productName)}</span>
@@ -83,7 +83,7 @@ function renderRow(item) {
           <span class="litho-ci__size">${escapeHtml(item.size)}</span>
           <span class="litho-ci__file" title="${escapeAttr(fileName)}">${escapeHtml(fileName)}</span>
         </span>
-        ${preview ? "" : `<span class="litho-ci__no-preview">Az előnézet ezen a gépen nem érhető el, de a feltöltött fotó rendben megvan.</span>`}
+        ${preview ? "" : `<span class="litho-ci__no-preview">Az előnézet már nem látható, de a fotódat megkaptuk.</span>`}
       </div>
       <div class="litho-qty" role="group" aria-label="Példányszám">
         <button type="button" class="litho-qty__btn" data-qty-step="-1" data-id="${item.cartItemId}"
@@ -93,17 +93,37 @@ function renderRow(item) {
         <button type="button" class="litho-qty__btn" data-qty-step="1" data-id="${item.cartItemId}"
                 aria-label="Eggyel több" ${item.qty >= 99 ? "disabled" : ""}>+</button>
       </div>
-      <div class="litho-ci__price">
-        ${formatHuf(item.unitPrice * item.qty)}
-        ${item.qty > 1 ? `<small class="litho-ci__unit">${formatHuf(item.unitPrice)} / db</small>` : ""}
-      </div>
+      <div class="litho-ci__price">${priceCell(item)}</div>
       <button type="button" class="litho-ci__del-btn" data-id="${item.cartItemId}" aria-label="Eltávolítás a kosárból">✕</button>
     </div>`;
+}
+
+function priceCell(item) {
+  return `${formatHuf(item.unitPrice * item.qty)}${
+    item.qty > 1 ? `<small class="litho-ci__unit">${formatHuf(item.unitPrice)} / db</small>` : ""
+  }`;
 }
 
 function bindRowActions(root) {
   const refresh = () => {
     renderCartPage();
+    renderCartBadge();
+  };
+
+  // Mennyiségváltozásnál nem rajzoljuk újra az egész kosarat, csak a
+  // számokat írjuk át. Az újrarajzolás a képet is újratöltené, ami
+  // minden kattintásnál felvillanna.
+  const updateQty = (id, qty) => {
+    const items = Cart.setQty(id, qty);
+    const item = items.find((i) => i.cartItemId === id);
+    const row = root.querySelector(`[data-row-id="${id}"]`);
+    if (!item || !row) return refresh();
+    row.querySelector("[data-qty-input]").value = item.qty;
+    row.querySelector('[data-qty-step="-1"]').disabled = item.qty <= 1;
+    row.querySelector('[data-qty-step="1"]').disabled = item.qty >= 99;
+    row.querySelector(".litho-ci__price").innerHTML = priceCell(item);
+    const subtotal = root.querySelector("#cart-subtotal");
+    if (subtotal) subtotal.textContent = formatHuf(Cart.subtotal());
     renderCartBadge();
   };
 
@@ -117,16 +137,14 @@ function bindRowActions(root) {
   root.querySelectorAll("[data-qty-step]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const input = root.querySelector(`[data-qty-input][data-id="${btn.dataset.id}"]`);
-      Cart.setQty(btn.dataset.id, parseInt(input.value, 10) + parseInt(btn.dataset.qtyStep, 10));
-      refresh();
+      updateQty(btn.dataset.id, parseInt(input.value, 10) + parseInt(btn.dataset.qtyStep, 10));
     });
   });
 
   root.querySelectorAll("[data-qty-input]").forEach((input) => {
     // Re-render on change (not input) so typing "12" isn't clamped at "1".
     input.addEventListener("change", () => {
-      Cart.setQty(input.dataset.id, parseInt(input.value, 10));
-      refresh();
+      updateQty(input.dataset.id, parseInt(input.value, 10));
     });
   });
 
