@@ -16,28 +16,35 @@ töröl, és a már átmásolt fotót nem tölti le újra.
 - Új oszlopot bárhová beszúrhatsz. A script fejléc alapján keresi a sajátjait.
   Ha egy saját oszlopát átnevezed, a következő futáskor újat hoz létre a végén.
 
-## 1. AWS: olvasási kulcs (egyszer)
+## 1. AWS: olvasási kulcs (egyszer, környezetenként)
+
+A dev és a prod külön Sheetbe és külön Drive mappába megy, mindkettő a
+saját olvasási kulcsával. A `tf.sh … apply` létrehozza a
+`litho-dev-order-sync` és a `litho-prod-order-sync` felhasználót.
 
 ```bash
-cd infra/terraform && terraform apply      # létrehozza a <prefix>-order-sync felhasználót
-aws iam create-access-key --user-name litho-dev-order-sync --profile wordpress-deploy
+./scripts/tf.sh dev  output order_photos_bucket
+./scripts/tf.sh prod output order_photos_bucket
+aws iam create-access-key --user-name litho-dev-order-sync  --profile wordpress-deploy
+aws iam create-access-key --user-name litho-prod-order-sync --profile wordpress-deploy
 ```
 
-Az `AccessKeyId` és a `SecretAccessKey` kell a Pi-re. Ezzel a kulccsal csak
-a rendeléstáblát és a rendelések fotóit lehet olvasni, mást semmit.
-A bucket nevét a `terraform output order_photos_bucket` írja ki.
+Az `AccessKeyId` és a `SecretAccessKey` kell a Pi-re (a titkos kulcsot az
+AWS csak egyszer mutatja meg). Ezekkel a kulcsokkal csak a saját
+környezet rendeléstábláját és fotóit lehet olvasni, mást semmit.
 
 ## 2. Google: szolgáltatásfiók (egyszer)
 
 1. console.cloud.google.com → új projekt (pl. „fenykep-sync”).
-2. **APIs & Services → Library** → kapcsold be: **Google Sheets API** és **Google Drive API**.
+2. **APIs & Services → Library** → kapcsold be a **Google Sheets API**-t (a Drive API nem kell).
 3. **IAM & Admin → Service Accounts → Create** → név: `order-sync`, szerep nem kell.
 4. A fiókon belül **Keys → Add key → JSON**. A letöltött fájlt nevezd át
    `google-service-account.json`-ra, és tedd a Pi-n a script mellé.
-5. Nyisd meg a Sheetet → **Megosztás** → add hozzá a szolgáltatásfiók e-mail
-   címét (`order-sync@….iam.gserviceaccount.com`) **Szerkesztő** joggal.
+5. Nyisd meg **mindkét** Sheetet (dev és prod) → **Megosztás** → add hozzá a
+   szolgáltatásfiók e-mail címét (`order-sync@….iam.gserviceaccount.com`)
+   **Szerkesztő** joggal. Csak a két Sheet fájlt oszd meg, a mappájukat ne.
 
-A Sheet azonosítója az URL-ben van: `docs.google.com/spreadsheets/d/`**`EZ`**`/edit`.
+Mindkét Sheet azonosítója az URL-ben van: `docs.google.com/spreadsheets/d/`**`EZ`**`/edit`.
 
 ## 3. Raspberry Pi
 
@@ -47,23 +54,40 @@ cd ~/order-sync                              # ide másold: sync_orders.py, sync
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
-`~/order-sync/.env`:
+Két beállításfájl kell, egy környezetenként.
+
+`~/order-sync/.env.prod`:
 
 ```bash
-export AWS_ACCESS_KEY_ID=AKIA...
+export AWS_ACCESS_KEY_ID=AKIA...              # litho-prod-order-sync
 export AWS_SECRET_ACCESS_KEY=...
 export AWS_REGION=eu-central-1
-export ORDERS_TABLE=litho-dev-orders
-export SHEET_ID=1AbC...
+export ORDERS_TABLE=litho-prod-orders
+export ORDER_PHOTOS_BUCKET=litho-prod-uploads-...
+export SHEET_ID=1AbC...                      # a prod Sheet
 export SHEET_TAB=Rendelések
-export ORDER_PHOTOS_BUCKET=litho-dev-uploads-0fd21d7e
 export DRIVE_FOLDER="Fény·kép rendelések"
 ```
 
+`~/order-sync/.env.dev`:
+
 ```bash
-chmod 600 .env google-service-account.json
-source .env && .venv/bin/python sync_orders.py --dry-run   # csak kiírja, mit csinálna
-source .env && .venv/bin/python sync_orders.py             # élesben
+export AWS_ACCESS_KEY_ID=AKIA...              # litho-dev-order-sync
+export AWS_SECRET_ACCESS_KEY=...
+export AWS_REGION=eu-central-1
+export ORDERS_TABLE=litho-dev-orders
+export ORDER_PHOTOS_BUCKET=litho-dev-uploads-...
+export SHEET_ID=1XyZ...                      # a dev Sheet
+export SHEET_TAB=Rendelések
+export DRIVE_FOLDER="Fény·kép rendelések (dev)"
+```
+
+```bash
+chmod 600 .env.dev .env.prod google-service-account.json
+chmod +x sync_all.sh
+source .env.dev && .venv/bin/python sync_orders.py --dry-run   # csak kiírja, mit csinálna
+./sync_all.sh dev                                             # élesben, dev
+./sync_all.sh prod                                            # élesben, prod
 ```
 
 ## 4. Fotók a Google Drive-ba (rclone, egyszer)
@@ -72,7 +96,8 @@ source .env && .venv/bin/python sync_orders.py             # élesben
 curl https://rclone.org/install.sh | sudo bash     # az apt-os változat túl régi lehet
 ```
 
-**AWS oldal** (a kulcsot a `.env`-ből veszi, nem kell újra beírni):
+**AWS oldal** (a kulcsot mindig az épp betöltött `.env.dev` / `.env.prod`
+fájlból veszi, nem kell beírni):
 
 ```bash
 rclone config create aws s3 provider AWS env_auth true region eu-central-1
@@ -98,40 +123,20 @@ mappához és fájlokhoz fér hozzá, a Drive többi részét nem látja.
 Próba:
 
 ```bash
-source .env && rclone copy "aws:$ORDER_PHOTOS_BUCKET/orders" "gdrive:$DRIVE_FOLDER" --s3-no-check-bucket --dry-run -v
+source .env.dev && rclone copy "aws:$ORDER_PHOTOS_BUCKET/orders" "gdrive:$DRIVE_FOLDER" --s3-no-check-bucket --dry-run -v
 ```
 
-A mappát (`Fény·kép rendelések`) az első futás hozza létre a Drive
-gyökerében.
+A mappákat (`Fény·kép rendelések` és `Fény·kép rendelések (dev)`) az első
+futás hozza létre a Drive gyökerében.
 
 ### Automatikusan, 15 percenként
 
 `crontab -e`:
 
 ```
-*/15 * * * * ~/order-sync/sync_all.sh >> ~/order-sync/sync.log 2>&1
+*/15 * * * * ~/order-sync/sync_all.sh prod >> ~/order-sync/sync-prod.log 2>&1
+*/15 * * * * ~/order-sync/sync_all.sh dev  >> ~/order-sync/sync-dev.log  2>&1
 ```
 
-A `sync_all.sh` előbb a Sheetet frissíti, utána a fotókat másolja.
-
-## Ha élesre váltasz
-
-A szinkron csak a **prod** rendeléseit húzza le, a dev tesztrendelések ne
-keveredjenek a Sheetbe és a Drive-ra.
-
-```bash
-./scripts/tf.sh prod output order_photos_bucket   # az éles bucket neve
-aws iam create-access-key --user-name litho-prod-order-sync --profile wordpress-deploy
-```
-
-A Pin a `.env`-ben írd át:
-
-```bash
-export ORDERS_TABLE=litho-prod-orders
-export ORDER_PHOTOS_BUCKET=<a fenti bucket név>
-```
-
-és cseréld le a hozzáférési kulcsot az éles `litho-prod-order-sync`
-felhasználóéra (`rclone config` → `aws` remote, ha kulccsal van beállítva,
-illetve az `~/.aws/credentials`). A régi dev kulcsot utána töröld:
-`aws iam delete-access-key --user-name litho-dev-order-sync --access-key-id <AKIA…>`.
+A `sync_all.sh` előbb a Sheetet frissíti, utána a fotókat másolja. Ha a
+dev szinkronra nincs szükség, a második sort hagyd ki.

@@ -150,7 +150,13 @@ def sync(dry_run=False):
     if not SHEET_ID:
         sys.exit("Hiányzik a SHEET_ID környezeti változó (lásd README.md).")
 
-    sheet = gspread.service_account(filename=GOOGLE_CREDENTIALS).open_by_key(SHEET_ID)
+    # Csak táblázat jog: Drive jogot nem kérünk, így a kulccsal a megosztott
+    # Sheeten kívül semmihez nem lehet hozzányúlni.
+    client = gspread.service_account(
+        filename=GOOGLE_CREDENTIALS,
+        scopes=["https://www.googleapis.com/auth/spreadsheets"],
+    )
+    sheet = client.open_by_key(SHEET_ID)
     try:
         ws = sheet.worksheet(SHEET_TAB)
     except gspread.WorksheetNotFound:
